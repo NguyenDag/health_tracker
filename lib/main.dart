@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:health_tracker/views/user/logs/history_record_page.dart';
 import 'package:health_tracker/views/user/logs/input_record_page.dart';
 import 'core/theme/app_theme.dart';
 import 'views/user/main/main_layout_page.dart';
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Health Tracker',
       theme: AppTheme.lightTheme,
-      home: const AddRecordScreen(),
+      home: const HistoryScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
