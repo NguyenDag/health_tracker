@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -27,3 +28,4 @@ class AppColors {
   static const Color sleepQualityBg = Color(0xFFF5F3FF);
   static const Color activeCaloriesBg = Color(0xFFFFF7ED);
 }
+
