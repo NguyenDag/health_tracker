@@ -1,26 +1,31 @@
+
 import 'package:flutter/material.dart';
 
 class AppColors {
-  AppColors._();
-
   // Primary
-  static const Color primary = Color(0xFF6C63FF);
-  static const Color primaryLight = Color(0xFF9D97FF);
-  static const Color primaryDark = Color(0xFF3D35CC);
+  static const Color primary = Color(0xFF00BBD3); // The main teal/blue color
+  static const Color primaryDark = Color(0xFF0097A7);
+  static const Color primaryLight = Color(0xFFB2EBF2);
 
-  // Background
-  static const Color background = Color(0xFFF5F5F5);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color scaffoldBackground = Color(0xFFFAFAFA);
+  // Backgrounds
+  static const Color background = Color(0xFFF8F9FA); // Light gray background
+  static const Color surface = Colors.white; // Card backgrounds
 
   // Text
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
-  static const Color textHint = Color(0xFFBDBDBD);
+  static const Color textPrimary = Color(0xFF202A36); // Dark text for headings
+  static const Color textSecondary = Color(0xFF6B7280); // Gray text for subtitles
 
-  // Status
-  static const Color success = Color(0xFF4CAF50);
-  static const Color error = Color(0xFFE53935);
-  static const Color warning = Color(0xFFFF9800);
-  static const Color info = Color(0xFF2196F3);
+  // Semantic
+  static const Color success = Color(0xFF10B981); // Green, Normal status
+  static const Color warning = Color(0xFFF59E0B); // Orange, Steady status
+  static const Color error = Color(0xFFEF4444); // Red, Critical status
+
+  // Gradients or Soft Colors
+  static const Color bloodPressureBg = Color(0xFFE0FBFC);
+  static const Color bloodSugarBg = Color(0xFFF3E8FF);
+  static const Color weightBg = Color(0xFFFFF7ED);
+  static const Color spo2Bg = Color(0xFFF0F9FF);
+  static const Color sleepQualityBg = Color(0xFFF5F3FF);
+  static const Color activeCaloriesBg = Color(0xFFFFF7ED);
 }
+
