@@ -1,0 +1,190 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../domain/entities/blood_sugar.dart';
+import '../../../viewmodels/add_record_viewmodel/add_record_viewmodel.dart';
+
+class BloodSugarForm extends StatefulWidget {
+  const BloodSugarForm({super.key});
+
+  @override
+  State<BloodSugarForm> createState() => _BloodSugarFormState();
+}
+
+class _BloodSugarFormState extends State<BloodSugarForm> {
+  DateTime selectedDate = DateTime.now();
+  final TextEditingController sugarController =
+  TextEditingController(text: "100");
+
+  bool get isHigh {
+    final value = double.tryParse(sugarController.text) ?? 0;
+    return value > 180;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final vm = context.watch<AddRecordViewModel>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /// GLUCOSE VALUE
+        const Text(
+          "GLUCOSE",
+          style: TextStyle(
+              fontSize: 12, color: Colors.grey, letterSpacing: 1),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+                color: isHigh ? Colors.red : Colors.transparent),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: sugarController,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.bold),
+                  decoration:
+                  const InputDecoration(border: InputBorder.none),
+                  onChanged: (v) {
+                    vm.glucoseValue =
+                        double.tryParse(v) ?? 0;
+                    setState(() {});
+                  },
+                ),
+              ),
+              Text(
+                vm.sugarUnit == SugarUnit.mgDl
+                    ? "mg/dL"
+                    : "mmol/L",
+                style: const TextStyle(color: Colors.grey),
+              )
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        _dropdownCard(
+          title: "UNIT",
+          child: DropdownButton<SugarUnit>(
+            value: vm.sugarUnit,
+            isExpanded: true,
+            underline: const SizedBox(),
+            items: SugarUnit.values.map((e) {
+              return DropdownMenuItem(
+                value: e,
+                child: Text(
+                    e == SugarUnit.mgDl ? "mg/dL" : "mmol/L"),
+              );
+            }).toList(),
+            onChanged: (v) => vm.sugarUnit = v!,
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        _dropdownCard(
+          title: "MEASUREMENT TYPE",
+          child: DropdownButton<SugarMeasurementType>(
+            value: vm.sugarType,
+            isExpanded: true,
+            underline: const SizedBox(),
+            items: SugarMeasurementType.values.map((e) {
+              return DropdownMenuItem(
+                value: e,
+                child: Text(e.name),
+              );
+            }).toList(),
+            onChanged: (v) => vm.sugarType = v!,
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        /// DATE & TIME
+        _dateTimeCard(),
+      ],
+    );
+  }
+
+  Widget _dropdownCard({required String title, required Widget child}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+              fontSize: 12, color: Colors.grey, letterSpacing: 1),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: child,
+        )
+      ],
+    );
+  }
+  Widget _dateTimeCard() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "DATE & TIME",
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey,
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: () async {
+            final pickedDate = await showDatePicker(
+              context: context,
+              initialDate: selectedDate,
+              firstDate: DateTime(2020),
+              lastDate: DateTime.now(),
+            );
+
+            if (pickedDate != null) {
+              setState(() {
+                selectedDate = pickedDate;
+              });
+            }
+          },
+          child: Container(
+            padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.calendar_today_outlined, size: 18),
+                const SizedBox(width: 10),
+                Text(
+                  "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                ),
+                const Spacer(),
+                const Icon(Icons.keyboard_arrow_down),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

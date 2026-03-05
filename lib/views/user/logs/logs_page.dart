@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:health_tracker/views/user/logs/input_record_page.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import 'add_record_page.dart';
@@ -75,7 +76,7 @@ class LogsPage extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddRecordPage()),
+            MaterialPageRoute(builder: (context) => const AddRecordScreen()),
           );
         },
         backgroundColor: AppColors.primary,

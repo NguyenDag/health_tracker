@@ -1,0 +1,252 @@
+import 'package:flutter/material.dart';
+
+class BloodPressureForm extends StatefulWidget {
+  const BloodPressureForm({super.key});
+
+  @override
+  State<BloodPressureForm> createState() => _BloodPressureFormState();
+}
+
+class _BloodPressureFormState extends State<BloodPressureForm> {
+  final TextEditingController systolicController =
+  TextEditingController(text: "120");
+  final TextEditingController diastolicController =
+  TextEditingController(text: "80");
+  final TextEditingController pulseController =
+  TextEditingController(text: "72");
+
+  DateTime selectedDate = DateTime.now();
+
+  bool get isDiastolicHigh {
+    final value = int.tryParse(diastolicController.text) ?? 0;
+    return value >= 90;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /// SYSTOLIC & DIASTOLIC
+        Row(
+          children: [
+            _pressureCard(
+              title: "SYSTOLIC",
+              controller: systolicController,
+              unit: "mmHg",
+            ),
+            const SizedBox(width: 15),
+            _pressureCard(
+              title: "DIASTOLIC",
+              controller: diastolicController,
+              unit: "mmHg",
+              isError: isDiastolicHigh,
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 20),
+
+        /// PULSE
+        _pulseCard(),
+
+        const SizedBox(height: 20),
+
+        /// DATE & TIME
+        _dateTimeCard(),
+
+        const SizedBox(height: 20),
+
+        /// HEALTH TIP
+        if (isDiastolicHigh) _healthTip(),
+      ],
+    );
+  }
+
+  Widget _pressureCard({
+    required String title,
+    required TextEditingController controller,
+    required String unit,
+    bool isError = false,
+  }) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isError ? Colors.red : Colors.transparent,
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+                Text(
+                  unit,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+          if (isError)
+            const Padding(
+              padding: EdgeInsets.only(top: 4),
+              child: Text(
+                "Slightly high",
+                style: TextStyle(color: Colors.red, fontSize: 12),
+              ),
+            )
+        ],
+      ),
+    );
+  }
+
+  Widget _pulseCard() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "PULSE",
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: pulseController,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              const Text(
+                "bpm",
+                style: TextStyle(color: Colors.grey),
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _dateTimeCard() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "DATE & TIME",
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: () async {
+            final pickedDate = await showDatePicker(
+              context: context,
+              initialDate: selectedDate,
+              firstDate: DateTime(2020),
+              lastDate: DateTime.now(),
+            );
+
+            if (pickedDate != null) {
+              setState(() {
+                selectedDate = pickedDate;
+              });
+            }
+          },
+          child: Container(
+            padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.calendar_today_outlined, size: 18),
+                const SizedBox(width: 10),
+                Text(
+                  "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                ),
+                const Spacer(),
+                const Icon(Icons.keyboard_arrow_down),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _healthTip() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAF7EF),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.tips_and_updates, color: Color(0xFF2ECC71)),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              "Your diastolic reading is higher than your usual average. "
+                  "Ensure you've been resting for 5 minutes before recording.",
+              style: TextStyle(fontSize: 13),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
