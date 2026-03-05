@@ -3,6 +3,7 @@ import 'package:health_tracker/views/user/logs/history_record_page.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_bottom_nav.dart';
 import '../home/home_page.dart';
+import '../notification/notification_history_screen.dart';
 import '../stats/stats_page.dart';
 import '../logs/logs_page.dart';
 import '../profile/profile_page.dart';
@@ -48,7 +49,12 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
       appBar: CustomAppBar(
         title: _titles[_currentIndex],
         onNotificationTapped: () {
-          // Handle notification tap
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NotificationHistoryScreen(),
+            ),
+          );
         },
         onAvatarTapped: () {
           // Navigate to profile or show account settings

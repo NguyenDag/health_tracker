@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_text_styles.dart';
+import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/constants/app_text_styles.dart';
 
 class ThresholdBar extends StatelessWidget {
   final String title;
@@ -50,14 +50,14 @@ class ThresholdBar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(min, style: AppTextStyles.caption),
+              Text(min, style: AppTextStyles.bodySmall),
               Text(
                 safe,
-                style: AppTextStyles.caption.copyWith(
+                style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.success,
                 ),
               ),
-              Text(max, style: AppTextStyles.caption),
+              Text(max, style: AppTextStyles.bodySmall),
             ],
           )
         ],
