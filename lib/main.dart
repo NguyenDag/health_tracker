@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:health_tracker/views/splash_screen.dart';
 import 'core/theme/app_theme.dart';
-import 'views/user/main/main_layout_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const HealthTrackerApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class HealthTrackerApp extends StatelessWidget {
+  const HealthTrackerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Health Tracker',
-      theme: AppTheme.lightTheme,
-      home: const MainLayoutPage(),
+      title: 'HealthTracker',
       debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      home: const SplashScreen(),
     );
   }
 }
+
 
