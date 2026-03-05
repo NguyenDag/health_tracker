@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:health_tracker/core/constants/app_colors.dart';
 import 'package:provider/provider.dart';
 
 import '../../../domain/enums/health_type.dart';
@@ -101,7 +102,7 @@ class _AddRecordView extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          backgroundColor: Colors.green.shade100,
+                          backgroundColor: AppColors.primary,
                         ),
                         onPressed: () {
                           vm.saveMock(); // mock save
@@ -111,7 +112,10 @@ class _AddRecordView extends StatelessWidget {
                             ),
                           );
                         },
-                        child: const Text("Save Record"),
+                        child: const Text("Save Record", style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16
+                        ),),
                       ),
                     ),
 

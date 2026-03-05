@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:health_tracker/views/user/logs/history_record_page.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_bottom_nav.dart';
 import '../home/home_page.dart';
@@ -23,7 +24,7 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
     _pages = [
       HomePage(onNavigateToTab: _onItemTapped),
       const StatsPage(),
-      const LogsPage(),
+      const HistoryScreen(),
       const ProfilePage(),
     ];
   }

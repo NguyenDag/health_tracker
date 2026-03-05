@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:health_tracker/core/constants/app_colors.dart';
 import 'package:health_tracker/views/user/logs/add_record_page.dart';
 import 'package:provider/provider.dart';
 
@@ -31,20 +32,6 @@ class _HistoryView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text(
-          "Record History",
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        elevation: 0,
-      ),
       body: Column(
         children: [
           const SizedBox(height: 10),
@@ -77,7 +64,7 @@ class _HistoryView extends StatelessWidget {
 
       /// FLOATING BUTTON
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFFA4EADB),
+        backgroundColor: AppColors.primary,
         onPressed: () {
           Navigator.push(
             context,
@@ -87,20 +74,6 @@ class _HistoryView extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
 
-      /// BOTTOM NAV
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined), label: "Home"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.history), label: "History"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart), label: "Trends"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline), label: "Profile"),
-        ],
-      ),
     );
   }
 }
