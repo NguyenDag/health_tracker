@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../thresholds/admin_thresholds_page.dart';
+
+class _ThresholdRow {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String value;
+  const _ThresholdRow({required this.icon, required this.color, required this.label, required this.value});
+}
 
 class AdminDashboardPage extends StatelessWidget {
   const AdminDashboardPage({super.key});
@@ -54,15 +63,21 @@ class AdminDashboardPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Health Metrics Summary', style: AppTextStyles.h2),
-              Text(
-                'View Report',
-                style: AppTextStyles.subtitle.copyWith(color: AppColors.primary),
+              Text('Threshold Config', style: AppTextStyles.h2),
+              GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AdminThresholdsPage()),
+                ),
+                child: Text(
+                  'Config',
+                  style: AppTextStyles.subtitle.copyWith(color: AppColors.primary),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          _buildSummaryCard(),
+          _buildThresholdSummaryCard(context),
         ],
       ),
     );
@@ -166,53 +181,78 @@ class AdminDashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryCard() {
+  String _fmt(double v) => v % 1 == 0 ? v.toInt().toString() : v.toStringAsFixed(1);
+
+  Widget _buildThresholdSummaryCard(BuildContext context) {
+    final rows = [
+      _ThresholdRow(
+        icon: Icons.favorite_border,
+        color: AppColors.error,
+        label: 'Blood Pressure',
+        value:
+            '${_fmt(ThresholdConfig.bloodPressureSystolic.start)}–${_fmt(ThresholdConfig.bloodPressureSystolic.end)} / '
+            '${_fmt(ThresholdConfig.bloodPressureDiastolic.start)}–${_fmt(ThresholdConfig.bloodPressureDiastolic.end)} mmHg',
+      ),
+      _ThresholdRow(
+        icon: Icons.water_drop_outlined,
+        color: Colors.orange,
+        label: 'Blood Glucose',
+        value:
+            '${_fmt(ThresholdConfig.bloodGlucoseFasting.start)}–${_fmt(ThresholdConfig.bloodGlucoseFasting.end)} mg/dL',
+      ),
+      _ThresholdRow(
+        icon: Icons.air,
+        color: AppColors.success,
+        label: 'Oxygen (SpO2)',
+        value:
+            '${_fmt(ThresholdConfig.oxygenSpO2.start)}–${_fmt(ThresholdConfig.oxygenSpO2.end)} %',
+      ),
+      _ThresholdRow(
+        icon: Icons.monitor_weight_outlined,
+        color: Colors.deepPurple,
+        label: 'Target BMI',
+        value:
+            '${_fmt(ThresholdConfig.targetBMI.start)}–${_fmt(ThresholdConfig.targetBMI.end)}',
+      ),
+    ];
+
     return Card(
       color: Colors.white,
       shadowColor: Colors.black.withAlpha(13),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          children: [
-            _buildSummaryRow('Blood Pressure', 'Avg 120/80', Colors.blue, 0.7),
-            const SizedBox(height: 16),
-            _buildSummaryRow('SpO2 Levels', 'Avg 98%', AppColors.success, 0.9),
-            const SizedBox(height: 16),
-            _buildSummaryRow('Weight Trends', 'Stable', AppColors.warning, 0.5),
-          ],
+          children: rows
+              .expand((row) => [
+                    _buildThresholdRow(row),
+                    if (row != rows.last) ...[
+                      const SizedBox(height: 12),
+                      const Divider(height: 1),
+                      const SizedBox(height: 12),
+                    ],
+                  ])
+              .toList(),
         ),
       ),
     );
   }
 
-  Widget _buildSummaryRow(String title, String status, Color color, double progress) {
-    return Column(
+  Widget _buildThresholdRow(_ThresholdRow row) {
+    return Row(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-                ),
-                const SizedBox(width: 8),
-                Text(title, style: AppTextStyles.subtitle),
-              ],
-            ),
-            Text(status, style: AppTextStyles.bodySmall),
-          ],
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: row.color.withAlpha(20),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(row.icon, color: row.color, size: 16),
         ),
-        const SizedBox(height: 8),
-        LinearProgressIndicator(
-          value: progress,
-          backgroundColor: Colors.grey.withAlpha(50),
-          color: color,
-          borderRadius: BorderRadius.circular(4),
-          minHeight: 6,
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(row.label, style: AppTextStyles.subtitle.copyWith(color: AppColors.textPrimary)),
         ),
+        Text(row.value, style: AppTextStyles.bodySmall.copyWith(color: AppColors.success)),
       ],
     );
   }
