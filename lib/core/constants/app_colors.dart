@@ -16,6 +16,15 @@ class AppColors {
     0xFF6B7280,
   ); // Gray text for subtitles
 
+  static const textDark    = Color(0xFF1A2340);
+  static const textMid     = Color(0xFF4A5568);
+  static const textGrey    = Color(0xFF8A95A8);
+  static const textHint    = Color(0xFFBCC4D0);
+  static const borderLight = Color(0xFFE8ECF4);
+  static const inputBg     = Color(0xFFF7F9FC);
+  static const white       = Colors.white;
+
+  static const dotBlue     = Color(0xFF4FC3F7);
   // Semantic
   static const Color success = Color(0xFF10B981); // Green, Normal status
   static const Color warning = Color(0xFFF59E0B); // Orange, Steady status
@@ -28,4 +37,31 @@ class AppColors {
   static const Color spo2Bg = Color(0xFFF0F9FF);
   static const Color sleepQualityBg = Color(0xFFF5F3FF);
   static const Color activeCaloriesBg = Color(0xFFFFF7ED);
+}
+
+class AppGradients {
+  AppGradients._();
+
+  static const background = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFF0FFFE), Color(0xFFE8F8FF), Color(0xFFF5F0FF)],
+  );
+
+  static const primary = LinearGradient(
+    colors: [Color(0xFF43E8C8), Color(0xFF26C6DA)],
+  );
+
+  static const appIcon = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF43E8C8), Color(0xFF26A69A)],
+  );
+
+  static const scenery = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFFFE8A3), Color(0xFFB8E8D0), Color(0xFF7ECFC5)],
+    stops: [0.0, 0.5, 1.0],
+  );
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../admin/main/admin_main_layout_page.dart';
+import '../../auth/login_page.dart';
 import 'edit_profile_page.dart';
 import 'change_password_page.dart';
 
@@ -24,7 +25,7 @@ class ProfilePage extends StatelessWidget {
           const SizedBox(height: 32),
           _buildAdminSwitchButton(context),
           const SizedBox(height: 12),
-          _buildLogoutButton(),
+          _buildLogoutButton(context),
           const SizedBox(height: 80), // Fab space
         ],
       ),
@@ -159,11 +160,57 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildLogoutButton() {
+  Widget _buildLogoutButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
-        onPressed: () {},
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Text(
+                'Đăng xuất',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+              ),
+              content: const Text(
+                'Bạn có chắc muốn đăng xuất không?',
+                style: TextStyle(color: Color(0xFF8A95A8), fontSize: 14),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(), // đóng dialog
+                  child: const Text(
+                    'Huỷ',
+                    style: TextStyle(color: Color(0xFF8A95A8), fontWeight: FontWeight.w500),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop(); // đóng dialog
+                    // Xoá toàn bộ stack, về LoginScreen
+                    Navigator.of(context).pushAndRemoveUntil(
+                      PageRouteBuilder(
+                        transitionDuration: const Duration(milliseconds: 500),
+                        pageBuilder: (_, __, ___) => const LoginScreen(),
+                        transitionsBuilder: (_, anim, __, child) =>
+                            FadeTransition(opacity: anim, child: child),
+                      ),
+                          (route) => false, // xoá tất cả route cũ
+                    );
+                  },
+                  child: const Text(
+                    'Đăng xuất',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
         icon: const Icon(Icons.logout, color: Colors.red),
         label: const Text('Log Out', style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold)),
         style: OutlinedButton.styleFrom(

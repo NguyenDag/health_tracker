@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:health_tracker/views/user/logs/add_record_page.dart';
 import 'package:provider/provider.dart';
 
 import '../../../viewmodels/history_record_viewmodel/history_record_viewmodel.dart';
@@ -7,6 +8,7 @@ import '../../widgets/history_record/history_item.dart';
 import '../../widgets/history_record/history_list.dart';
 import '../../widgets/history_record/history_search.dart';
 import '../../widgets/history_record/history_section.dart';
+import 'input_record_page.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -76,7 +78,12 @@ class _HistoryView extends StatelessWidget {
       /// FLOATING BUTTON
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFFA4EADB),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddRecordScreen()),
+          );
+        },
         child: const Icon(Icons.add),
       ),
 
