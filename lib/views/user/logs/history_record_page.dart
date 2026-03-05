@@ -30,7 +30,17 @@ class _HistoryView extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: const Text("Record History"),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text(
+          "Record History",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         elevation: 0,
       ),
       body: Column(

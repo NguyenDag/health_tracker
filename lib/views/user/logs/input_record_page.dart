@@ -30,7 +30,7 @@ class _AddRecordView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true, // 🔥 căn giữa title
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
