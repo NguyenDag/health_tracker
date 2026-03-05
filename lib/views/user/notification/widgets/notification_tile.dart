@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_text_styles.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
+
 
 class NotificationTile extends StatelessWidget {
   final IconData icon;
@@ -75,7 +76,7 @@ class NotificationTile extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   time,
-                  style: AppTextStyles.caption,
+                  style: AppTextStyles.bodySmall,
                 ),
               ],
             ),

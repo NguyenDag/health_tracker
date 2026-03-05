@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:health_tracker/views/threshold/widgets/threshold_bar.dart';
+import 'package:health_tracker/views/user/threshold/widgets/threshold_bar.dart';
 
 class ThresholdsScreen extends StatefulWidget {
   const ThresholdsScreen({super.key});
@@ -22,9 +22,11 @@ class _ThresholdsScreenState extends State<ThresholdsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leadingWidth: 100,
-        leading: TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Row(children: [Icon(Icons.arrow_back_ios)]),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
         centerTitle: true,
         title: const Text(
@@ -35,7 +37,6 @@ class _ThresholdsScreenState extends State<ThresholdsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          /// SAFE RANGE
           const Text(
             "SAFE RANGES & THRESHOLDS",
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
