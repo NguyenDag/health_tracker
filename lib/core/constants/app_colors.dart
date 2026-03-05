@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -13,7 +12,9 @@ class AppColors {
 
   // Text
   static const Color textPrimary = Color(0xFF202A36); // Dark text for headings
-  static const Color textSecondary = Color(0xFF6B7280); // Gray text for subtitles
+  static const Color textSecondary = Color(
+    0xFF6B7280,
+  ); // Gray text for subtitles
 
   // Semantic
   static const Color success = Color(0xFF10B981); // Green, Normal status
@@ -28,4 +29,3 @@ class AppColors {
   static const Color sleepQualityBg = Color(0xFFF5F3FF);
   static const Color activeCaloriesBg = Color(0xFFFFF7ED);
 }
-

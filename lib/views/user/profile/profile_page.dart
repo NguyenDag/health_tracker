@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../../admin/main/admin_main_layout_page.dart';
 import 'edit_profile_page.dart';
 import 'change_password_page.dart';
 
@@ -21,6 +22,8 @@ class ProfilePage extends StatelessWidget {
           _buildSectionHeader('SUPPORT & LEGAL'),
           _buildSupportGroup(),
           const SizedBox(height: 32),
+          _buildAdminSwitchButton(context),
+          const SizedBox(height: 12),
           _buildLogoutButton(),
           const SizedBox(height: 80), // Fab space
         ],
@@ -131,6 +134,28 @@ class ProfilePage extends StatelessWidget {
       title: Text(title, style: AppTextStyles.subtitle.copyWith(color: AppColors.textPrimary)),
       subtitle: subtitle != null ? Text(subtitle, style: AppTextStyles.bodySmall) : null,
       trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+    );
+  }
+
+  Widget _buildAdminSwitchButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () => Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminMainLayoutPage()),
+        ),
+        icon: const Icon(Icons.admin_panel_settings_outlined, color: Colors.white),
+        label: const Text(
+          'Switch to Admin View',
+          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+      ),
     );
   }
 
