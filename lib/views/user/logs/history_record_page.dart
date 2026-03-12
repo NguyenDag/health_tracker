@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:health_tracker/core/constants/app_colors.dart';
-import 'package:health_tracker/views/user/logs/add_record_page.dart';
 import 'package:provider/provider.dart';
 
 import '../../../viewmodels/history_record_viewmodel/history_record_viewmodel.dart';
@@ -36,7 +35,7 @@ class _HistoryView extends StatelessWidget {
         children: [
           const SizedBox(height: 10),
           const HistorySearch(),
-          const SizedBox(height: 12),
+          const SizedBox(height: 15),
           const HistoryFilter(),
           Expanded(
             child: Consumer<HistoryViewModel>(

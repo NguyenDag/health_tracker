@@ -5,7 +5,6 @@ import '../../widgets/custom_bottom_nav.dart';
 import '../home/home_page.dart';
 import '../notification/notification_history_screen.dart';
 import '../stats/stats_page.dart';
-import '../logs/logs_page.dart';
 import '../profile/profile_page.dart';
 class MainLayoutPage extends StatefulWidget {
   const MainLayoutPage({super.key});

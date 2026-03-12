@@ -66,32 +66,7 @@ class _AddRecordView extends StatelessWidget {
                   children: [
                     _buildForm(vm),
 
-                    const SizedBox(height: 20),
-
-                    /// 🔹 DateTime chung
-                    // ListTile(
-                    //   contentPadding: EdgeInsets.zero,
-                    //   leading: const Icon(Icons.calendar_today),
-                    //   title: Text(
-                    //     "${vm.measuredAt}",
-                    //   ),
-                    //   trailing: const Icon(Icons.arrow_drop_down),
-                    //   onTap: () async {
-                    //     final date = await showDatePicker(
-                    //       context: context,
-                    //       initialDate: vm.measuredAt,
-                    //       firstDate: DateTime(2020),
-                    //       lastDate: DateTime.now(),
-                    //     );
-                    //
-                    //     if (date != null) {
-                    //       vm.measuredAt = date;
-                    //       vm.notifyListeners();
-                    //     }
-                    //   },
-                    // ),
-
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 44),
 
                     /// 🔹 Save Button
                     SizedBox(

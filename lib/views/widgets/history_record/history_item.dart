@@ -32,19 +32,19 @@ class HistoryItem extends StatelessWidget {
                 Text(
                   _valueText(),
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                      fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   _subtitle(),
-                  style: const TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.black),
                 ),
               ],
             ),
           ),
           Text(
             "${record.measuredAt.hour}:${record.measuredAt.minute.toString().padLeft(2, '0')}",
-            style: const TextStyle(color: Colors.grey),
+            style: const TextStyle(color: Colors.black),
           ),
         ],
       ),

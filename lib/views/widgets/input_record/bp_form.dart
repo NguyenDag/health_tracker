@@ -77,7 +77,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
             title,
             style: const TextStyle(
               fontSize: 12,
-              color: Colors.grey,
+              color: Colors.black,
               fontWeight: FontWeight.w900,
               letterSpacing: 1,
             ),
@@ -110,7 +110,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                 ),
                 Text(
                   unit,
-                  style: const TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.black),
                 ),
               ],
             ),
@@ -136,7 +136,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
           "PULSE",
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey,
+            color: Colors.black,
             fontWeight: FontWeight.w900,
             letterSpacing: 1,
           ),
@@ -165,7 +165,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
               ),
               const Text(
                 "bpm",
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: Colors.black),
               )
             ],
           ),
@@ -182,7 +182,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
           "DATE & TIME",
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey,
+            color: Colors.black,
             fontWeight: FontWeight.w900,
             letterSpacing: 1,
           ),
@@ -216,6 +216,9 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                 const SizedBox(width: 10),
                 Text(
                   "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
                 ),
                 const Spacer(),
                 const Icon(Icons.keyboard_arrow_down),

@@ -34,7 +34,8 @@ class _Spo2FormState extends State<Spo2Form> {
           "SpO₂",
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey,
+            color: Colors.black,
+            fontWeight: FontWeight.w900,
             letterSpacing: 1,
           ),
         ),
@@ -66,7 +67,7 @@ class _Spo2FormState extends State<Spo2Form> {
                   },
                 ),
               ),
-              const Text("%", style: TextStyle(color: Colors.grey))
+              const Text("%", style: TextStyle(color: Colors.black))
             ],
           ),
         ),
@@ -122,7 +123,7 @@ class _Spo2FormState extends State<Spo2Form> {
         Text(
           title,
           style: const TextStyle(
-              fontSize: 12, color: Colors.grey, letterSpacing: 1),
+              fontSize: 12, color: Colors.black, fontWeight: FontWeight.w900, letterSpacing: 1),
         ),
         const SizedBox(height: 6),
         Container(
@@ -144,7 +145,7 @@ class _Spo2FormState extends State<Spo2Form> {
         const Text(
           "NOTE",
           style: TextStyle(
-              fontSize: 12, color: Colors.grey, letterSpacing: 1),
+              fontSize: 12, color: Colors.black, fontWeight: FontWeight.w900, letterSpacing: 1),
         ),
         const SizedBox(height: 6),
         Container(
@@ -170,7 +171,8 @@ class _Spo2FormState extends State<Spo2Form> {
           "DATE & TIME",
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey,
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
             letterSpacing: 1,
           ),
         ),
@@ -203,6 +205,9 @@ class _Spo2FormState extends State<Spo2Form> {
                 const SizedBox(width: 10),
                 Text(
                   "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
                 ),
                 const Spacer(),
                 const Icon(Icons.keyboard_arrow_down),

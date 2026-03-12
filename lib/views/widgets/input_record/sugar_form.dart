@@ -32,7 +32,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
         const Text(
           "GLUCOSE",
           style: TextStyle(
-              fontSize: 12, color: Colors.grey, letterSpacing: 1),
+              fontSize: 12, color: Colors.black, fontWeight: FontWeight.w900, letterSpacing: 1),
         ),
         const SizedBox(height: 6),
         Container(
@@ -64,7 +64,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
                 vm.sugarUnit == SugarUnit.mgDl
                     ? "mg/dL"
                     : "mmol/L",
-                style: const TextStyle(color: Colors.grey),
+                style: const TextStyle(color: Colors.black),
               )
             ],
           ),
@@ -122,7 +122,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
         Text(
           title,
           style: const TextStyle(
-              fontSize: 12, color: Colors.grey, letterSpacing: 1),
+              fontSize: 12, color: Colors.black,fontWeight: FontWeight.w900, letterSpacing: 1),
         ),
         const SizedBox(height: 6),
         Container(
@@ -144,7 +144,8 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
           "DATE & TIME",
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey,
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
             letterSpacing: 1,
           ),
         ),
@@ -177,6 +178,9 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
                 const SizedBox(width: 10),
                 Text(
                   "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
                 ),
                 const Spacer(),
                 const Icon(Icons.keyboard_arrow_down),
