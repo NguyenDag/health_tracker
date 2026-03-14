@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../../viewmodels/history_record_viewmodel/history_record_viewmodel.dart';
 import '../../widgets/history_record/history_filter.dart';
 import '../../widgets/history_record/history_item.dart';
-import '../../widgets/history_record/history_list.dart';
 import '../../widgets/history_record/history_search.dart';
 import '../../widgets/history_record/history_section.dart';
 import 'input_record_page.dart';
@@ -64,11 +63,17 @@ class _HistoryView extends StatelessWidget {
       /// FLOATING BUTTON
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const AddRecordScreen()),
+            MaterialPageRoute(
+              builder: (_) => const AddRecordScreen(),
+            ),
           );
+
+          if (result == true) {
+            context.read<HistoryViewModel>().load();
+          }
         },
         child: const Icon(Icons.add),
       ),

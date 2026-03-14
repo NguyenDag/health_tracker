@@ -121,6 +121,9 @@ class _AddRecordView extends StatelessWidget {
                               const SnackBar(content: Text("Record Saved")),
                             );
                           }
+                          if (success) {
+                            Navigator.pop(context, true);
+                          }
                         },
                         child: const Text(
                           "Save Record",

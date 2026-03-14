@@ -43,7 +43,7 @@ class HistoryItem extends StatelessWidget {
             ),
           ),
           Text(
-            "${record.measuredAt.hour}:${record.measuredAt.minute.toString().padLeft(2, '0')}",
+            "${record.createdAt.hour}:${record.createdAt.minute.toString().padLeft(2, '0')}",
             style: const TextStyle(color: Colors.black),
           ),
         ],
@@ -56,7 +56,7 @@ class HistoryItem extends StatelessWidget {
       case HealthType.BP:
         return "${record.systolic}/${record.diastolic} mmHg";
       case HealthType.Sugar:
-        return "${record.glucose} ${record.glucoseUnit}";
+        return "${record.glucoseValue} ${record.glucoseUnit}";
       case HealthType.Weight:
         return "${record.weight} kg";
       case HealthType.Spo2:

@@ -13,4 +13,21 @@ class WeightApi implements IWegihtApi{
         .from("weight_records")
         .insert(dto.toJson());
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> getRecords() async {
+    // final user = supabase.auth.currentUser;
+    //
+    // if (user == null) {
+    //   throw Exception("User not logged in");
+    // }
+
+    final data = await supabase
+        .from("weight_records")
+        .select()
+        // .eq("user_id", user.id)
+        .order("created_at", ascending: false);
+
+    return List<Map<String, dynamic>>.from(data);
+  }
 }
