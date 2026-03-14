@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
+import 'package:provider/provider.dart';
+import '../../viewmodels/auth_viewmodel.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -16,17 +18,26 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthViewModel>().currentUser;
+    final displayName = user?.firstName ?? 'Guest';
+    final initials = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+
     return AppBar(
-      title: Text(title, style: AppTextStyles.h2),
+      title: Text('Hi, $displayName 👋', style: AppTextStyles.h2),
       centerTitle: false,
       leading: Padding(
         padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
         child: GestureDetector(
           onTap: onAvatarTapped,
-          child: const CircleAvatar(
+          child: CircleAvatar(
             backgroundColor: AppColors.primaryLight,
-            // Replace with actual user image later
-            child: Icon(Icons.person, color: AppColors.primary),
+            child: Text(
+              initials,
+              style: const TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ),
       ),
