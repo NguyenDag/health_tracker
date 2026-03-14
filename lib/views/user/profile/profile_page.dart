@@ -8,139 +8,261 @@ import '../notification/notification_history_screen.dart';
 import 'edit_profile_page.dart';
 import 'change_password_page.dart';
 
+import 'package:provider/provider.dart';
+import '../../../viewmodels/auth_viewmodel.dart';
+import '../../../domain/entities/user_profile.dart';
+
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+    return Consumer<AuthViewModel>(
+      builder: (context, authVM, child) {
+        final user = authVM.currentUser;
+        
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              _buildModernProfileHeader(user),
+              const SizedBox(height: 24),
+              _buildHealthSummaryCard(user),
+              const SizedBox(height: 32),
+              _buildSectionHeader('TÀI KHOẢN'),
+              _buildAccountGroup(context),
+              const SizedBox(height: 24),
+              _buildSectionHeader('HỖ TRỢ & PHÁP LÝ'),
+              _buildSupportGroup(),
+              const SizedBox(height: 40),
+              _buildLogoutButton(context, authVM),
+              const SizedBox(height: 80), // Fab space
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildModernProfileHeader(UserProfile? user) {
+    final displayName = (user?.fullName != null && user!.fullName.trim().isNotEmpty) ? user.fullName : 'Guest User';
+    final initials = (user?.firstName != null && user!.firstName!.isNotEmpty) 
+        ? user.firstName![0].toUpperCase() 
+        : (displayName != 'Guest User' ? displayName[0].toUpperCase() : '?');
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.primary.withAlpha(180)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withAlpha(60),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
       child: Column(
         children: [
-          _buildProfileHeader(),
-          const SizedBox(height: 32),
-          _buildSectionHeader('ACCOUNT'),
-          _buildAccountGroup(context),
-          const SizedBox(height: 24),
-          _buildSectionHeader('SUPPORT & LEGAL'),
-          _buildSupportGroup(),
-          const SizedBox(height: 32),
-          _buildAdminSwitchButton(context),
+          Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: CircleAvatar(
+                  radius: 45,
+                  backgroundColor: AppColors.primaryLight,
+                  child: Text(
+                    initials,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 4),
+                  ],
+                ),
+                child: const Icon(Icons.camera_alt, color: AppColors.primary, size: 16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            displayName,
+            style: AppTextStyles.h2.copyWith(color: Colors.white, fontSize: 24),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            user?.phone ?? 'Chưa cập nhật số điện thoại',
+            style: AppTextStyles.bodyMedium.copyWith(color: Colors.white.withAlpha(200)),
+          ),
           const SizedBox(height: 12),
-          _buildLogoutButton(context),
-          const SizedBox(height: 80), // Fab space
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(40),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.verified, color: Colors.white, size: 14),
+                const SizedBox(width: 4),
+                Text(
+                  user?.role.toUpperCase() ?? 'USER',
+                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildHealthSummaryCard(UserProfile? user) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.primary.withAlpha(20)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 10),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildSummaryItem('Chiều cao', '${user?.height ?? '--'}', 'cm'),
+          Container(width: 1, height: 40, color: Colors.grey.withAlpha(40)),
+          _buildSummaryItem('Cân nặng', '${user?.weight ?? '--'}', 'kg'),
+          Container(width: 1, height: 40, color: Colors.grey.withAlpha(40)),
+          _buildSummaryItem('Độ tuổi', '${_calculateAge(user?.dob)}', 'tuổi'),
+        ],
+      ),
+    );
+  }
+
+  int _calculateAge(DateTime? dob) {
+    if (dob == null) return 0;
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+    return age;
+  }
+
+  Widget _buildSummaryItem(String label, String value, String unit) {
     return Column(
       children: [
-        Stack(
-          alignment: Alignment.bottomRight,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(20),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: const CircleAvatar(
-                radius: 40,
-                backgroundColor: AppColors.primaryLight,
-                child: Icon(Icons.person, size: 40, color: AppColors.primary),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-              child: const Icon(Icons.edit, color: Colors.white, size: 12),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Text('John Doe', style: AppTextStyles.h1),
+        Text(label, style: AppTextStyles.label.copyWith(fontSize: 10)),
         const SizedBox(height: 4),
-        Text('+1 (555) 012-3456', style: AppTextStyles.bodyMedium),
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: value,
+                style: AppTextStyles.h3.copyWith(color: AppColors.primary),
+              ),
+              TextSpan(
+                text: ' $unit',
+                style: AppTextStyles.bodySmall,
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8, bottom: 8),
+      padding: const EdgeInsets.only(left: 4, bottom: 12, top: 8),
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
           title,
-          style: AppTextStyles.label.copyWith(letterSpacing: 1.2),
+          style: AppTextStyles.label.copyWith(
+            letterSpacing: 1.5,
+            color: AppColors.textPrimary.withAlpha(150),
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildAccountGroup(BuildContext context) {
-    return Card(
-      color: Colors.white,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 20, offset: const Offset(0, 5)),
+        ],
+      ),
       child: Column(
         children: [
           _buildListTile(
-            Icons.person_outline,
-            'Edit Profile',
-            Colors.blue,
-            Colors.blue[50]!,
+            Icons.person_outline_rounded,
+            'Chỉnh sửa hồ sơ',
+            AppColors.primary,
+            AppColors.primary.withAlpha(20),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const EditProfilePage()),
             ),
           ),
-          const Divider(height: 1, indent: 64, endIndent: 16),
+          _buildDivider(),
           _buildListTile(
-            Icons.lock_outline,
-            'Change Password',
-            Colors.purple,
-            Colors.purple[50]!,
+            Icons.lock_reset_rounded,
+            'Đổi mật khẩu',
+            Colors.orange,
+            Colors.orange.withAlpha(20),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ChangePasswordPage()),
             ),
           ),
-          const Divider(height: 1, indent: 64, endIndent: 16),
-          _buildListTile(
-            Icons.watch_outlined,
-            'Connected Devices',
-            Colors.indigo,
-            Colors.indigo[50]!,
-            subtitle: 'Smartwatch, Scale',
-          ),
+          _buildDivider(),
           _buildListTile(
             Icons.monitor_heart_outlined,
-            'Health Thresholds',
+            'Ngưỡng sức khỏe',
             Colors.redAccent,
-            Colors.redAccent.withAlpha(40),
+            Colors.redAccent.withAlpha(20),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => ThresholdsScreen()),
             ),
           ),
-          const Divider(height: 1, indent: 64, endIndent: 16),
+          _buildDivider(),
           _buildListTile(
-            Icons.notifications_none_outlined,
-            'Notification Preferences',
-            Colors.orange,
-            Colors.orange[50]!,
+            Icons.notifications_active_outlined,
+            'Cài đặt thông báo',
+            Colors.blue,
+            Colors.blue.withAlpha(20),
           ),
         ],
       ),
@@ -148,27 +270,44 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildSupportGroup() {
-    return Card(
-      color: Colors.white,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 20, offset: const Offset(0, 5)),
+        ],
+      ),
       child: Column(
         children: [
           _buildListTile(
-            Icons.shield_outlined,
-            'Privacy Policy',
-            AppColors.primary,
-            AppColors.primaryLight.withAlpha(50),
+            Icons.verified_user_outlined,
+            'Chính sách bảo mật',
+            Colors.teal,
+            Colors.teal.withAlpha(20),
           ),
-          const Divider(height: 1, indent: 64, endIndent: 16),
+          _buildDivider(),
           _buildListTile(
-            Icons.info_outline,
-            'App Version',
-            Colors.grey[700]!,
-            Colors.grey[200]!,
-            subtitle: 'v2.4.1 (Build 204)',
+            Icons.help_outline_rounded,
+            'Trung tâm trợ giúp',
+            Colors.indigo,
+            Colors.indigo.withAlpha(20),
+          ),
+          _buildDivider(),
+          _buildListTile(
+            Icons.info_outline_rounded,
+            'Phiên bản ứng dụng',
+            Colors.grey,
+            Colors.grey.withAlpha(20),
+            subtitle: 'v2.5.0 (Build 301)',
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildDivider() {
+    return Divider(height: 1, indent: 64, endIndent: 20, color: Colors.grey.withAlpha(30));
   }
 
   Widget _buildListTile(
@@ -181,126 +320,118 @@ class ProfilePage extends StatelessWidget {
   }) {
     return ListTile(
       onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-        child: Icon(icon, color: iconColor, size: 20),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Icon(icon, color: iconColor, size: 22),
       ),
       title: Text(
         title,
-        style: AppTextStyles.subtitle.copyWith(color: AppColors.textPrimary),
+        style: AppTextStyles.subtitle.copyWith(
+          color: AppColors.textPrimary,
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       subtitle: subtitle != null
-          ? Text(subtitle, style: AppTextStyles.bodySmall)
+          ? Text(subtitle, style: AppTextStyles.bodySmall.copyWith(fontSize: 12))
           : null,
-      trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+      trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey, size: 20),
     );
   }
 
   Widget _buildAdminSwitchButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: () => Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const AdminMainLayoutPage()),
-        ),
-        icon: const Icon(
-          Icons.admin_panel_settings_outlined,
-          color: Colors.white,
-        ),
-        label: const Text(
-          'Switch to Admin View',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          height: 56,
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.primary.withAlpha(50)),
+          ),
+          child: TextButton.icon(
+            onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const AdminMainLayoutPage()),
+            ),
+            icon: const Icon(Icons.admin_panel_settings_outlined, color: AppColors.primary),
+            label: const Text(
+              'Chuyển sang chế độ Admin',
+              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+  Widget _buildLogoutButton(BuildContext context, AuthViewModel authVM) {
+    return Column(
+      children: [
+        _buildAdminSwitchButton(context),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: TextButton.icon(
+            onPressed: () => _showLogoutDialog(context, authVM),
+            icon: const Icon(Icons.logout, color: Colors.redAccent, size: 20),
+            label: const Text(
+              'Đăng xuất',
+              style: TextStyle(
+                color: Colors.redAccent,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
-              title: const Text(
-                'Đăng xuất',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
-              ),
-              content: const Text(
-                'Bạn có chắc muốn đăng xuất không?',
-                style: TextStyle(color: Color(0xFF8A95A8), fontSize: 14),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(), // đóng dialog
-                  child: const Text(
-                    'Huỷ',
-                    style: TextStyle(
-                      color: Color(0xFF8A95A8),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop(); // đóng dialog
-                    // Xoá toàn bộ stack, về LoginScreen
-                    Navigator.of(context).pushAndRemoveUntil(
-                      PageRouteBuilder(
-                        transitionDuration: const Duration(milliseconds: 500),
-                        pageBuilder: (_, __, ___) => const LoginScreen(),
-                        transitionsBuilder: (_, anim, __, child) =>
-                            FadeTransition(opacity: anim, child: child),
-                      ),
-                      (route) => false, // xoá tất cả route cũ
-                    );
-                  },
-                  child: const Text(
-                    'Đăng xuất',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
             ),
-          );
-        },
-        icon: const Icon(Icons.logout, color: Colors.red),
-        label: const Text(
-          'Log Out',
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: Colors.redAccent.withAlpha(20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
           ),
         ),
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          side: BorderSide(color: Colors.red.withAlpha(50)),
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+      ],
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, AuthViewModel authVM) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Đăng xuất', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng không?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
           ),
-        ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await authVM.signOut();
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Đăng xuất'),
+          ),
+        ],
       ),
     );
   }
