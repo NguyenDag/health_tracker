@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:health_tracker/core/constants/app_colors.dart';
+import 'package:health_tracker/data/implementations/api/spo2_api.dart';
+import 'package:health_tracker/data/implementations/api/weight_api.dart';
+import 'package:health_tracker/data/implementations/mapper/spo2_mapper.dart';
+import 'package:health_tracker/data/implementations/mapper/weight_mapper.dart';
+import 'package:health_tracker/data/implementations/repositories/spo2_repo.dart';
+import 'package:health_tracker/data/implementations/repositories/weight_repo.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/network/supabase_config.dart';
+import '../../../data/implementations/api/blood_pressure_api.dart';
+import '../../../data/implementations/api/blood_sugar_api.dart';
+import '../../../data/implementations/mapper/blood_pressure_mapper.dart';
+import '../../../data/implementations/mapper/blood_sugar_mapper.dart';
+import '../../../data/implementations/repositories/blood_pressure_repo.dart';
+import '../../../data/implementations/repositories/blood_sugar_repo.dart';
 import '../../../domain/enums/health_type.dart';
 import '../../../viewmodels/add_record_viewmodel/add_record_viewmodel.dart';
 import '../../widgets/input_record/bp_form.dart';
@@ -16,7 +30,27 @@ class AddRecordScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AddRecordViewModel(),
+      create: (_) => AddRecordViewModel(
+        bpRepository: BloodPressureRepo(
+          mapper: BloodPressureMapper(),
+          api: BloodPressureApi(supabase: supabase),
+        ),
+
+        sugarRepository: BloodSugarRepo(
+          mapper: BloodSugarMapper(),
+          api: BloodSugarApi(supabase: supabase),
+        ),
+
+        spo2Repository: Spo2Repo(
+          api: Spo2Api(supabase: supabase),
+          mapper: Spo2Mapper(),
+        ),
+
+        weightRepository: WeightRepo(
+          api: WeightApi(supabase: supabase),
+          mapper: WeightMapper(),
+        ),
+      ),
       child: const _AddRecordView(),
     );
   }
@@ -79,18 +113,19 @@ class _AddRecordView extends StatelessWidget {
                           ),
                           backgroundColor: AppColors.primary,
                         ),
-                        onPressed: () {
-                          vm.saveMock(); // mock save
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Record Saved (Mock)"),
-                            ),
-                          );
+                        onPressed: () async {
+                          final success = await vm.save();
+
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Record Saved")),
+                            );
+                          }
                         },
-                        child: const Text("Save Record", style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16
-                        ),),
+                        child: const Text(
+                          "Save Record",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
                       ),
                     ),
 

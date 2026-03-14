@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../viewmodels/add_record_viewmodel/add_record_viewmodel.dart';
 
 class BloodPressureForm extends StatefulWidget {
   const BloodPressureForm({super.key});
@@ -24,6 +27,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.read<AddRecordViewModel>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -105,7 +109,17 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                     ),
-                    onChanged: (_) => setState(() {}),
+                    onChanged: (value) {
+                      final vm = context.read<AddRecordViewModel>();
+
+                      if (title == "SYSTOLIC") {
+                        vm.systolic = int.tryParse(value) ?? 0;
+                      } else {
+                        vm.diastolic = int.tryParse(value) ?? 0;
+                      }
+
+                      setState(() {});
+                    },
                   ),
                 ),
                 Text(
@@ -161,6 +175,10 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                   ),
+                  onChanged: (value) {
+                    final vm = context.read<AddRecordViewModel>();
+                    vm.pulse = int.tryParse(value) ?? 0;
+                  },
                 ),
               ),
               const Text(
