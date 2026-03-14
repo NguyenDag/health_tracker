@@ -127,7 +127,7 @@ class _OnboardingContent extends StatelessWidget {
       child: Column(
         children: [
           const Text(
-            'Track Your Health\nJourney',
+            'Theo dõi hành trình\nsức khoẻ của bạn',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 26,
@@ -139,24 +139,24 @@ class _OnboardingContent extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Monitor blood pressure, sugar levels,\nweight, and SpO2 all in one place.',
+            'Theo dõi huyết áp, đường huyết,\ncân nặng và SpO2 tất cả trong một nơi.',
             textAlign: TextAlign.center,
             style: AppTextStyles.body,
           ),
           const SizedBox(height: 28),
 
           GradientButton(
-            label: 'Create New Account',
+            label: 'Tạo tài khoản mới',
             onPressed: onCreateAccount,
           ),
           const SizedBox(height: 12),
-          SecondaryButton(label: 'Log In', onPressed: onLogin),
+          SecondaryButton(label: 'Đăng nhập', onPressed: onLogin),
           const SizedBox(height: 14),
 
           TextButton(
             onPressed: () {},
             child: const Text(
-              'Continue as Guest',
+              'Tiếp tục với tư cách khách',
               style: TextStyle(fontSize: 13, color: AppColors.textGrey),
             ),
           ),

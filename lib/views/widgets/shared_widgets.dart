@@ -70,7 +70,7 @@ class GradientButton extends StatelessWidget {
   });
 
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;  // nullable – pass null to disable the button
   final double height;
   final Widget? trailing;
 
@@ -130,7 +130,7 @@ class SecondaryButton extends StatelessWidget {
   });
 
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;  // nullable – pass null to disable the button
   final double height;
 
   @override

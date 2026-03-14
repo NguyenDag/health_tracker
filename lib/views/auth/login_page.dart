@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../core/router/app_router.dart';
+import '../../viewmodels/auth_viewmodel.dart';
 import '../user/main/main_layout_page.dart';
 import '../widgets/shared_widgets.dart';
+import 'forgot_password_screen.dart';
 import 'registration_screen.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -19,131 +22,176 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // ── Demo credentials ──────────────────────────────────────────────────
-  static const _demoPhone    = '0123456789';
-  static const _demoPassword = '123';
-
-  final _phoneCtrl = TextEditingController();
-  final _passCtrl  = TextEditingController();
-  bool _obscure    = true;
-  String? _phoneError;
+  final _emailCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
+  bool _obscure = true;
+  String? _emailError;
   String? _passError;
 
   @override
   void dispose() {
-    _phoneCtrl.dispose();
+    _emailCtrl.dispose();
     _passCtrl.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
-    final phone = _phoneCtrl.text.trim();
-    final pass  = _passCtrl.text.trim();
+  // ── Validation ─────────────────────────────────────────────────────
+  bool _validate() {
+    final email = _emailCtrl.text.trim();
+    final pass = _passCtrl.text;
+    bool valid = true;
 
     setState(() {
-      _phoneError = phone.isEmpty
-          ? 'Vui lòng nhập số điện thoại'
-          : phone != _demoPhone
-          ? 'Số điện thoại không đúng'
-          : null;
+      if (email.isEmpty) {
+        _emailError = 'Vui lòng nhập email';
+        valid = false;
+      } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+        _emailError = 'Email không hợp lệ';
+        valid = false;
+      } else {
+        _emailError = null;
+      }
 
-      _passError = pass.isEmpty
-          ? 'Vui lòng nhập mật khẩu'
-          : pass != _demoPassword
-          ? 'Mật khẩu không đúng'
-          : null;
+      if (pass.isEmpty) {
+        _passError = 'Vui lòng nhập mật khẩu';
+        valid = false;
+      } else {
+        _passError = null;
+      }
     });
 
-    if (_phoneError == null && _passError == null) {
-      pushScreen(context, const MainLayoutPage());
+    return valid;
+  }
+
+  // ── Handle login ────────────────────────────────────────────────────
+  Future<void> _handleLogin() async {
+    if (!_validate()) return;
+
+    final vm = context.read<AuthViewModel>();
+    final success = await vm.signIn(
+      email: _emailCtrl.text.trim(),
+      password: _passCtrl.text,
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      replaceWithFade(context, const MainLayoutPage());
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(vm.errorMessage ?? 'Đăng nhập thất bại'),
+          backgroundColor: Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = context.watch<AuthViewModel>().isLoading;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const SizedBox(height: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
 
-            // ── Top bar ────────────────────────────────────────────────
-            const _LoginTopBar(),
+              // ── Top bar ─────────────────────────────────────────────
+              const _LoginTopBar(),
 
-            const SizedBox(height: 32),
+              const SizedBox(height: 32),
 
-            // ── Headline ───────────────────────────────────────────────
-            const _LoginHeadline(),
+              // ── Headline ────────────────────────────────────────────
+              const _LoginHeadline(),
 
-            const SizedBox(height: 36),
+              const SizedBox(height: 36),
 
-            // ── Demo credential hint ───────────────────────────────────
-            const _DemoCredentialHint(),
-
-            const SizedBox(height: 20),
-
-            // ── Phone field ────────────────────────────────────────────
-            const FormFieldLabel('Phone Number'),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _phoneCtrl,
-              keyboardType: TextInputType.phone,
-              onChanged: (_) => setState(() => _phoneError = null),
-              decoration: InputDecoration(
-                hintText: '0123456789',
-                errorText: _phoneError,
+              // ── Email field ─────────────────────────────────────────
+              const FormFieldLabel('Email'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _emailCtrl,
+                keyboardType: TextInputType.emailAddress,
+                onChanged: (_) => setState(() => _emailError = null),
+                decoration: InputDecoration(
+                  hintText: 'example@email.com',
+                  errorText: _emailError,
+                  prefixIcon: const Icon(
+                    Icons.email_outlined,
+                    color: AppColors.textHint,
+                    size: 20,
+                  ),
+                ),
               ),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // ── Password field ─────────────────────────────────────────
-            const FormFieldLabel('Password'),
-            const SizedBox(height: 8),
-            _PasswordField(
-              controller: _passCtrl,
-              obscure: _obscure,
-              errorText: _passError,
-              onToggle: () => setState(() => _obscure = !_obscure),
-              onChanged: (_) => setState(() => _passError = null),
-            ),
+              // ── Password field ──────────────────────────────────────
+              const FormFieldLabel('Mật khẩu'),
+              const SizedBox(height: 8),
+              _PasswordField(
+                controller: _passCtrl,
+                obscure: _obscure,
+                errorText: _passError,
+                onToggle: () => setState(() => _obscure = !_obscure),
+                onChanged: (_) => setState(() => _passError = null),
+              ),
 
-            const SizedBox(height: 8),
-            const _ForgotPasswordLink(),
-            const SizedBox(height: 24),
+              const SizedBox(height: 8),
+              const _ForgotPasswordLink(),
+              const SizedBox(height: 24),
 
-            // ── Log In button ──────────────────────────────────────────
-            GradientButton(
-              label: 'Log In',
-              onPressed: _handleLogin,
-            ),
+              // ── Log In button ───────────────────────────────────────
+              GradientButton(
+                label: isLoading ? 'Đang đăng nhập…' : 'Đăng nhập',
+                onPressed: isLoading ? null : _handleLogin,
+              ),
 
-            const SizedBox(height: 32),
+              if (isLoading) ...[
+                const SizedBox(height: 16),
+                const Center(child: CircularProgressIndicator()),
+              ],
 
-            // ── Sign Up hint ───────────────────────────────────────────
-            _SignUpHint(onTap: () => pushScreen(context, const RegistrationScreen())),
-          ]),
+              const SizedBox(height: 32),
+
+              // ── Sign Up hint ────────────────────────────────────────
+              _SignUpHint(
+                onTap: () => pushScreen(context, const RegistrationScreen()),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ─── Sub-widget: top bar with back button + "LOGIN" label ────────────────────
+// ─── Sub-widget: top bar ──────────────────────────────────────────────────────
 
 class _LoginTopBar extends StatelessWidget {
   const _LoginTopBar();
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
-      const AppBackButton(),
-      const Spacer(),
-      const Text('LOGIN', style: AppTextStyles.badge),
-      const Spacer(flex: 2),
-    ]);
+    final canPop = Navigator.canPop(context);
+    return Row(
+      children: [
+        // Only show the back button when there is a previous route
+        if (canPop) const AppBackButton() else const SizedBox(width: 32),
+        const Spacer(),
+        const Text('ĐĂNG NHẬP', style: AppTextStyles.badge),
+        const Spacer(flex: 2),
+      ],
+    );
   }
 }
 
@@ -154,15 +202,21 @@ class _LoginHeadline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [
-      Text('Welcome Back', style: AppTextStyles.heading1),
-      SizedBox(height: 8),
-      Text('Sign in to access your health vitals.', style: AppTextStyles.body),
-    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Text('Chào mừng trở lại', style: AppTextStyles.heading1),
+        SizedBox(height: 8),
+        Text(
+          'Đăng nhập để theo dõi sức khoẻ của bạn.',
+          style: AppTextStyles.body,
+        ),
+      ],
+    );
   }
 }
 
-// ─── Sub-widget: password TextField with show/hide toggle ────────────────────
+// ─── Sub-widget: password field ───────────────────────────────────────────────
 
 class _PasswordField extends StatelessWidget {
   const _PasswordField({
@@ -186,8 +240,13 @@ class _PasswordField extends StatelessWidget {
       obscureText: obscure,
       onChanged: onChanged,
       decoration: InputDecoration(
-        hintText: 'Enter your password',
+        hintText: 'Nhập mật khẩu của bạn',
         errorText: errorText,
+        prefixIcon: const Icon(
+          Icons.lock_outline,
+          color: AppColors.textHint,
+          size: 20,
+        ),
         suffixIcon: IconButton(
           onPressed: onToggle,
           icon: Icon(
@@ -197,39 +256,6 @@ class _PasswordField extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-// ─── Sub-widget: demo credential info box ────────────────────────────────────
-
-class _DemoCredentialHint extends StatelessWidget {
-  const _DemoCredentialHint();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8FBF8),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1),
-      ),
-      child: Row(children: [
-        const Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 18),
-        const SizedBox(width: 10),
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [
-          Text(
-            'Tài khoản mẫu để đăng nhập:',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary),
-          ),
-          SizedBox(height: 2),
-          Text(
-            'SĐT: 0123456789   |   Mật khẩu: 123',
-            style: TextStyle(fontSize: 12, color: AppColors.textMid),
-          ),
-        ]),
-      ]),
     );
   }
 }
@@ -244,14 +270,14 @@ class _ForgotPasswordLink extends StatelessWidget {
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(
-        onPressed: () {},
-        child: const Text('Forgot Password?', style: AppTextStyles.link),
+        onPressed: () => pushScreen(context, const ForgotPasswordScreen()),
+        child: const Text('Quên mật khẩu?', style: AppTextStyles.link),
       ),
     );
   }
 }
 
-// ─── Sub-widget: Sign Up hint at the bottom ──────────────────────────────────
+// ─── Sub-widget: Sign Up hint ─────────────────────────────────────────────────
 
 class _SignUpHint extends StatelessWidget {
   const _SignUpHint({required this.onTap});
@@ -259,13 +285,18 @@ class _SignUpHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      const Text("Don't have an account? ",
-          style: TextStyle(fontSize: 13, color: AppColors.textGrey)),
-      GestureDetector(
-        onTap: onTap,
-        child: const Text('Sign Up', style: AppTextStyles.link),
-      ),
-    ]);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          'Chưa có tài khoản? ',
+          style: TextStyle(fontSize: 13, color: AppColors.textGrey),
+        ),
+        GestureDetector(
+          onTap: onTap,
+          child: const Text('Đăng ký', style: AppTextStyles.link),
+        ),
+      ],
+    );
   }
 }

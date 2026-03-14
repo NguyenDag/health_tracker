@@ -28,7 +28,9 @@ class HomePage extends StatelessWidget {
                 onTap: () => onNavigateToTab(1), // Nav to stats
                 child: Text(
                   'See all',
-                  style: AppTextStyles.subtitle.copyWith(color: AppColors.primary),
+                  style: AppTextStyles.subtitle.copyWith(
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
             ],
@@ -93,16 +95,49 @@ class HomePage extends StatelessWidget {
       childAspectRatio: 0.9,
       children: [
         _buildVitalCard(
-            'BLOOD PRESSURE', '120/80', 'Normal', AppColors.primary, AppColors.bloodPressureBg, Icons.favorite_border),
+          'BLOOD PRESSURE',
+          '120/80',
+          'Normal',
+          AppColors.primary,
+          AppColors.bloodPressureBg,
+          Icons.favorite_border,
+        ),
         _buildVitalCard(
-            'BLOOD SUGAR', '95 mg/dL', 'Normal', Colors.purple, AppColors.bloodSugarBg, Icons.water_drop_outlined),
-        _buildVitalCard('WEIGHT', '72.5 kg', 'Steady', AppColors.warning, AppColors.weightBg, Icons.monitor_weight_outlined),
-        _buildVitalCard('SPO2', '98%', 'Normal', Colors.blue, AppColors.spo2Bg, Icons.air),
+          'BLOOD SUGAR',
+          '95 mg/dL',
+          'Normal',
+          Colors.purple,
+          AppColors.bloodSugarBg,
+          Icons.water_drop_outlined,
+        ),
+        _buildVitalCard(
+          'WEIGHT',
+          '72.5 kg',
+          'Steady',
+          AppColors.warning,
+          AppColors.weightBg,
+          Icons.monitor_weight_outlined,
+        ),
+        _buildVitalCard(
+          'SPO2',
+          '98%',
+          'Normal',
+          Colors.blue,
+          AppColors.spo2Bg,
+          Icons.air,
+        ),
       ],
     );
   }
 
-  Widget _buildVitalCard(String title, String value, String status, Color mainColor, Color bgColor, IconData icon) {
+  Widget _buildVitalCard(
+    String title,
+    String value,
+    String status,
+    Color mainColor,
+    Color bgColor,
+    IconData icon,
+  ) {
     return Card(
       color: bgColor,
       child: Padding(
@@ -131,10 +166,19 @@ class HomePage extends StatelessWidget {
                     Container(
                       width: 6,
                       height: 6,
-                      decoration: BoxDecoration(color: mainColor, shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                        color: mainColor,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                     const SizedBox(width: 4),
-                    Text(status, style: AppTextStyles.bodySmall.copyWith(color: mainColor, fontWeight: FontWeight.bold)),
+                    Text(
+                      status,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: mainColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -148,14 +192,38 @@ class HomePage extends StatelessWidget {
   Widget _buildTrendsList() {
     return Column(
       children: [
-        _buildTrendItem('Active Calories', 'Daily average', '450 kcal', '+12% vs last wk', AppColors.warning, Icons.trending_up, AppColors.activeCaloriesBg),
+        _buildTrendItem(
+          'Active Calories',
+          'Daily average',
+          '450 kcal',
+          '+12% vs last wk',
+          AppColors.warning,
+          Icons.trending_up,
+          AppColors.activeCaloriesBg,
+        ),
         const SizedBox(height: 12),
-        _buildTrendItem('Sleep Quality', 'Restorative sleep', '7h 20m', 'Consistent', AppColors.primary, Icons.nightlight_round, AppColors.sleepQualityBg),
+        _buildTrendItem(
+          'Sleep Quality',
+          'Restorative sleep',
+          '7h 20m',
+          'Consistent',
+          AppColors.primary,
+          Icons.nightlight_round,
+          AppColors.sleepQualityBg,
+        ),
       ],
     );
   }
 
-  Widget _buildTrendItem(String title, String subtitle, String value, String status, Color color, IconData icon, Color bgColor) {
+  Widget _buildTrendItem(
+    String title,
+    String subtitle,
+    String value,
+    String status,
+    Color color,
+    IconData icon,
+    Color bgColor,
+  ) {
     return Card(
       color: Colors.white,
       child: ListTile(
@@ -171,8 +239,16 @@ class HomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(value, style: AppTextStyles.subtitle.copyWith(color: AppColors.textPrimary)),
-            Text(status, style: AppTextStyles.label.copyWith(color: AppColors.success)),
+            Text(
+              value,
+              style: AppTextStyles.subtitle.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
+            Text(
+              status,
+              style: AppTextStyles.label.copyWith(color: AppColors.success),
+            ),
           ],
         ),
       ),
