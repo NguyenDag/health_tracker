@@ -11,7 +11,6 @@ class ApiSample {
       email: email,
       password: password,
     );
-    print('User signed up: ${response.user?.id}');
   }
 
   /// Đăng nhập
@@ -20,7 +19,6 @@ class ApiSample {
       email: email,
       password: password,
     );
-    print('User signed in: ${response.user?.id}');
   }
 
   /// Đăng xuất

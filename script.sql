@@ -137,32 +137,28 @@ language plpgsql
 security definer
 as $$
 begin
-  insert into public.users (id)
-  values (new.id);
+  insert into public.users (
+    id,
+    first_name,
+    last_name,
+    phone,
+    gender,
+    height,
+    weight
+  )
+  values (
+    new.id,
+    new.raw_user_meta_data->>'first_name',
+    new.raw_user_meta_data->>'last_name',
+    new.raw_user_meta_data->>'phone',
+    new.raw_user_meta_data->>'gender',
+    (new.raw_user_meta_data->>'height')::double precision,
+    (new.raw_user_meta_data->>'weight')::double precision
+  );
+
   return new;
 end;
 $$;
-
--- create or replace function public.handle_new_user()
--- returns trigger
--- language plpgsql
--- security definer
--- as $$
--- begin
---   insert into public.users (
---     id,
---     first_name,
---     last_name
---   )
---   values (
---     new.id,
---     new.raw_user_meta_data->>'first_name',
---     new.raw_user_meta_data->>'last_name'
---   );
-
---   return new;
--- end;
--- $$;
 
 
 create trigger on_auth_user_created
