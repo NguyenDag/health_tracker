@@ -215,6 +215,7 @@ class ApiSample {
   // =====================================================
 
   Future<List<Map<String, dynamic>>> getNotifications() async {
+    print("id $currentUserId");
     final data = await supabase
         .from('notifications')
         .select()
