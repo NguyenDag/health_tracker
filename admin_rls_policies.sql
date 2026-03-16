@@ -84,3 +84,25 @@ on public.users
 for update
 using (is_admin())
 with check (is_admin());
+
+-- =====================================================
+-- STEP 4: Thresholds RLS
+-- =====================================================
+
+alter table public.thresholds enable row level security;
+
+drop policy if exists "anyone can read thresholds" on public.thresholds;
+drop policy if exists "admin can manage thresholds" on public.thresholds;
+
+-- All authenticated users can read thresholds
+create policy "anyone can read thresholds"
+on public.thresholds
+for select
+using (auth.uid() is not null);
+
+-- Only admin can insert / update / delete
+create policy "admin can manage thresholds"
+on public.thresholds
+for all
+using (is_admin())
+with check (is_admin());

@@ -181,8 +181,6 @@ class AdminDashboardPage extends StatelessWidget {
     );
   }
 
-  String _fmt(double v) => v % 1 == 0 ? v.toInt().toString() : v.toStringAsFixed(1);
-
   Widget _buildThresholdSummaryCard(BuildContext context) {
     final rows = [
       _ThresholdRow(
@@ -190,29 +188,28 @@ class AdminDashboardPage extends StatelessWidget {
         color: AppColors.error,
         label: 'Blood Pressure',
         value:
-            '${_fmt(ThresholdConfig.bloodPressureSystolic.start)}–${_fmt(ThresholdConfig.bloodPressureSystolic.end)} / '
-            '${_fmt(ThresholdConfig.bloodPressureDiastolic.start)}–${_fmt(ThresholdConfig.bloodPressureDiastolic.end)} mmHg',
+            '90–120 / 60–80 mmHg',
       ),
       _ThresholdRow(
         icon: Icons.water_drop_outlined,
         color: Colors.orange,
         label: 'Blood Glucose',
         value:
-            '${_fmt(ThresholdConfig.bloodGlucoseFasting.start)}–${_fmt(ThresholdConfig.bloodGlucoseFasting.end)} mg/dL',
+            '70–100 mg/dL',
       ),
       _ThresholdRow(
         icon: Icons.air,
         color: AppColors.success,
         label: 'Oxygen (SpO2)',
         value:
-            '${_fmt(ThresholdConfig.oxygenSpO2.start)}–${_fmt(ThresholdConfig.oxygenSpO2.end)} %',
+            '95–100 %',
       ),
       _ThresholdRow(
         icon: Icons.monitor_weight_outlined,
         color: Colors.deepPurple,
         label: 'Target BMI',
         value:
-            '${_fmt(ThresholdConfig.targetBMI.start)}–${_fmt(ThresholdConfig.targetBMI.end)}',
+            '18.5–24.9',
       ),
     ];
 

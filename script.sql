@@ -31,7 +31,6 @@ create table public.blood_pressure_records (
     systolic int not null,
     diastolic int not null,
     pulse int,
-    measured_at timestamp not null,
     note text,
     result text,
     user_id uuid not null references public.users(id) on delete cascade,
@@ -45,7 +44,6 @@ create table public.blood_pressure_records (
 create table public.blood_sugar_records (
     id uuid primary key default gen_random_uuid(),
     glucose_value double precision not null,
-    measured_at timestamp not null,
     sugar_unit text check (sugar_unit in ('mgDl','mmolL')),
     sugar_measurement_type text check (
         sugar_measurement_type in ('fasting','beforeMeal','afterMeal')
@@ -64,7 +62,6 @@ create table public.spo2_condition_records (
     id uuid primary key default gen_random_uuid(),
     spo2 int not null,
     condition text check (condition in ('resting','afterExercise')),
-    measured_at timestamp not null,
     note text,
     result text,
     user_id uuid not null references public.users(id) on delete cascade,
@@ -79,7 +76,6 @@ create table public.weight_records (
     id uuid primary key default gen_random_uuid(),
     weight double precision not null,
     body_fat double precision,
-    measured_at timestamp not null,
     note text,
     result text,
     user_id uuid not null references public.users(id) on delete cascade,
