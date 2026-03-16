@@ -9,7 +9,7 @@ class Spo2Api implements ISpo2Api{
 
   @override
   Future<void> insertRecord(Spo2RecordDTO dto) async {
-    await supabase
+   await supabase
         .from("spo2_condition_records")
         .insert(dto.toJson());
   }

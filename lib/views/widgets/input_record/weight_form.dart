@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter/services.dart';
 import '../../../viewmodels/add_record_viewmodel/add_record_viewmodel.dart';
 
 class WeightForm extends StatefulWidget {
@@ -40,6 +40,9 @@ class _WeightFormState extends State<WeightForm> {
                 child: TextField(
                   controller: weightController,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   style: const TextStyle(
                       fontSize: 22, fontWeight: FontWeight.bold),
                   decoration:

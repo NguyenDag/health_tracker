@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter/services.dart';
 import '../../../domain/entities/blood_sugar.dart';
 import '../../../viewmodels/add_record_viewmodel/add_record_viewmodel.dart';
 
@@ -18,11 +18,6 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
   );
 
   final TextEditingController noteController = TextEditingController();
-
-  bool get isHigh {
-    final value = double.tryParse(sugarController.text) ?? 0;
-    return value > 180;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +42,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: isHigh ? Colors.red : Colors.transparent),
+            border: Border.all(color: Colors.transparent),
           ),
           child: Row(
             children: [
@@ -55,6 +50,9 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
                 child: TextField(
                   controller: sugarController,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,

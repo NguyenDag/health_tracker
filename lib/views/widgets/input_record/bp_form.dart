@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter/services.dart';
 import '../../../viewmodels/add_record_viewmodel/add_record_viewmodel.dart';
 
 class BloodPressureForm extends StatefulWidget {
@@ -19,11 +19,6 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
   TextEditingController(text: "72");
 
   DateTime selectedDate = DateTime.now();
-
-  bool get isDiastolicHigh {
-    final value = int.tryParse(diastolicController.text) ?? 0;
-    return value >= 90;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +39,6 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
               title: "DIASTOLIC",
               controller: diastolicController,
               unit: "mmHg",
-              isError: isDiastolicHigh,
             ),
           ],
         ),
@@ -60,9 +54,6 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
         _dateTimeCard(),
 
         const SizedBox(height: 20),
-
-        /// HEALTH TIP
-        if (isDiastolicHigh) _healthTip(),
       ],
     );
   }
@@ -102,6 +93,9 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                   child: TextField(
                     controller: controller,
                     keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -168,6 +162,9 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                 child: TextField(
                   controller: pulseController,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,

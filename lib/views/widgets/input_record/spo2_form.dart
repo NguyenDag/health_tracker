@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter/services.dart';
 import '../../../domain/entities/spo2_record.dart';
 import '../../../viewmodels/add_record_viewmodel/add_record_viewmodel.dart';
 
@@ -16,11 +16,6 @@ class _Spo2FormState extends State<Spo2Form> {
 
   final TextEditingController spo2Controller =
   TextEditingController(text: "98");
-
-  bool get isLow {
-    final value = int.tryParse(spo2Controller.text) ?? 0;
-    return value < 95;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +41,7 @@ class _Spo2FormState extends State<Spo2Form> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isLow ? Colors.red : Colors.transparent,
+              color: Colors.transparent,
             ),
           ),
           child: Row(
@@ -55,6 +50,9 @@ class _Spo2FormState extends State<Spo2Form> {
                 child: TextField(
                   controller: spo2Controller,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -71,14 +69,6 @@ class _Spo2FormState extends State<Spo2Form> {
             ],
           ),
         ),
-        if (isLow)
-          const Padding(
-            padding: EdgeInsets.only(top: 4),
-            child: Text(
-              "Low oxygen level",
-              style: TextStyle(color: Colors.red, fontSize: 12),
-            ),
-          ),
 
         const SizedBox(height: 20),
 
