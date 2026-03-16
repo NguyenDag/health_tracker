@@ -25,21 +25,24 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
     const SizedBox.shrink(), // index 2: navigated via push
   ];
 
-  final List<String> _titles = [
-    'Admin Dashboard',
-    'User Management',
-  ];
+  final List<String> _titles = ['Admin Dashboard', 'User Management'];
 
   // Sidebar indices:
   //   0 = Dashboard, 1 = User Management, 2 = Config Threshold (push), 3 = AI Config (push)
   void _onDrawerItemTapped(int index) {
     Navigator.pop(context); // close drawer
     if (index == 2) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminThresholdsPage()));
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AdminThresholdsPage()),
+      );
       return;
     }
     if (index == 3) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminAiConfigPage()));
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AdminAiConfigPage()),
+      );
       return;
     }
     setState(() => _currentIndex = index);
@@ -124,22 +127,31 @@ class _AdminSideBar extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-              ),
+              decoration: const BoxDecoration(color: AppColors.primary),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const CircleAvatar(
                     radius: 28,
                     backgroundColor: Colors.white,
-                    child: Icon(Icons.admin_panel_settings, color: AppColors.primary, size: 28),
+                    child: Icon(
+                      Icons.admin_panel_settings,
+                      color: AppColors.primary,
+                      size: 28,
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  Text('Admin Portal', style: AppTextStyles.h3.copyWith(color: Colors.white)),
+                  Text(
+                    'Admin Portal',
+                    style: AppTextStyles.h3.copyWith(color: Colors.white),
+                  ),
                   const SizedBox(height: 2),
-                  Text('admin@healthtracker.com',
-                      style: AppTextStyles.bodySmall.copyWith(color: Colors.white70)),
+                  Text(
+                    'admin@healthtracker.com',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: Colors.white70,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -178,7 +190,12 @@ class _AdminSideBar extends StatelessWidget {
     );
   }
 
-  Widget _buildItem(BuildContext context, {required int index, required IconData icon, required String label}) {
+  Widget _buildItem(
+    BuildContext context, {
+    required int index,
+    required IconData icon,
+    required String label,
+  }) {
     final isSelected = currentIndex == index;
     return ListTile(
       leading: Icon(
@@ -203,7 +220,10 @@ class _AdminSideBar extends StatelessWidget {
   Widget _buildLogoutItem(BuildContext context) {
     return ListTile(
       leading: const Icon(Icons.logout, color: AppColors.error, size: 22),
-      title: Text('Logout', style: AppTextStyles.subtitle.copyWith(color: AppColors.error)),
+      title: Text(
+        'Logout',
+        style: AppTextStyles.subtitle.copyWith(color: AppColors.error),
+      ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       onTap: onLogout,

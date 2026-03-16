@@ -13,7 +13,6 @@ const _metricTypes = [
   'blood_pressure',
   'blood_sugar',
   'spo2',
-  'bmi',
   'weight',
 ];
 
@@ -21,7 +20,6 @@ const _metricLabels = {
   'blood_pressure': 'Blood Pressure',
   'blood_sugar': 'Blood Sugar',
   'spo2': 'SpO2',
-  'bmi': 'BMI',
   'weight': 'Weight',
 };
 
@@ -29,7 +27,6 @@ const _metricIcons = {
   'blood_pressure': Icons.favorite_border,
   'blood_sugar': Icons.water_drop_outlined,
   'spo2': Icons.air,
-  'bmi': Icons.monitor_weight_outlined,
   'weight': Icons.monitor_weight_outlined,
 };
 
@@ -37,9 +34,18 @@ const _metricColors = {
   'blood_pressure': AppColors.error,
   'blood_sugar': Color(0xFFF57C00),
   'spo2': AppColors.success,
-  'bmi': Color(0xFF7B1FA2),
   'weight': Color(0xFF7B1FA2),
 };
+
+// Fixed unit per metric; blood_sugar has two options
+const _metricDefaultUnit = {
+  'blood_pressure': 'mmHg',
+  'blood_sugar': 'mg/dL',
+  'spo2': '%',
+  'weight': 'kg',
+};
+
+const _bloodSugarUnits = ['mg/dL', 'mmol/L'];
 
 const _levels = ['NORMAL', 'DANGER', 'CRITICAL'];
 
@@ -55,7 +61,6 @@ const _levelBg = {
   'CRITICAL': Color(0xFFFFEBEE),
 };
 
-const _commonUnits = ['mmHg', 'mg/dL', '%', 'BMI', 'kg'];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -731,11 +736,18 @@ class _ThresholdFormState extends State<_ThresholdForm> {
     final e = widget.editing;
     _metricType = e?.metricType ?? _metricTypes.first;
     _level = e?.level ?? 'NORMAL';
-    _unit = e?.unit ?? '';
+    _unit = e?.unit ?? _metricDefaultUnit[_metricType] ?? '';
     _fromAge.text = e?.fromAge?.toString() ?? '';
     _toAge.text = e?.toAge?.toString() ?? '';
     _minValue.text = e?.minValue != null ? _fmtNum(e!.minValue) : '';
     _maxValue.text = e?.maxValue != null ? _fmtNum(e!.maxValue) : '';
+  }
+
+  void _onMetricChanged(String m) {
+    setState(() {
+      _metricType = m;
+      _unit = _metricDefaultUnit[m] ?? '';
+    });
   }
 
   @override
@@ -843,19 +855,33 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                 // ── Metric type ─────────────────────────────────────
                 _Label('Metric Type'),
                 const SizedBox(height: 8),
-                _MetricGrid(
-                  selected: _metricType,
-                  onChanged: (v) => setState(() => _metricType = v),
-                ),
+                if (_isEdit)
+                  _ReadonlyRow(
+                    icon: _metricIcons[_metricType] ?? Icons.monitor_heart_outlined,
+                    color: _metricColors[_metricType] ?? AppColors.primary,
+                    label: _metricLabels[_metricType] ?? _metricType,
+                  )
+                else
+                  _MetricGrid(
+                    selected: _metricType,
+                    onChanged: _onMetricChanged,
+                  ),
                 const SizedBox(height: 18),
 
                 // ── Level ───────────────────────────────────────────
                 _Label('Level'),
                 const SizedBox(height: 8),
-                _LevelBar(
-                  selected: _level,
-                  onChanged: (v) => setState(() => _level = v),
-                ),
+                if (_isEdit)
+                  _ReadonlyRow(
+                    icon: Icons.circle,
+                    color: _levelColors[_level] ?? AppColors.primary,
+                    label: _levelLabel(_level),
+                  )
+                else
+                  _LevelBar(
+                    selected: _level,
+                    onChanged: (v) => setState(() => _level = v),
+                  ),
                 const SizedBox(height: 18),
 
                 // ── Age range ───────────────────────────────────────
@@ -911,26 +937,28 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                 ]),
                 const SizedBox(height: 10),
 
-                // Unit chips
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(children: [
-                    Text('Unit:',
-                        style: AppTextStyles.bodySmall
-                            .copyWith(color: AppColors.textSecondary)),
-                    const SizedBox(width: 8),
-                    ..._commonUnits.map((u) => Padding(
-                          padding: const EdgeInsets.only(right: 6),
-                          child: _UnitChip(
-                            label: u,
-                            selected: _unit == u,
-                            onTap: () =>
-                                setState(() => _unit = _unit == u ? '' : u),
-                          ),
-                        )),
-                  ]),
-                ),
-                const SizedBox(height: 24),
+                // Unit
+                _Label('Unit'),
+                const SizedBox(height: 8),
+                if (!_isEdit && _metricType == 'blood_sugar')
+                  Row(children: _bloodSugarUnits.map((u) {
+                    final on = _unit == u;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: _UnitChip(
+                        label: u,
+                        selected: on,
+                        onTap: () => setState(() => _unit = u),
+                      ),
+                    );
+                  }).toList())
+                else
+                  _ReadonlyRow(
+                    icon: Icons.straighten_outlined,
+                    color: AppColors.primary,
+                    label: _unit.isNotEmpty ? _unit : '—',
+                  ),
+                const SizedBox(height: 20),
 
                 // Save
                 SizedBox(
@@ -1159,4 +1187,32 @@ class _Label extends StatelessWidget {
           color: AppColors.textSecondary,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.2));
+}
+
+// ─── Readonly Row ─────────────────────────────────────────────────────────────
+
+class _ReadonlyRow extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+  const _ReadonlyRow({required this.icon, required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey.withAlpha(80)),
+        ),
+        child: Row(children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 8),
+          Text(label,
+              style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
+          const Spacer(),
+          Icon(Icons.lock_outline, size: 14, color: Colors.grey.withAlpha(120)),
+        ]),
+      );
 }
