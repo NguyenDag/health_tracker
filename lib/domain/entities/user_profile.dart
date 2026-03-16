@@ -4,6 +4,7 @@
 
 class UserProfile {
   final String id;
+  final String? email;
   final String? firstName;
   final String? lastName;
   final String? gender;
@@ -14,9 +15,11 @@ class UserProfile {
   final DateTime? dob;
   final String status;
   final DateTime? createdAt;
+  final DateTime? lastSignInAt;
 
   const UserProfile({
     required this.id,
+    this.email,
     this.firstName,
     this.lastName,
     this.gender,
@@ -27,6 +30,7 @@ class UserProfile {
     this.dob,
     this.status = 'active',
     this.createdAt,
+    this.lastSignInAt,
   });
 
   String get fullName {
@@ -37,6 +41,7 @@ class UserProfile {
   factory UserProfile.fromMap(Map<String, dynamic> map) {
     return UserProfile(
       id: map['id'] as String,
+      email: map['email'] as String?,
       firstName: map['first_name'] as String?,
       lastName: map['last_name'] as String?,
       gender: map['gender'] as String?,
@@ -48,6 +53,9 @@ class UserProfile {
       status: map['status'] as String? ?? 'active',
       createdAt: map['created_at'] != null
           ? DateTime.tryParse(map['created_at'] as String)
+          : null,
+      lastSignInAt: map['last_sign_in_at'] != null
+          ? DateTime.tryParse(map['last_sign_in_at'] as String)
           : null,
     );
   }
@@ -68,6 +76,7 @@ class UserProfile {
   }
 
   UserProfile copyWith({
+    String? email,
     String? firstName,
     String? lastName,
     String? gender,
@@ -80,6 +89,7 @@ class UserProfile {
   }) {
     return UserProfile(
       id: id,
+      email: email ?? this.email,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       gender: gender ?? this.gender,
@@ -90,6 +100,7 @@ class UserProfile {
       dob: dob ?? this.dob,
       status: status ?? this.status,
       createdAt: createdAt,
+      lastSignInAt: lastSignInAt,
     );
   }
 }
