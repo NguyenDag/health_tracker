@@ -9,7 +9,7 @@ class ThresholdRepository implements IThresholdRepository {
         .from('thresholds')
         .select()
         .order('metric_type')
-        .order('level');
+        .order('from_age');
     return (data as List)
         .map((r) => HealthThreshold.fromMap(r as Map<String, dynamic>))
         .toList();
