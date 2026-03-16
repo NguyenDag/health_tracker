@@ -31,7 +31,6 @@ create table public.blood_pressure_records (
     systolic int not null,
     diastolic int not null,
     pulse int,
-    measured_at timestamp not null,
     note text,
     result text,
     user_id uuid not null references public.users(id) on delete cascade,
@@ -45,7 +44,6 @@ create table public.blood_pressure_records (
 create table public.blood_sugar_records (
     id uuid primary key default gen_random_uuid(),
     glucose_value double precision not null,
-    measured_at timestamp not null,
     sugar_unit text check (sugar_unit in ('mgDl','mmolL')),
     sugar_measurement_type text check (
         sugar_measurement_type in ('fasting','beforeMeal','afterMeal')
@@ -64,7 +62,6 @@ create table public.spo2_condition_records (
     id uuid primary key default gen_random_uuid(),
     spo2 int not null,
     condition text check (condition in ('resting','afterExercise')),
-    measured_at timestamp not null,
     note text,
     result text,
     user_id uuid not null references public.users(id) on delete cascade,
@@ -79,7 +76,6 @@ create table public.weight_records (
     id uuid primary key default gen_random_uuid(),
     weight double precision not null,
     body_fat double precision,
-    measured_at timestamp not null,
     note text,
     result text,
     user_id uuid not null references public.users(id) on delete cascade,
@@ -137,32 +133,28 @@ language plpgsql
 security definer
 as $$
 begin
-  insert into public.users (id)
-  values (new.id);
+  insert into public.users (
+    id,
+    first_name,
+    last_name,
+    phone,
+    gender,
+    height,
+    weight
+  )
+  values (
+    new.id,
+    new.raw_user_meta_data->>'first_name',
+    new.raw_user_meta_data->>'last_name',
+    new.raw_user_meta_data->>'phone',
+    new.raw_user_meta_data->>'gender',
+    (new.raw_user_meta_data->>'height')::double precision,
+    (new.raw_user_meta_data->>'weight')::double precision
+  );
+
   return new;
 end;
 $$;
-
--- create or replace function public.handle_new_user()
--- returns trigger
--- language plpgsql
--- security definer
--- as $$
--- begin
---   insert into public.users (
---     id,
---     first_name,
---     last_name
---   )
---   values (
---     new.id,
---     new.raw_user_meta_data->>'first_name',
---     new.raw_user_meta_data->>'last_name'
---   );
-
---   return new;
--- end;
--- $$;
 
 
 create trigger on_auth_user_created

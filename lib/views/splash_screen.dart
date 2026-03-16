@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:health_tracker/views/widgets/shared_widgets.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -7,6 +8,10 @@ import '../core/constants/app_colors.dart';
 import '../core/constants/app_text_styles.dart';
 import '../core/router/app_router.dart';
 import 'auth/onboarding_screen.dart';
+import 'user/main/main_layout_page.dart';
+import 'admin/main/admin_main_layout_page.dart';
+import 'package:provider/provider.dart';
+import '../viewmodels/auth_viewmodel.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SPLASH SCREEN
@@ -31,18 +36,49 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    _spinCtrl  = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat();
-    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 800))..repeat(reverse: true);
-    _fadeCtrl  = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
-    _fadeIn    = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
+    _spinCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+    _pulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(reverse: true);
+    _fadeCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _fadeIn = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
 
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 3), () async {
       _spinCtrl.stop();
-      setState(() => _isLoading = false);
-      Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) setState(() => _isLoading = false);
+      
+      await Future.delayed(const Duration(milliseconds: 400));
+      if (!mounted) return;
+
+      // ── Check for an existing Supabase session ──────────────
+      final authViewModel = context.read<AuthViewModel>();
+      final session = Supabase.instance.client.auth.currentSession;
+      
+      if (session != null) {
+        try {
+          await authViewModel.loadCurrentUser();
+        } catch (_) {
+          // Profile load failed, navigate anyway
+        }
+        if (!mounted) return;
+        final user = authViewModel.currentUser;
+        replaceWithFade(
+          context,
+          user?.role == 'admin'
+              ? const AdminMainLayoutPage()
+              : const MainLayoutPage(),
+        );
+      } else {
         if (mounted) replaceWithFade(context, const OnboardingScreen());
-      });
+      }
     });
   }
 
@@ -61,31 +97,33 @@ class _SplashScreenState extends State<SplashScreen>
         child: FadeTransition(
           opacity: _fadeIn,
           child: SafeArea(
-            child: Column(children: [
-              const Spacer(flex: 3),
+            child: Column(
+              children: [
+                const Spacer(flex: 3),
 
-              // ── Spinning / pulsing icon ───────────────────────────────
-              _SpinningIcon(
-                spinCtrl: _spinCtrl,
-                pulseCtrl: _pulseCtrl,
-                isLoading: _isLoading,
-              ),
+                // ── Spinning / pulsing icon ─────────────────────────
+                _SpinningIcon(
+                  spinCtrl: _spinCtrl,
+                  pulseCtrl: _pulseCtrl,
+                  isLoading: _isLoading,
+                ),
 
-              const SizedBox(height: 32),
-              const Text('HealthTracker', style: AppTextStyles.heading1),
-              const SizedBox(height: 10),
-              const Text(
-                'Monitor your vitals effortlessly',
-                style: TextStyle(fontSize: 15, color: AppColors.textGrey),
-              ),
+                const SizedBox(height: 32),
+                const Text('HealthTracker', style: AppTextStyles.heading1),
+                const SizedBox(height: 10),
+                const Text(
+                  'Monitor your vitals effortlessly',
+                  style: TextStyle(fontSize: 15, color: AppColors.textGrey),
+                ),
 
-              const Spacer(flex: 3),
+                const Spacer(flex: 3),
 
-              // ── Loading indicator ─────────────────────────────────────
-              _LoadingIndicator(visible: _isLoading),
+                // ── Loading indicator ───────────────────────────────
+                _LoadingIndicator(visible: _isLoading),
 
-              const SizedBox(height: 48),
-            ]),
+                const SizedBox(height: 48),
+              ],
+            ),
           ),
         ),
       ),
@@ -93,7 +131,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// ─── Sub-widget: spinning + pulsing icon ──────────────────────────────────────
+// ─── Sub-widget: spinning + pulsing icon ─────────────────────────────────────
 
 class _SpinningIcon extends StatelessWidget {
   const _SpinningIcon({
@@ -122,7 +160,7 @@ class _SpinningIcon extends StatelessWidget {
   }
 }
 
-// ─── Sub-widget: loading text + spinner ───────────────────────────────────────
+// ─── Sub-widget: loading indicator ───────────────────────────────────────────
 
 class _LoadingIndicator extends StatelessWidget {
   const _LoadingIndicator({required this.visible});
@@ -133,19 +171,22 @@ class _LoadingIndicator extends StatelessWidget {
     return AnimatedOpacity(
       opacity: visible ? 1.0 : 0.0,
       duration: const Duration(milliseconds: 300),
-      child: Column(children: [
-        SizedBox(
-          width: 32, height: 32,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.5,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              AppColors.primary.withValues(alpha: 0.8),
+      child: Column(
+        children: [
+          SizedBox(
+            width: 32,
+            height: 32,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                AppColors.primary.withValues(alpha: 0.8),
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 14),
-        const Text('LOADING YOUR HEALTH DATA...', style: AppTextStyles.hint),
-      ]),
+          const SizedBox(height: 14),
+          const Text('ĐANG TẢI DỮ LIỆU SỨC KHOẺ...', style: AppTextStyles.hint),
+        ],
+      ),
     );
   }
 }

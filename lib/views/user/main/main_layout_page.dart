@@ -6,6 +6,8 @@ import '../home/home_page.dart';
 import '../notification/notification_history_screen.dart';
 import '../stats/stats_page.dart';
 import '../profile/profile_page.dart';
+import '../../../domain/enums/health_type.dart';
+
 class MainLayoutPage extends StatefulWidget {
   const MainLayoutPage({super.key});
 
@@ -15,19 +17,8 @@ class MainLayoutPage extends StatefulWidget {
 
 class _MainLayoutPageState extends State<MainLayoutPage> {
   int _currentIndex = 0;
-
-  late final List<Widget> _pages;
-
-  @override
-  void initState() {
-    super.initState();
-    _pages = [
-      HomePage(onNavigateToTab: _onItemTapped),
-      const StatsPage(),
-      const HistoryScreen(),
-      const ProfilePage(),
-    ];
-  }
+  HealthType? _statsType;
+  late List<Widget> _pages;
 
   final List<String> _titles = [
     'Health Dashboard',
@@ -36,14 +27,23 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
     'Profile & Settings',
   ];
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(int index, {HealthType? type}) {
     setState(() {
       _currentIndex = index;
+      if (index == 1) {
+        _statsType = type;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    _pages = [
+      HomePage(onNavigateToTab: _onItemTapped),
+      StatsPage(initialType: _statsType),
+      const HistoryScreen(),
+      const ProfilePage(),
+    ];
     return Scaffold(
       appBar: CustomAppBar(
         title: _titles[_currentIndex],
