@@ -41,6 +41,7 @@ class HealthRepository implements IHealthRepository {
           diastolic: item['diastolic'],
           pulse: item['pulse'],
           note: item['note'],
+          result: item['result'],
           createdAt: DateTime.parse(item['created_at']),
         ),
       );
@@ -55,6 +56,7 @@ class HealthRepository implements IHealthRepository {
           glucoseValue: (item['glucose_value'] as num?)?.toDouble(),
           glucoseUnit: item['sugar_unit'],
           note: item['note'],
+          result: item['result'],
           createdAt: DateTime.parse(item['created_at']),
         ),
       );
@@ -68,6 +70,7 @@ class HealthRepository implements IHealthRepository {
           type: HealthType.Weight,
           weight: (item['weight'] as num).toDouble(),
           note: item['note'],
+          result: item['result'],
           createdAt: DateTime.parse(item['created_at']),
         ),
       );
@@ -81,6 +84,7 @@ class HealthRepository implements IHealthRepository {
           type: HealthType.Spo2,
           spo2: item['spo2'],
           note: item['note'],
+          result: item['result'],
           createdAt: DateTime.parse(item['created_at']),
         ),
       );

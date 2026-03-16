@@ -136,7 +136,7 @@ class HistoryDetailModal extends StatelessWidget {
 
             /// NOTE
             const Text(
-              "NOTE",
+              "RESULT",
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 12,
@@ -186,8 +186,9 @@ class HistoryDetailModal extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    record.result ?? "Index is normal.",
-                    style: const TextStyle(fontSize: 13),
+                    "Index is normal.",
+                      // record.result ??
+                          style: const TextStyle(fontSize: 13),
                   ),
                 ],
               ),
