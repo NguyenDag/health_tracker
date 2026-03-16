@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../../../viewmodels/auth_viewmodel.dart';
+import '../../auth/login_page.dart';
 import '../dashboard/admin_dashboard_page.dart';
 import '../users/admin_users_page.dart';
 import '../thresholds/admin_thresholds_page.dart';
@@ -42,6 +45,36 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
     setState(() => _currentIndex = index);
   }
 
+  Future<void> _onLogout() async {
+    Navigator.pop(context); // close drawer
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Đăng xuất'),
+        content: const Text('Bạn có chắc chắn muốn đăng xuất không?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Hủy'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('Đăng xuất', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true && mounted) {
+      await context.read<AuthViewModel>().signOut();
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +94,7 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
       drawer: _AdminSideBar(
         currentIndex: _currentIndex,
         onItemTapped: _onDrawerItemTapped,
+        onLogout: _onLogout,
       ),
       body: _pages[_currentIndex],
     );
@@ -70,10 +104,12 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
 class _AdminSideBar extends StatelessWidget {
   final int currentIndex;
   final void Function(int) onItemTapped;
+  final VoidCallback onLogout;
 
   const _AdminSideBar({
     required this.currentIndex,
     required this.onItemTapped,
+    required this.onLogout,
   });
 
   @override
@@ -170,10 +206,7 @@ class _AdminSideBar extends StatelessWidget {
       title: Text('Logout', style: AppTextStyles.subtitle.copyWith(color: AppColors.error)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      onTap: () {
-        Navigator.pop(context); // close drawer
-        // TODO: implement logout logic
-      },
+      onTap: onLogout,
     );
   }
 }
