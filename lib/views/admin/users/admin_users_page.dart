@@ -1,56 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
-
-enum _UserStatus { active, alert, inactive, pending }
-
-class _UserData {
-  final String name;
-  final String id;
-  final String tracking;
-  final String timeInfo; // "Last login: X" or "Created: X"
-  final _UserStatus status;
-  final String email;
-  final String phone;
-  final String joinDate;
-  final Color avatarColor;
-  bool isActive;
-
-  _UserData({
-    required this.name,
-    required this.id,
-    required this.tracking,
-    required this.timeInfo,
-    required this.status,
-    required this.email,
-    required this.phone,
-    required this.joinDate,
-    required this.avatarColor,
-    required this.isActive,
-  });
-
-  String get statusLabel => switch (status) {
-    _UserStatus.active => 'Active',
-    _UserStatus.alert => 'Alert',
-    _UserStatus.inactive => 'Inactive',
-    _UserStatus.pending => 'Pending',
-  };
-
-  Color get statusColor => switch (status) {
-    _UserStatus.active => AppColors.success,
-    _UserStatus.alert => AppColors.error,
-    _UserStatus.inactive => AppColors.textSecondary,
-    _UserStatus.pending => AppColors.warning,
-  };
-
-  // initials: up to 2 chars
-  String get initials {
-    final parts = name.trim().split(' ');
-    if (parts.length >= 2)
-      return '${parts.first[0]}${parts[1][0]}'.toUpperCase();
-    return name[0].toUpperCase();
-  }
-}
+import '../../../domain/entities/user_profile.dart';
+import '../../../viewmodels/admin_users_viewmodel.dart';
 
 class AdminUsersPage extends StatefulWidget {
   const AdminUsersPage({super.key});
@@ -60,199 +14,241 @@ class AdminUsersPage extends StatefulWidget {
 }
 
 class _AdminUsersPageState extends State<AdminUsersPage> {
-  String _selectedFilter = 'All Users';
+  String _selectedFilter = 'All';
   String _searchQuery = '';
 
-  final List<_UserData> _allUsers = [
-    _UserData(
-      name: 'John Doe',
-      id: '#83921',
-      tracking: 'BP Monitoring',
-      timeInfo: 'Last login: 25 mins ago',
-      status: _UserStatus.active,
-      email: 'john.doe@email.com',
-      phone: '+1 (555) 012-3456',
-      joinDate: 'Jan 15, 2024',
-      avatarColor: const Color(0xFF37474F),
-      isActive: true,
-    ),
-    _UserData(
-      name: 'Sarah Miller',
-      id: '#19204',
-      tracking: 'Blood Sugar',
-      timeInfo: 'Last login: 1 hour ago',
-      status: _UserStatus.alert,
-      email: 'sarah.miller@email.com',
-      phone: '+1 (555) 234-5678',
-      joinDate: 'Mar 02, 2024',
-      avatarColor: const Color(0xFF4A235A),
-      isActive: true,
-    ),
-    _UserData(
-      name: 'Michael Chen',
-      id: '#99482',
-      tracking: 'SpO2 Tracking',
-      timeInfo: 'Last login: 3 months ago',
-      status: _UserStatus.inactive,
-      email: 'michael.chen@email.com',
-      phone: '+1 (555) 345-6789',
-      joinDate: 'Nov 10, 2023',
-      avatarColor: const Color(0xFF1A3A4A),
-      isActive: false,
-    ),
-    _UserData(
-      name: 'Elara Keye',
-      id: '#77213',
-      tracking: 'Weight Control',
-      timeInfo: 'Last login: 5 hours ago',
-      status: _UserStatus.active,
-      email: 'elara.keye@email.com',
-      phone: '+1 (555) 456-7890',
-      joinDate: 'Feb 20, 2024',
-      avatarColor: AppColors.primary,
-      isActive: true,
-    ),
-    _UserData(
-      name: 'David Kim',
-      id: '#33491',
-      tracking: 'General Health',
-      timeInfo: 'Created: 2 days ago',
-      status: _UserStatus.pending,
-      email: 'david.kim@email.com',
-      phone: '+1 (555) 678-9012',
-      joinDate: 'Mar 03, 2026',
-      avatarColor: const Color(0xFF2C3E50),
-      isActive: false,
-    ),
+  static const _filters = ['All', 'Active', 'Inactive'];
+
+  static const List<Color> _avatarPalette = [
+    Color(0xFF00695C),
+    Color(0xFF37474F),
+    Color(0xFF4527A0),
+    Color(0xFF1565C0),
+    Color(0xFF558B2F),
+    Color(0xFF6A1B9A),
+    Color(0xFF2E7D32),
+    Color(0xFF0277BD),
   ];
 
-  static const _filters = ['All Users', 'Active', 'Inactive', 'Flagged'];
+  Color _colorFor(String id) =>
+      _avatarPalette[id.hashCode.abs() % _avatarPalette.length];
 
-  List<_UserData> get _filteredUsers => _allUsers.where((u) {
-    final matchSearch =
-        _searchQuery.isEmpty ||
-        u.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-        u.id.toLowerCase().contains(_searchQuery.toLowerCase());
-    final matchFilter =
-        _selectedFilter == 'All Users' ||
-        (_selectedFilter == 'Active' && u.status == _UserStatus.active) ||
-        (_selectedFilter == 'Inactive' && u.status == _UserStatus.inactive) ||
-        (_selectedFilter == 'Flagged' &&
-            (u.status == _UserStatus.alert || u.status == _UserStatus.pending));
-    return matchSearch && matchFilter;
-  }).toList();
+  String _initialsOf(UserProfile u) {
+    final f = u.firstName?.isNotEmpty == true ? u.firstName![0] : '';
+    final l = u.lastName?.isNotEmpty == true ? u.lastName![0] : '';
+    final combined = (f + l).toUpperCase();
+    return combined.isNotEmpty ? combined : '?';
+  }
 
-  void _showUserDetail(_UserData user) {
+  List<UserProfile> _filtered(List<UserProfile> all) {
+    final q = _searchQuery.toLowerCase();
+    return all.where((u) {
+      if (u.role == 'admin') return false;
+      final name = u.fullName.toLowerCase();
+      final matchSearch = q.isEmpty ||
+          name.contains(q) ||
+          (u.email ?? '').toLowerCase().contains(q) ||
+          (u.phone ?? '').contains(q) ||
+          u.id.toLowerCase().contains(q);
+      final matchFilter = switch (_selectedFilter) {
+        'Active' => u.status == 'active',
+        'Inactive' => u.status != 'active',
+        _ => true,
+      };
+      return matchSearch && matchFilter;
+    }).toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminUsersViewModel>().loadUsers();
+    });
+  }
+
+  // ── Actions ────────────────────────────────────────────────────────
+
+  void _showUserDetail(UserProfile user) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _UserDetailSheet(
         user: user,
+        avatarColor: _colorFor(user.id),
+        initials: _initialsOf(user),
         onToggleActive: () {
-          setState(() => user.isActive = !user.isActive);
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                user.isActive
-                    ? '${user.name} has been reactivated.'
-                    : '${user.name} has been deactivated.',
-              ),
-              backgroundColor: user.isActive
-                  ? AppColors.success
-                  : AppColors.warning,
-            ),
-          );
-        },
-        onDelete: () {
-          Navigator.pop(context);
-          _confirmDelete(user);
+          _confirmToggle(user);
         },
       ),
     );
   }
 
-  void _confirmDelete(_UserData user) {
+  void _confirmToggle(UserProfile user) {
+    final isActive = user.status == 'active';
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Delete User', style: AppTextStyles.h3),
+        title: Text(
+          isActive ? 'Deactivate User' : 'Reactivate User',
+          style: AppTextStyles.h3,
+        ),
         content: Text(
-          'Are you sure you want to delete ${user.name}? This action cannot be undone.',
+          isActive
+              ? 'Deactivate ${_displayName(user)}? They will no longer be able to log in.'
+              : 'Reactivate ${_displayName(user)}? They will regain access.',
           style: AppTextStyles.bodyMedium,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: AppTextStyles.subtitle),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            onPressed: () {
-              setState(() => _allUsers.remove(user));
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isActive ? AppColors.warning : AppColors.success,
+            ),
+            onPressed: () async {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${user.name} has been deleted.'),
-                  backgroundColor: AppColors.error,
-                ),
-              );
+              final newStatus = isActive ? 'inactive' : 'active';
+              await context
+                  .read<AdminUsersViewModel>()
+                  .updateUserStatus(user.id, newStatus);
+              if (mounted) {
+                final vm = context.read<AdminUsersViewModel>();
+                if (vm.error != null) {
+                  _showSnackBar(
+                      'Failed to update status: ${vm.error}', AppColors.error);
+                } else {
+                  _showSnackBar(
+                    isActive
+                        ? '${_displayName(user)} has been deactivated.'
+                        : '${_displayName(user)} has been reactivated.',
+                    isActive ? AppColors.warning : AppColors.success,
+                  );
+                }
+              }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: Text(
+              isActive ? 'Deactivate' : 'Reactivate',
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final users = _filteredUsers;
-    return Column(
-      children: [
-        _buildSearchBar(),
-        _buildFilterRow(),
-        _buildListHeader(users.length),
-        Expanded(
-          child: users.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.search_off,
-                        size: 48,
-                        color: AppColors.textSecondary,
-                      ),
-                      const SizedBox(height: 8),
-                      Text('No users found', style: AppTextStyles.bodyMedium),
-                    ],
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                  itemCount: users.length,
-                  itemBuilder: (_, i) => _buildUserCard(users[i]),
-                ),
-        ),
-      ],
+  void _showSnackBar(String msg, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: color),
     );
   }
 
-  Widget _buildSearchBar() {
+  String _displayName(UserProfile u) =>
+      u.fullName.isNotEmpty ? u.fullName : 'User ${u.id.substring(0, 6)}';
+
+  // ── Build ──────────────────────────────────────────────────────────
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AdminUsersViewModel>(
+      builder: (context, vm, _) {
+        if (vm.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (vm.error != null) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.cloud_off,
+                      size: 52, color: AppColors.textSecondary),
+                  const SizedBox(height: 12),
+                  Text('Failed to load users',
+                      style: AppTextStyles.subtitle),
+                  const SizedBox(height: 6),
+                  Text(vm.error!,
+                      style: AppTextStyles.bodySmall,
+                      textAlign: TextAlign.center),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: vm.loadUsers,
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final filtered = _filtered(vm.users);
+
+        return Column(
+          children: [
+            _SearchBar(
+              onChanged: (v) => setState(() => _searchQuery = v),
+            ),
+            _FilterChips(
+              filters: _filters,
+              selected: _selectedFilter,
+              onSelect: (f) => setState(() => _selectedFilter = f),
+            ),
+            _ListHeader(
+              count: filtered.length,
+              total: vm.users.length,
+              onRefresh: vm.loadUsers,
+            ),
+            Expanded(
+              child: filtered.isEmpty
+                  ? _EmptyState(query: _searchQuery)
+                  : RefreshIndicator(
+                      onRefresh: vm.loadUsers,
+                      child: ListView.builder(
+                        padding:
+                            const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                        itemCount: filtered.length,
+                        itemBuilder: (_, i) => _UserCard(
+                          user: filtered[i],
+                          color: _colorFor(filtered[i].id),
+                          initials: _initialsOf(filtered[i]),
+                          displayName: _displayName(filtered[i]),
+                          onTap: () => _showUserDetail(filtered[i]),
+                          onToggle: () => _confirmToggle(filtered[i]),
+                        ),
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// ─── Sub-widgets ──────────────────────────────────────────────────────────────
+
+class _SearchBar extends StatelessWidget {
+  final ValueChanged<String> onChanged;
+  const _SearchBar({required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
       child: TextField(
-        onChanged: (v) => setState(() => _searchQuery = v),
+        onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: 'Search by name, ID...',
+          hintText: 'Search by name, phone, ID...',
           hintStyle: AppTextStyles.bodyMedium,
-          prefixIcon: const Icon(
-            Icons.search,
-            color: AppColors.textSecondary,
-            size: 20,
-          ),
+          prefixIcon: const Icon(Icons.search,
+              color: AppColors.textSecondary, size: 20),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(color: Colors.grey.withAlpha(60)),
@@ -272,29 +268,41 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
       ),
     );
   }
+}
 
-  Widget _buildFilterRow() {
+class _FilterChips extends StatelessWidget {
+  final List<String> filters;
+  final String selected;
+  final ValueChanged<String> onSelect;
+
+  const _FilterChips({
+    required this.filters,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: _filters.map((f) {
-            final isSelected = _selectedFilter == f;
+          children: filters.map((f) {
+            final isSel = selected == f;
             return Padding(
               padding: const EdgeInsets.only(right: 8),
               child: GestureDetector(
-                onTap: () => setState(() => _selectedFilter = f),
-                child: Container(
+                onTap: () => onSelect(f),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 8,
-                  ),
+                      horizontal: 16, vertical: 7),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary : Colors.white,
+                    color: isSel ? AppColors.primary : Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: isSelected
+                      color: isSel
                           ? AppColors.primary
                           : Colors.grey.withAlpha(80),
                     ),
@@ -302,12 +310,10 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                   child: Text(
                     f,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: isSelected
-                          ? Colors.white
-                          : AppColors.textSecondary,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
+                      color:
+                          isSel ? Colors.white : AppColors.textSecondary,
+                      fontWeight:
+                          isSel ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -318,8 +324,21 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
       ),
     );
   }
+}
 
-  Widget _buildListHeader(int count) {
+class _ListHeader extends StatelessWidget {
+  final int count;
+  final int total;
+  final VoidCallback onRefresh;
+
+  const _ListHeader({
+    required this.count,
+    required this.total,
+    required this.onRefresh,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: AppColors.background,
@@ -327,27 +346,78 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'RECENTLY ACTIVE',
+            count == total
+                ? '$count USER${count == 1 ? '' : 'S'}'
+                : '$count of $total USER${total == 1 ? '' : 'S'}',
             style: AppTextStyles.label.copyWith(letterSpacing: 0.5),
           ),
-          Row(
-            children: [
-              const Icon(Icons.sort, size: 16, color: AppColors.primary),
+          GestureDetector(
+            onTap: onRefresh,
+            child: Row(children: [
+              const Icon(Icons.refresh, size: 15, color: AppColors.primary),
               const SizedBox(width: 4),
-              Text(
-                'Sort',
-                style: AppTextStyles.subtitle.copyWith(
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
+              Text('Refresh',
+                  style: AppTextStyles.subtitle
+                      .copyWith(color: AppColors.primary, fontSize: 12)),
+            ]),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildUserCard(_UserData user) {
+class _EmptyState extends StatelessWidget {
+  final String query;
+  const _EmptyState({required this.query});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            query.isNotEmpty ? Icons.search_off : Icons.people_outline,
+            size: 52,
+            color: AppColors.textSecondary,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            query.isNotEmpty ? 'No users match "$query"' : 'No users found',
+            style: AppTextStyles.bodyMedium,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UserCard extends StatelessWidget {
+  final UserProfile user;
+  final Color color;
+  final String initials;
+  final String displayName;
+  final VoidCallback onTap;
+  final VoidCallback onToggle;
+
+  const _UserCard({
+    required this.user,
+    required this.color,
+    required this.initials,
+    required this.displayName,
+    required this.onTap,
+    required this.onToggle,
+  });
+
+  bool get _isActive => user.status == 'active';
+  bool get _isAdmin => user.role == 'admin';
+
+  Color get _statusColor =>
+      _isActive ? AppColors.success : AppColors.textSecondary;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
@@ -361,159 +431,194 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        child: Row(
-          children: [
-            _buildAvatar(user),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            children: [
+              // Avatar
+              Stack(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          user.name,
-                          style: AppTextStyles.subtitle.copyWith(
-                            color: AppColors.textPrimary,
-                            fontSize: 14,
-                          ),
-                        ),
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: color,
+                    child: Text(initials,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14)),
+                  ),
+                  Positioned(
+                    bottom: 1,
+                    left: 1,
+                    child: Container(
+                      width: 11,
+                      height: 11,
+                      decoration: BoxDecoration(
+                        color: _statusColor,
+                        shape: BoxShape.circle,
+                        border:
+                            Border.all(color: Colors.white, width: 1.5),
                       ),
-                      _buildStatusBadge(user),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'ID: ${user.id} • ${user.tracking}',
-                    style: AppTextStyles.bodySmall,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    user.timeInfo,
-                    style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+                    ),
                   ),
                 ],
               ),
-            ),
-            PopupMenuButton<String>(
-              icon: const Icon(
-                Icons.more_vert,
-                color: AppColors.textSecondary,
-                size: 20,
-              ),
-              onSelected: (value) {
-                if (value == 'view') _showUserDetail(user);
-                if (value == 'toggle') {
-                  setState(() => user.isActive = !user.isActive);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        user.isActive
-                            ? '${user.name} reactivated.'
-                            : '${user.name} deactivated.',
-                      ),
-                      backgroundColor: user.isActive
-                          ? AppColors.success
-                          : AppColors.warning,
+              const SizedBox(width: 12),
+              // Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            displayName,
+                            style: AppTextStyles.subtitle.copyWith(
+                              color: AppColors.textPrimary,
+                              fontSize: 14,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        // Admin badge
+                        if (_isAdmin) ...[
+                          const SizedBox(width: 6),
+                          _Badge(
+                            label: 'Admin',
+                            color: AppColors.primary,
+                          ),
+                        ],
+                        const SizedBox(width: 4),
+                        // Status badge
+                        _Badge(
+                          label: _isActive ? 'Active' : 'Inactive',
+                          color: _statusColor,
+                        ),
+                      ],
                     ),
-                  );
-                }
-                if (value == 'delete') _confirmDelete(user);
-              },
-              itemBuilder: (_) => [
-                const PopupMenuItem(value: 'view', child: Text('View Details')),
-                PopupMenuItem(
-                  value: 'toggle',
-                  child: Text(user.isActive ? 'Deactivate' : 'Reactivate'),
+                    const SizedBox(height: 3),
+                    // Email
+                    Text(
+                      user.email ?? 'No email',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: user.email != null
+                            ? AppColors.textSecondary
+                            : AppColors.textSecondary.withAlpha(120),
+                        fontStyle: user.email != null
+                            ? FontStyle.normal
+                            : FontStyle.italic,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    // Last sign in or joined date
+                    Text(
+                      user.lastSignInAt != null
+                          ? 'Last seen ${_timeAgo(user.lastSignInAt!)}'
+                          : user.createdAt != null
+                              ? 'Joined ${_fmtDate(user.createdAt!)}'
+                              : '',
+                      style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+                    ),
+                  ],
                 ),
-                const PopupMenuItem(
-                  value: 'delete',
-                  child: Text(
-                    'Delete',
-                    style: TextStyle(color: AppColors.error),
+              ),
+              // Menu
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert,
+                    color: AppColors.textSecondary, size: 20),
+                onSelected: (v) {
+                  if (v == 'view') onTap();
+                  if (v == 'toggle') onToggle();
+                },
+                itemBuilder: (_) => [
+                  const PopupMenuItem(
+                      value: 'view', child: Text('View Details')),
+                  PopupMenuItem(
+                    value: 'toggle',
+                    child: Text(_isActive ? 'Deactivate' : 'Reactivate'),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildAvatar(_UserData user) {
-    return Stack(
-      children: [
-        CircleAvatar(
-          radius: 24,
-          backgroundColor: user.avatarColor,
-          child: Text(
-            user.initials,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 1,
-          left: 1,
-          child: Container(
-            width: 11,
-            height: 11,
-            decoration: BoxDecoration(
-              color: user.statusColor,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 1.5),
-            ),
-          ),
-        ),
-      ],
-    );
+  static String _fmtDate(DateTime dt) {
+    const m = [
+      'Jan','Feb','Mar','Apr','May','Jun',
+      'Jul','Aug','Sep','Oct','Nov','Dec'
+    ];
+    return '${m[dt.month - 1]} ${dt.day}, ${dt.year}';
   }
 
-  Widget _buildStatusBadge(_UserData user) {
+  static String _timeAgo(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 30) return '${diff.inDays}d ago';
+    return _fmtDate(dt);
+  }
+}
+
+class _Badge extends StatelessWidget {
+  final String label;
+  final Color color;
+  const _Badge({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: user.statusColor.withAlpha(25),
+        color: color.withAlpha(25),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: user.statusColor.withAlpha(60)),
+        border: Border.all(color: color.withAlpha(60)),
       ),
-      child: Text(
-        user.statusLabel,
-        style: AppTextStyles.label.copyWith(
-          color: user.statusColor,
-          fontSize: 11,
-        ),
-      ),
+      child: Text(label,
+          style: AppTextStyles.label.copyWith(color: color, fontSize: 10)),
     );
   }
 }
 
-// ─── User Detail Bottom Sheet ────────────────────────────────────────────────
+// ─── User Detail Sheet ────────────────────────────────────────────────────────
 
 class _UserDetailSheet extends StatelessWidget {
-  final _UserData user;
+  final UserProfile user;
+  final Color avatarColor;
+  final String initials;
   final VoidCallback onToggleActive;
-  final VoidCallback onDelete;
 
   const _UserDetailSheet({
     required this.user,
+    required this.avatarColor,
+    required this.initials,
     required this.onToggleActive,
-    required this.onDelete,
   });
+
+  bool get _isActive => user.status == 'active';
+  Color get _statusColor =>
+      _isActive ? AppColors.success : AppColors.textSecondary;
+  String get _statusLabel => _isActive ? 'Active' : 'Inactive';
+
+  String get _displayName =>
+      user.fullName.isNotEmpty ? user.fullName : 'User ${user.id.substring(0, 8)}';
 
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.65,
+      initialChildSize: 0.6,
       minChildSize: 0.4,
-      maxChildSize: 0.9,
+      maxChildSize: 0.92,
       builder: (_, controller) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -521,137 +626,159 @@ class _UserDetailSheet extends StatelessWidget {
         ),
         child: ListView(
           controller: controller,
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
           children: [
+            // Handle
             Center(
               child: Container(
                 width: 40,
                 height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+
+            // Header
             Row(
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: user.avatarColor,
-                  child: Text(
-                    user.initials,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  backgroundColor: avatarColor,
+                  child: Text(initials,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(user.name, style: AppTextStyles.h3),
+                      Text(_displayName, style: AppTextStyles.h3),
                       const SizedBox(height: 4),
-                      Text('ID: ${user.id}', style: AppTextStyles.bodySmall),
+                      Row(children: [
+                        _Badge(label: _statusLabel, color: _statusColor),
+                        if (user.role == 'admin') ...[
+                          const SizedBox(width: 6),
+                          _Badge(
+                              label: 'Admin',
+                              color: AppColors.primary),
+                        ],
+                      ]),
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: user.statusColor.withAlpha(25),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: user.statusColor.withAlpha(60)),
-                  ),
-                  child: Text(
-                    user.statusLabel,
-                    style: AppTextStyles.label.copyWith(
-                      color: user.statusColor,
-                    ),
-                  ),
-                ),
               ],
             ),
-            const SizedBox(height: 24),
+
+            const SizedBox(height: 20),
             const Divider(),
-            const SizedBox(height: 16),
-            Text(
-              'Contact Information',
-              style: AppTextStyles.subtitle.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
             const SizedBox(height: 12),
-            _infoRow(Icons.email_outlined, user.email),
-            const SizedBox(height: 8),
-            _infoRow(Icons.phone_outlined, user.phone),
-            const SizedBox(height: 8),
-            _infoRow(Icons.calendar_today_outlined, 'Joined: ${user.joinDate}'),
+
+            // Account info section
+            _SectionLabel('Account'),
+            const SizedBox(height: 10),
+            _InfoRow(
+              icon: Icons.person_outline,
+              label: 'First name',
+              value: user.firstName,
+            ),
+            _InfoRow(
+              icon: Icons.person_outline,
+              label: 'Last name',
+              value: user.lastName,
+            ),
+            _InfoRow(
+              icon: Icons.email_outlined,
+              label: 'Email',
+              value: user.email,
+            ),
+            _InfoRow(
+              icon: Icons.phone_outlined,
+              label: 'Phone',
+              value: user.phone,
+            ),
+            _InfoRow(
+              icon: Icons.badge_outlined,
+              label: 'Role',
+              value: user.role,
+            ),
+            _InfoRow(
+              icon: Icons.calendar_today_outlined,
+              label: 'Joined',
+              value: user.createdAt != null ? _fmtDate(user.createdAt!) : null,
+            ),
+            _InfoRow(
+              icon: Icons.access_time_outlined,
+              label: 'Last seen',
+              value: user.lastSignInAt != null
+                  ? _fmtDate(user.lastSignInAt!)
+                  : null,
+            ),
+
             const SizedBox(height: 16),
             const Divider(),
-            const SizedBox(height: 16),
-            Text(
-              'Health Tracking',
-              style: AppTextStyles.subtitle.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
             const SizedBox(height: 12),
-            _infoRow(Icons.monitor_heart_outlined, user.tracking),
-            const SizedBox(height: 8),
-            _infoRow(Icons.access_time_outlined, user.timeInfo),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: onToggleActive,
-                    icon: Icon(
-                      user.isActive ? Icons.block : Icons.check_circle_outline,
-                      color: user.isActive
-                          ? AppColors.warning
-                          : AppColors.success,
-                    ),
-                    label: Text(
-                      user.isActive ? 'Deactivate' : 'Reactivate',
-                      style: TextStyle(
-                        color: user.isActive
-                            ? AppColors.warning
-                            : AppColors.success,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(
-                        color: user.isActive
-                            ? AppColors.warning
-                            : AppColors.success,
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
+
+            // Health profile section
+            _SectionLabel('Health Profile'),
+            const SizedBox(height: 10),
+            _InfoRow(
+              icon: Icons.person_outline,
+              label: 'Gender',
+              value: user.gender?.isNotEmpty == true
+                  ? _capitalize(user.gender!)
+                  : null,
+            ),
+            _InfoRow(
+              icon: Icons.cake_outlined,
+              label: 'Date of Birth',
+              value: user.dob != null ? _fmtDate(user.dob!) : null,
+            ),
+            _InfoRow(
+              icon: Icons.height,
+              label: 'Height',
+              value: user.height != null
+                  ? '${user.height!.toStringAsFixed(1)} cm'
+                  : null,
+            ),
+            _InfoRow(
+              icon: Icons.monitor_weight_outlined,
+              label: 'Weight',
+              value: user.weight != null
+                  ? '${user.weight!.toStringAsFixed(1)} kg'
+                  : null,
+            ),
+
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 12),
+
+            // Actions
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: onToggleActive,
+                icon: Icon(
+                  _isActive ? Icons.block : Icons.check_circle_outline,
+                  size: 18,
+                  color: _isActive ? AppColors.warning : AppColors.success,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: onDelete,
-                    icon: const Icon(Icons.delete_outline, color: Colors.white),
-                    label: const Text(
-                      'Delete',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.error,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
+                label: Text(
+                  _isActive ? 'Deactivate' : 'Reactivate',
+                  style: TextStyle(
+                      color: _isActive ? AppColors.warning : AppColors.success),
                 ),
-              ],
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                      color: _isActive ? AppColors.warning : AppColors.success),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
             ),
           ],
         ),
@@ -659,13 +786,77 @@ class _UserDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _infoRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: AppColors.textSecondary),
-        const SizedBox(width: 10),
-        Expanded(child: Text(text, style: AppTextStyles.bodyMedium)),
-      ],
+  static String _fmtDate(DateTime dt) {
+    const m = [
+      'Jan','Feb','Mar','Apr','May','Jun',
+      'Jul','Aug','Sep','Oct','Nov','Dec'
+    ];
+    return '${m[dt.month - 1]} ${dt.day}, ${dt.year}';
+  }
+
+  static String _capitalize(String s) =>
+      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+}
+
+class _SectionLabel extends StatelessWidget {
+  final String text;
+  const _SectionLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: AppTextStyles.subtitle.copyWith(
+        color: AppColors.textPrimary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String? value;
+
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isNA = value == null || value!.isEmpty;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 17, color: AppColors.textSecondary),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 80,
+            child: Text(
+              label,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              isNA ? 'N/A' : value!,
+              style: isNA
+                  ? AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textSecondary,
+                      fontStyle: FontStyle.italic,
+                    )
+                  : AppTextStyles.bodyMedium,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
