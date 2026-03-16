@@ -27,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscure = true;
   String? _emailError;
   String? _passError;
+  String? _formError;
 
   @override
   void dispose() {
@@ -42,6 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
     bool valid = true;
 
     setState(() {
+      _formError = null; // Clear overall form error on new attempt
       if (email.isEmpty) {
         _emailError = 'Vui lòng nhập email';
         valid = false;
@@ -78,16 +80,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success) {
       replaceWithFade(context, const MainLayoutPage());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(vm.errorMessage ?? 'Đăng nhập thất bại'),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
+      setState(() {
+        _formError = vm.errorMessage ?? 'Đăng nhập thất bại';
+      });
     }
   }
 
@@ -97,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
+      body: AuthBackground(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
@@ -148,18 +143,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 8),
               const _ForgotPasswordLink(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+
+              // ── General Form Error ──────────────────────────────────
+              if (_formError != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _formError!,
+                          style: TextStyle(color: Colors.red.shade700, fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
 
               // ── Log In button ───────────────────────────────────────
               GradientButton(
-                label: isLoading ? 'Đang đăng nhập…' : 'Đăng nhập',
+                label: isLoading ? '' : 'Đăng nhập',
+                isLoading: isLoading,
                 onPressed: isLoading ? null : _handleLogin,
               ),
-
-              if (isLoading) ...[
-                const SizedBox(height: 16),
-                const Center(child: CircularProgressIndicator()),
-              ],
 
               const SizedBox(height: 32),
 

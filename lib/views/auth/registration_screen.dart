@@ -40,6 +40,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String? _passwordError;
   String? _confirmPassError;
   String? _phoneError;
+  String? _formError;
 
   @override
   void dispose() {
@@ -55,6 +56,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool _validate() {
     bool valid = true;
     setState(() {
+      _formError = null; // Clear overall form error on new attempt
       _firstNameError = _firstNameCtrl.text.trim().isEmpty
           ? 'Vui lòng nhập tên' : null;
       _lastNameError  = _lastNameCtrl.text.trim().isEmpty
@@ -86,8 +88,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         _confirmPassError = null;
       }
 
-      if (_phoneCtrl.text.trim().isEmpty) {
+      final phone = _phoneCtrl.text.trim();
+      if (phone.isEmpty) {
         _phoneError = 'Vui lòng nhập số điện thoại';
+        valid = false;
+      } else if (!RegExp(r'^(03|05|07|08|09)\d{8}$').hasMatch(phone)) {
+        _phoneError = 'Số điện thoại không hợp lệ (VD: 0912345678)';
         valid = false;
       } else {
         _phoneError = null;
@@ -117,14 +123,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     if (success) {
       pushScreen(context, const VerificationScreen());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(vm.errorMessage ?? 'Đăng ký thất bại'),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
+      setState(() {
+        _formError = vm.errorMessage ?? 'Đăng ký thất bại';
+      });
     }
   }
 
@@ -134,7 +135,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
+      body: AuthBackground(
         child: Column(
           children: [
             // ── App bar ──────────────────────────────────────────────
@@ -294,12 +295,34 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
               child: Column(children: [
-                if (isLoading) ...[
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 12),
+                // ── General Form Error ──────────────────────────────────
+                if (_formError != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _formError!,
+                            style: TextStyle(color: Colors.red.shade700, fontSize: 13),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
+
                 GradientButton(
-                  label: isLoading ? 'Đang đăng ký…' : 'Register',
+                  label: isLoading ? '' : 'Đăng ký',
+                  isLoading: isLoading,
                   onPressed: isLoading ? null : _handleRegister,
                 ),
                 const SizedBox(height: 12),
