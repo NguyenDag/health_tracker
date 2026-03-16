@@ -170,7 +170,7 @@ class _HomePageState extends State<HomePage> {
 
   String _formatSugarValue(HealthRecord? record) {
     if (record == null) return '-- mg/dL';
-    return '${record.glucose} ${record.glucoseUnit ?? 'mg/dL'}';
+    return '${record.glucoseValue} ${record.glucoseUnit ?? 'mg/dL'}';
   }
 
   String _formatWeightValue(HealthRecord? record) {

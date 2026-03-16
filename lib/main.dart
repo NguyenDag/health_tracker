@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:health_tracker/viewmodels/threshold_viewmodel.dart';
+import 'package:health_tracker/data/implementations/api/blood_pressure_api.dart';
+import 'package:health_tracker/data/implementations/api/blood_sugar_api.dart';
+import 'package:health_tracker/data/implementations/api/spo2_api.dart';
+import 'package:health_tracker/data/implementations/api/weight_api.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -26,7 +30,6 @@ void main() async {
     url: SupabaseConfig.url,
     anonKey: SupabaseConfig.anonKey,
   );
-
   runApp(const HealthTrackerApp());
 }
 
@@ -39,10 +42,24 @@ class HealthTrackerApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(
-          create: (_) => HomeViewModel(HealthRepository()),
+          create: (_) => HomeViewModel(
+            HealthRepository(
+              bloodPressureApi: BloodPressureApi(supabase: supabase),
+              bloodSugarApi: BloodSugarApi(supabase: supabase),
+              spo2Api: Spo2Api(supabase: supabase),
+              weightApi: WeightApi(supabase: supabase),
+            ),
+          ),
         ),
         ChangeNotifierProvider(
-          create: (_) => StatsViewModel(HealthRepository()),
+          create: (_) => StatsViewModel(
+            HealthRepository(
+              bloodPressureApi: BloodPressureApi(supabase: supabase),
+              bloodSugarApi: BloodSugarApi(supabase: supabase),
+              spo2Api: Spo2Api(supabase: supabase),
+              weightApi: WeightApi(supabase: supabase),
+            ),
+          ),
         ),
         ChangeNotifierProvider(create: (_) => AdminUsersViewModel()),
         ChangeNotifierProvider(create: (_) => AdminThresholdsViewModel()),

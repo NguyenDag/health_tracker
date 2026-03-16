@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:health_tracker/core/constants/app_colors.dart';
-import 'package:health_tracker/views/user/logs/add_record_page.dart';
 import 'package:provider/provider.dart';
 
 import '../../../viewmodels/history_record_viewmodel/history_record_viewmodel.dart';
 import '../../widgets/history_record/history_filter.dart';
 import '../../widgets/history_record/history_item.dart';
-import '../../widgets/history_record/history_list.dart';
 import '../../widgets/history_record/history_search.dart';
 import '../../widgets/history_record/history_section.dart';
 import 'input_record_page.dart';
@@ -36,7 +34,7 @@ class _HistoryView extends StatelessWidget {
         children: [
           const SizedBox(height: 10),
           const HistorySearch(),
-          const SizedBox(height: 12),
+          const SizedBox(height: 15),
           const HistoryFilter(),
           Expanded(
             child: Consumer<HistoryViewModel>(
@@ -50,7 +48,9 @@ class _HistoryView extends StatelessWidget {
                       children: [
                         HistorySection(title: entry.key),
                         ...entry.value
-                            .map((record) => HistoryItem(record: record))
+                            .map(
+                              (record) => HistoryItem(record: record, vm: vm),
+                            )
                             .toList(),
                       ],
                     );
@@ -65,15 +65,18 @@ class _HistoryView extends StatelessWidget {
       /// FLOATING BUTTON
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const AddRecordScreen()),
           );
+
+          if (result == true) {
+            context.read<HistoryViewModel>().load();
+          }
         },
         child: const Icon(Icons.add),
       ),
-
     );
   }
 }
