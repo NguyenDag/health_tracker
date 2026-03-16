@@ -1,256 +1,299 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../../../viewmodels/admin_thresholds_viewmodel.dart';
+import '../../../viewmodels/admin_users_viewmodel.dart';
 import '../thresholds/admin_thresholds_page.dart';
 
-class _ThresholdRow {
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const _metrics = ['blood_pressure', 'blood_sugar', 'spo2', 'weight'];
+
+const _metricLabels = {
+  'blood_pressure': 'Blood Pressure',
+  'blood_sugar': 'Blood Sugar',
+  'spo2': 'SpO2',
+  'weight': 'Weight',
+};
+
+const _metricIcons = {
+  'blood_pressure': Icons.favorite_border,
+  'blood_sugar': Icons.water_drop_outlined,
+  'spo2': Icons.air,
+  'weight': Icons.monitor_weight_outlined,
+};
+
+const _metricColors = {
+  'blood_pressure': AppColors.error,
+  'blood_sugar': Color(0xFFF57C00),
+  'spo2': AppColors.success,
+  'weight': Color(0xFF7B1FA2),
+};
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+class AdminDashboardPage extends StatefulWidget {
+  const AdminDashboardPage({super.key});
+
+  @override
+  State<AdminDashboardPage> createState() => _AdminDashboardPageState();
+}
+
+class _AdminDashboardPageState extends State<AdminDashboardPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminUsersViewModel>().loadUsers();
+      context.read<AdminThresholdsViewModel>().load();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer2<AdminUsersViewModel, AdminThresholdsViewModel>(
+      builder: (context, usersVM, thresholdsVM, _) {
+        final users = usersVM.users.where((u) => u.role != 'admin').toList();
+        final totalUsers = users.length;
+
+        final now = DateTime.now();
+        final newSignups = users
+            .where((u) =>
+                u.createdAt != null &&
+                u.createdAt!.year == now.year &&
+                u.createdAt!.month == now.month)
+            .length;
+
+        final grouped = thresholdsVM.grouped;
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            final usersVM = context.read<AdminUsersViewModel>();
+            final thresholdsVM = context.read<AdminThresholdsViewModel>();
+            await usersVM.loadUsers();
+            await thresholdsVM.load();
+          },
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            children: [
+              // ── Header ────────────────────────────────────────────
+              Text('Overview', style: AppTextStyles.h1.copyWith(fontSize: 26)),
+              const SizedBox(height: 4),
+              Text(
+                _monthLabel(now),
+                style: AppTextStyles.bodySmall
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 20),
+
+              // ── Stats row ─────────────────────────────────────────
+              Row(children: [
+                Expanded(
+                  child: _StatCard(
+                    icon: Icons.people_outline,
+                    color: AppColors.primary,
+                    label: 'Total Users',
+                    value: usersVM.isLoading ? '—' : '$totalUsers',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _StatCard(
+                    icon: Icons.person_add_outlined,
+                    color: const Color(0xFF7B1FA2),
+                    label: 'New This Month',
+                    value: usersVM.isLoading ? '—' : '$newSignups',
+                  ),
+                ),
+              ]),
+              const SizedBox(height: 28),
+
+              // ── Threshold summary ─────────────────────────────────
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Threshold Config', style: AppTextStyles.h3),
+                  GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const AdminThresholdsPage()),
+                    ),
+                    child: Text(
+                      'View all',
+                      style: AppTextStyles.bodySmall
+                          .copyWith(color: AppColors.primary),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              thresholdsVM.isLoading
+                  ? const _ThresholdSkeleton()
+                  : _ThresholdSummaryCard(grouped: grouped),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _monthLabel(DateTime d) {
+    const months = [
+      'January', 'February', 'March', 'April',
+      'May', 'June', 'July', 'August',
+      'September', 'October', 'November', 'December',
+    ];
+    return '${months[d.month - 1]} ${d.year}';
+  }
+}
+
+// ─── Stat Card ────────────────────────────────────────────────────────────────
+
+class _StatCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String label;
   final String value;
-  const _ThresholdRow({required this.icon, required this.color, required this.label, required this.value});
-}
 
-class AdminDashboardPage extends StatelessWidget {
-  const AdminDashboardPage({super.key});
+  const _StatCard({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Monday, 12 Oct', style: AppTextStyles.bodyMedium),
-          const SizedBox(height: 4),
-          Text('Overview', style: AppTextStyles.h1.copyWith(fontSize: 28)),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: _buildMetricCard(
-                  title: 'Total Users',
-                  value: '1,245',
-                  percentage: '+5%',
-                  icon: Icons.people,
-                  color: AppColors.primary,
-                  bgColor: AppColors.primaryLight.withAlpha(50),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildMetricCard(
-                  title: 'Active Today',
-                  value: '856',
-                  percentage: '+12%',
-                  icon: Icons.show_chart,
-                  color: Colors.blue,
-                  bgColor: AppColors.spo2Bg,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildMetricBanner(
-            title: 'New Signups',
-            value: '45',
-            percentage: '+8%',
-            icon: Icons.person_add,
-            color: Colors.purple,
-            bgColor: AppColors.bloodSugarBg,
-          ),
-          const SizedBox(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Threshold Config', style: AppTextStyles.h2),
-              GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AdminThresholdsPage()),
-                ),
-                child: Text(
-                  'Config',
-                  style: AppTextStyles.subtitle.copyWith(color: AppColors.primary),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildThresholdSummaryCard(context),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withAlpha(10),
+              blurRadius: 8,
+              offset: const Offset(0, 2)),
         ],
       ),
-    );
-  }
-
-  Widget _buildMetricCard({
-    required String title,
-    required String value,
-    required String percentage,
-    required IconData icon,
-    required Color color,
-    required Color bgColor,
-  }) {
-    return Card(
-      color: bgColor,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: color, size: 20),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color.withAlpha(30),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    percentage,
-                    style: AppTextStyles.label.copyWith(color: color),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(title, style: AppTextStyles.bodyMedium),
-            const SizedBox(height: 4),
-            Text(value, style: AppTextStyles.h2.copyWith(fontSize: 24)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMetricBanner({
-    required String title,
-    required String value,
-    required String percentage,
-    required IconData icon,
-    required Color color,
-    required Color bgColor,
-  }) {
-    return Card(
-      color: bgColor,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: color, size: 20),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color.withAlpha(30),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    percentage,
-                    style: AppTextStyles.label.copyWith(color: color),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(title, style: AppTextStyles.bodyMedium),
-            const SizedBox(height: 4),
-            Text(value, style: AppTextStyles.h2.copyWith(fontSize: 24)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildThresholdSummaryCard(BuildContext context) {
-    final rows = [
-      _ThresholdRow(
-        icon: Icons.favorite_border,
-        color: AppColors.error,
-        label: 'Blood Pressure',
-        value:
-            '90–120 / 60–80 mmHg',
-      ),
-      _ThresholdRow(
-        icon: Icons.water_drop_outlined,
-        color: Colors.orange,
-        label: 'Blood Glucose',
-        value:
-            '70–100 mg/dL',
-      ),
-      _ThresholdRow(
-        icon: Icons.air,
-        color: AppColors.success,
-        label: 'Oxygen (SpO2)',
-        value:
-            '95–100 %',
-      ),
-      _ThresholdRow(
-        icon: Icons.monitor_weight_outlined,
-        color: Colors.deepPurple,
-        label: 'Target BMI',
-        value:
-            '18.5–24.9',
-      ),
-    ];
-
-    return Card(
-      color: Colors.white,
-      shadowColor: Colors.black.withAlpha(13),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: rows
-              .expand((row) => [
-                    _buildThresholdRow(row),
-                    if (row != rows.last) ...[
-                      const SizedBox(height: 12),
-                      const Divider(height: 1),
-                      const SizedBox(height: 12),
-                    ],
-                  ])
-              .toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildThresholdRow(_ThresholdRow row) {
-    return Row(
-      children: [
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Container(
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: row.color.withAlpha(20),
-            shape: BoxShape.circle,
+            color: color.withAlpha(20),
+            borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(row.icon, color: row.color, size: 16),
+          child: Icon(icon, color: color, size: 20),
         ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(row.label, style: AppTextStyles.subtitle.copyWith(color: AppColors.textPrimary)),
+        const SizedBox(height: 14),
+        Text(
+          value,
+          style: AppTextStyles.h2.copyWith(fontSize: 28, color: AppColors.textPrimary),
         ),
-        Text(row.value, style: AppTextStyles.bodySmall.copyWith(color: AppColors.success)),
-      ],
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+        ),
+      ]),
+    );
+  }
+}
+
+// ─── Threshold Summary Card ───────────────────────────────────────────────────
+
+class _ThresholdSummaryCard extends StatelessWidget {
+  final Map<String, dynamic> grouped;
+  const _ThresholdSummaryCard({required this.grouped});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withAlpha(10),
+              blurRadius: 8,
+              offset: const Offset(0, 2)),
+        ],
+      ),
+      child: Column(
+        children: _metrics.asMap().entries.map((entry) {
+          final idx = entry.key;
+          final m = entry.value;
+          final rules = (grouped[m] as List?) ?? [];
+          final count = rules.length;
+          final color = _metricColors[m] ?? AppColors.primary;
+          final icon = _metricIcons[m] ?? Icons.monitor_heart_outlined;
+          final label = _metricLabels[m] ?? m;
+          final isLast = idx == _metrics.length - 1;
+
+          return Column(children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(children: [
+                Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: color.withAlpha(18),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, color: color, size: 16),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(label,
+                      style: AppTextStyles.subtitle
+                          .copyWith(color: AppColors.textPrimary)),
+                ),
+                if (count == 0)
+                  Text('No rules',
+                      style: AppTextStyles.bodySmall
+                          .copyWith(color: AppColors.textSecondary))
+                else
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: color.withAlpha(18),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '$count ${count == 1 ? 'rule' : 'rules'}',
+                      style: AppTextStyles.label
+                          .copyWith(color: color, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+              ]),
+            ),
+            if (!isLast)
+              const Divider(height: 1, indent: 16, endIndent: 16),
+          ]);
+        }).toList(),
+      ),
+    );
+  }
+}
+
+// ─── Threshold Skeleton ───────────────────────────────────────────────────────
+
+class _ThresholdSkeleton extends StatelessWidget {
+  const _ThresholdSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 220,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Center(child: CircularProgressIndicator()),
     );
   }
 }
