@@ -24,7 +24,15 @@ class VerificationScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              const AppBackButton(),
+              Row(
+                children: const [
+                  AppBackButton(),
+                  Spacer(),
+                  Text('Xác nhận email', style: AppTextStyles.heading3),
+                  Spacer(flex: 1),
+                  SizedBox(width: 32),
+                ],
+              ),
 
               const Spacer(flex: 2),
 

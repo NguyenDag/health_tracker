@@ -32,9 +32,15 @@ class AuthRepository implements IAuthRepository {
     required String gender,
     required double height,
     required double weight,
+    required DateTime dob,
   }) async {
-    // Pass profile data as user metadata. The Postgres trigger handling the 'insert'
-    // event will then securely copy these fields into the `public.users` table.
+    // Map gender to English for database check constraint
+    final mappedGender = {
+      'nam': 'male',
+      'nữ': 'female',
+      'khác': 'other',
+    }[gender.toLowerCase()] ?? gender.toLowerCase();
+
     final response = await supabase.auth.signUp(
       email: email.trim(),
       password: password,
@@ -42,9 +48,10 @@ class AuthRepository implements IAuthRepository {
         'first_name': firstName.trim(),
         'last_name': lastName.trim(),
         'phone': phone.trim(),
-        'gender': gender.toLowerCase(),
+        'gender': mappedGender,
         'height': height,
         'weight': weight,
+        'dob': dob.toIso8601String(),
       },
     );
 

@@ -9,6 +9,7 @@ import '../user/main/main_layout_page.dart';
 import '../widgets/shared_widgets.dart';
 import 'forgot_password_screen.dart';
 import 'registration_screen.dart';
+import '../admin/main/admin_main_layout_page.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LOGIN SCREEN
@@ -78,7 +79,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      replaceWithFade(context, const MainLayoutPage());
+      final user = vm.currentUser;
+      if (user?.role == 'admin') {
+        replaceWithFade(context, const AdminMainLayoutPage());
+      } else {
+        replaceWithFade(context, const MainLayoutPage());
+      }
     } else {
       setState(() {
         _formError = vm.errorMessage ?? 'Đăng nhập thất bại';
@@ -204,8 +210,9 @@ class _LoginTopBar extends StatelessWidget {
         // Only show the back button when there is a previous route
         if (canPop) const AppBackButton() else const SizedBox(width: 32),
         const Spacer(),
-        const Text('ĐĂNG NHẬP', style: AppTextStyles.badge),
-        const Spacer(flex: 2),
+        const Text('Đăng nhập', style: AppTextStyles.heading3),
+        const Spacer(flex: 1),
+        const SizedBox(width: 32),
       ],
     );
   }
@@ -220,7 +227,7 @@ class _LoginHeadline extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         Text('Chào mừng trở lại', style: AppTextStyles.heading1),
         SizedBox(height: 8),
         Text(

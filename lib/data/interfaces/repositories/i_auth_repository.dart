@@ -23,6 +23,7 @@ abstract class IAuthRepository {
     required String gender,
     required double height,
     required double weight,
+    required DateTime dob,
   });
 
   /// Sign out the current user.

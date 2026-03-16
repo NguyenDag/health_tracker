@@ -89,8 +89,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 children: const [
                   AppBackButton(),
                   Spacer(),
-                  Text('QUÊN MẬT KHẨU', style: AppTextStyles.badge),
-                  Spacer(flex: 2),
+                  Text('Quên mật khẩu', style: AppTextStyles.heading3),
+                  Spacer(flex: 1),
+                  SizedBox(width: 32),
                 ],
               ),
 

@@ -61,6 +61,7 @@ class AuthViewModel extends ChangeNotifier {
     required String gender,
     required double height,
     required double weight,
+    required DateTime dob,
   }) async {
     _setLoading();
     try {
@@ -73,6 +74,7 @@ class AuthViewModel extends ChangeNotifier {
         gender: gender,
         height: height,
         weight: weight,
+        dob: dob,
       );
       _currentUser = await _repo.getCurrentUserProfile();
       _setState(AuthState.success);

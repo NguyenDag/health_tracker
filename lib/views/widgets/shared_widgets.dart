@@ -214,15 +214,18 @@ class UnitTextField extends StatelessWidget {
     super.key,
     required this.controller,
     required this.unit,
+    this.onChanged,
   });
 
   final TextEditingController controller;
   final String unit;
+  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      onChanged: onChanged,
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         suffixText: unit,
@@ -263,7 +266,7 @@ class GenderDropdown extends StatelessWidget {
   final String value;
   final ValueChanged<String?> onChanged;
 
-  static const _options = ['Male', 'Female', 'Other'];
+  static const _options = ['Nam', 'Nữ', 'Khác'];
 
   @override
   Widget build(BuildContext context) {
@@ -438,7 +441,7 @@ class ProgressStepHeader extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'STEP $step OF $total',
+              'BƯỚC $step / $total',
               style: const TextStyle(
                 fontSize: 11, fontWeight: FontWeight.w600,
                 color: AppColors.textHint, letterSpacing: 1.2,
