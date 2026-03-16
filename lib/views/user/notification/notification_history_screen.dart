@@ -19,12 +19,12 @@ class NotificationHistoryScreen extends StatelessWidget {
         backgroundColor: AppColors.background,
         appBar: AppBar(
           centerTitle: true,
-          title: Text("Notification History", style: AppTextStyles.h2),
+          title: Text("Lịch Sử Thông Báo", style: AppTextStyles.h2),
           bottom: const TabBar(
             tabs: [
-              Tab(text: "All"),
-              Tab(text: "Alerts"),
-              Tab(text: "Reminders"),
+              Tab(text: "Tất Cả"),
+              Tab(text: "Cảnh Báo"),
+              Tab(text: "Nhắc Nhở"),
             ],
           ),
         ),
@@ -67,9 +67,7 @@ class NotificationHistoryScreen extends StatelessWidget {
           isFirst: index == 0,
           isLast: index == items.length - 1,
           onTap: () async {
-            print("onTap");
             if (!n.isRead) {
-              print("aaaa");
               await viewModel.markAsRead(n.id);
             }
           },

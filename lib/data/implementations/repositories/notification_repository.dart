@@ -1,5 +1,5 @@
 import '../../../domain/entities/health_notification.dart';
-import '../../interfaces/repositories/inotification_repository.dart';
+import '../../interfaces/repositories/i_notification_repository.dart';
 import '../api/api_sample.dart';
 
 class NotificationRepository implements INotificationRepository {
