@@ -46,7 +46,7 @@ class _StatsPageState extends State<StatsPage> {
       case HealthType.BP:
         return '${record.systolic ?? '--'}/${record.diastolic ?? '--'}';
       case HealthType.Sugar:
-        return '${record.glucose ?? '--'}';
+        return '${record.glucoseValue ?? '--'}';
       case HealthType.Weight:
         return '${record.weight ?? '--'}';
       case HealthType.Spo2:
@@ -221,9 +221,9 @@ class _StatsPageState extends State<StatsPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(viewModel.records.last.measuredAt.day.toString() + ' ' + _getMonthName(viewModel.records.last.measuredAt.month), 
+                      Text(viewModel.records.last.createdAt.day.toString() + ' ' + _getMonthName(viewModel.records.last.createdAt.month),
                         style: AppTextStyles.label.copyWith(color: AppColors.textSecondary)),
-                      Text(viewModel.records.first.measuredAt.day.toString() + ' ' + _getMonthName(viewModel.records.first.measuredAt.month), 
+                      Text(viewModel.records.first.createdAt.day.toString() + ' ' + _getMonthName(viewModel.records.first.createdAt.month),
                         style: AppTextStyles.label.copyWith(color: AppColors.textSecondary)),
                     ],
                   )
@@ -385,7 +385,7 @@ class _RealChartPainter extends CustomPainter {
         case HealthType.BP:
           return (r.systolic ?? 0).toDouble();
         case HealthType.Sugar:
-          return (r.glucose ?? 0).toDouble();
+          return (r.glucoseValue ?? 0).toDouble();
         case HealthType.Weight:
           return (r.weight ?? 0).toDouble();
         case HealthType.Spo2:

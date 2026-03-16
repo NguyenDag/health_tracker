@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../data/interfaces/repositories/ihealth_repository.dart';
+import '../data/interfaces/repositories/i_health_repository.dart';
 import '../domain/entities/health_record.dart';
 import '../domain/enums/health_type.dart';
 

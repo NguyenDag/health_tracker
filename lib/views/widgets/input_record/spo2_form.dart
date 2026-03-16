@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter/services.dart';
 import '../../../domain/entities/spo2_record.dart';
 import '../../../viewmodels/add_record_viewmodel/add_record_viewmodel.dart';
 
@@ -17,11 +17,6 @@ class _Spo2FormState extends State<Spo2Form> {
   final TextEditingController spo2Controller =
   TextEditingController(text: "98");
 
-  bool get isLow {
-    final value = int.tryParse(spo2Controller.text) ?? 0;
-    return value < 95;
-  }
-
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<AddRecordViewModel>();
@@ -34,7 +29,8 @@ class _Spo2FormState extends State<Spo2Form> {
           "SpO₂",
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey,
+            color: Colors.black,
+            fontWeight: FontWeight.w900,
             letterSpacing: 1,
           ),
         ),
@@ -45,7 +41,7 @@ class _Spo2FormState extends State<Spo2Form> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isLow ? Colors.red : Colors.transparent,
+              color: Colors.transparent,
             ),
           ),
           child: Row(
@@ -54,6 +50,9 @@ class _Spo2FormState extends State<Spo2Form> {
                 child: TextField(
                   controller: spo2Controller,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -66,18 +65,10 @@ class _Spo2FormState extends State<Spo2Form> {
                   },
                 ),
               ),
-              const Text("%", style: TextStyle(color: Colors.grey))
+              const Text("%", style: TextStyle(color: Colors.black))
             ],
           ),
         ),
-        if (isLow)
-          const Padding(
-            padding: EdgeInsets.only(top: 4),
-            child: Text(
-              "Low oxygen level",
-              style: TextStyle(color: Colors.red, fontSize: 12),
-            ),
-          ),
 
         const SizedBox(height: 20),
 
@@ -122,7 +113,7 @@ class _Spo2FormState extends State<Spo2Form> {
         Text(
           title,
           style: const TextStyle(
-              fontSize: 12, color: Colors.grey, letterSpacing: 1),
+              fontSize: 12, color: Colors.black, fontWeight: FontWeight.w900, letterSpacing: 1),
         ),
         const SizedBox(height: 6),
         Container(
@@ -144,7 +135,7 @@ class _Spo2FormState extends State<Spo2Form> {
         const Text(
           "NOTE",
           style: TextStyle(
-              fontSize: 12, color: Colors.grey, letterSpacing: 1),
+              fontSize: 12, color: Colors.black, fontWeight: FontWeight.w900, letterSpacing: 1),
         ),
         const SizedBox(height: 6),
         Container(
@@ -170,7 +161,8 @@ class _Spo2FormState extends State<Spo2Form> {
           "DATE & TIME",
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey,
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
             letterSpacing: 1,
           ),
         ),
@@ -203,6 +195,9 @@ class _Spo2FormState extends State<Spo2Form> {
                 const SizedBox(width: 10),
                 Text(
                   "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
                 ),
                 const Spacer(),
                 const Icon(Icons.keyboard_arrow_down),

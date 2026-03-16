@@ -7,7 +7,10 @@
 .buildlog/
 .history
 .env
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/main
 
 
 # Flutter repo-specific
@@ -118,3 +121,7 @@ app.*.symbols
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+
+.idea/libraries/Dart_SDK.xml
+.idea/libraries/Flutter_Plugins.xml
+.idea/libraries/Dart_Packages.xml

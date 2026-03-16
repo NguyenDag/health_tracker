@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
+import '../../../viewmodels/add_record_viewmodel/add_record_viewmodel.dart';
 
 class BloodPressureForm extends StatefulWidget {
   const BloodPressureForm({super.key});
@@ -17,13 +20,9 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
 
   DateTime selectedDate = DateTime.now();
 
-  bool get isDiastolicHigh {
-    final value = int.tryParse(diastolicController.text) ?? 0;
-    return value >= 90;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final vm = context.read<AddRecordViewModel>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -40,7 +39,6 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
               title: "DIASTOLIC",
               controller: diastolicController,
               unit: "mmHg",
-              isError: isDiastolicHigh,
             ),
           ],
         ),
@@ -56,9 +54,6 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
         _dateTimeCard(),
 
         const SizedBox(height: 20),
-
-        /// HEALTH TIP
-        if (isDiastolicHigh) _healthTip(),
       ],
     );
   }
@@ -77,7 +72,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
             title,
             style: const TextStyle(
               fontSize: 12,
-              color: Colors.grey,
+              color: Colors.black,
               fontWeight: FontWeight.w900,
               letterSpacing: 1,
             ),
@@ -98,6 +93,9 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                   child: TextField(
                     controller: controller,
                     keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -105,12 +103,22 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                     ),
-                    onChanged: (_) => setState(() {}),
+                    onChanged: (value) {
+                      final vm = context.read<AddRecordViewModel>();
+
+                      if (title == "SYSTOLIC") {
+                        vm.systolic = int.tryParse(value) ?? 0;
+                      } else {
+                        vm.diastolic = int.tryParse(value) ?? 0;
+                      }
+
+                      setState(() {});
+                    },
                   ),
                 ),
                 Text(
                   unit,
-                  style: const TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.black),
                 ),
               ],
             ),
@@ -136,7 +144,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
           "PULSE",
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey,
+            color: Colors.black,
             fontWeight: FontWeight.w900,
             letterSpacing: 1,
           ),
@@ -154,6 +162,9 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                 child: TextField(
                   controller: pulseController,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -161,11 +172,15 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                   ),
+                  onChanged: (value) {
+                    final vm = context.read<AddRecordViewModel>();
+                    vm.pulse = int.tryParse(value) ?? 0;
+                  },
                 ),
               ),
               const Text(
                 "bpm",
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: Colors.black),
               )
             ],
           ),
@@ -182,7 +197,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
           "DATE & TIME",
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey,
+            color: Colors.black,
             fontWeight: FontWeight.w900,
             letterSpacing: 1,
           ),
@@ -216,6 +231,9 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                 const SizedBox(width: 10),
                 Text(
                   "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
                 ),
                 const Spacer(),
                 const Icon(Icons.keyboard_arrow_down),

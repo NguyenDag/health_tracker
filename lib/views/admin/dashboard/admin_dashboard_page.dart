@@ -9,22 +9,34 @@ import '../thresholds/admin_thresholds_page.dart';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const _metrics = ['blood_pressure', 'blood_sugar', 'spo2'];
+const _metrics = [
+  'blood_pressure_systolic',
+  'blood_pressure_diastolic',
+  'blood_pressure_pulse',
+  'blood_sugar',
+  'spo2',
+];
 
 const _metricLabels = {
-  'blood_pressure': 'Blood Pressure',
+  'blood_pressure_systolic': 'Systolic',
+  'blood_pressure_diastolic': 'Diastolic',
+  'blood_pressure_pulse': 'Pulse',
   'blood_sugar': 'Blood Sugar',
   'spo2': 'SpO2',
 };
 
 const _metricIcons = {
-  'blood_pressure': Icons.favorite_border,
+  'blood_pressure_systolic': Icons.favorite,
+  'blood_pressure_diastolic': Icons.favorite_border,
+  'blood_pressure_pulse': Icons.monitor_heart_outlined,
   'blood_sugar': Icons.water_drop_outlined,
   'spo2': Icons.air,
 };
 
 const _metricColors = {
-  'blood_pressure': AppColors.error,
+  'blood_pressure_systolic': AppColors.error,
+  'blood_pressure_diastolic': Color(0xFFE53935),
+  'blood_pressure_pulse': Color(0xFFFF7043),
   'blood_sugar': Color(0xFFF57C00),
   'spo2': AppColors.success,
 };
@@ -195,7 +207,7 @@ class _StatCard extends StatelessWidget {
 // ─── Threshold Summary Card ───────────────────────────────────────────────────
 
 class _ThresholdSummaryCard extends StatelessWidget {
-  final Map<String, dynamic> grouped;
+  final Map<String, List<dynamic>> grouped;
   const _ThresholdSummaryCard({required this.grouped});
 
   @override
@@ -215,7 +227,7 @@ class _ThresholdSummaryCard extends StatelessWidget {
         children: _metrics.asMap().entries.map((entry) {
           final idx = entry.key;
           final m = entry.value;
-          final rules = (grouped[m] as List?) ?? [];
+          final rules = grouped[m] ?? [];
           final count = rules.length;
           final color = _metricColors[m] ?? AppColors.primary;
           final icon = _metricIcons[m] ?? Icons.monitor_heart_outlined;

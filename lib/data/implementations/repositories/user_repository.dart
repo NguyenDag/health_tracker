@@ -1,6 +1,7 @@
 import '../../../core/network/supabase_config.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../interfaces/repositories/i_user_repository.dart';
+import '../api/api_sample.dart';
 
 class UserRepository implements IUserRepository {
   @override
