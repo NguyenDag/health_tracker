@@ -48,7 +48,9 @@ class _HistoryView extends StatelessWidget {
                       children: [
                         HistorySection(title: entry.key),
                         ...entry.value
-                            .map((record) => HistoryItem(record: record))
+                            .map(
+                              (record) => HistoryItem(record: record, vm: vm),
+                            )
                             .toList(),
                       ],
                     );
@@ -66,9 +68,7 @@ class _HistoryView extends StatelessWidget {
         onPressed: () async {
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const AddRecordScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const AddRecordScreen()),
           );
 
           if (result == true) {
@@ -77,7 +77,6 @@ class _HistoryView extends StatelessWidget {
         },
         child: const Icon(Icons.add),
       ),
-
     );
   }
 }

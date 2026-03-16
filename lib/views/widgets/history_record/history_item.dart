@@ -2,15 +2,31 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/entities/health_record.dart';
 import '../../../domain/enums/health_type.dart';
+import '../../../viewmodels/history_record_viewmodel/history_record_viewmodel.dart';
+import 'history_detail_modal.dart';
 
 class HistoryItem extends StatelessWidget {
   final HealthRecord record;
+  final HistoryViewModel vm;
 
-  const HistoryItem({super.key, required this.record});
+  const HistoryItem({
+    super.key,
+    required this.record,
+    required this.vm,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (_) => HistoryDetailModal(record: record, vm: vm,),
+          );
+        },
+        child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -48,6 +64,7 @@ class HistoryItem extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 

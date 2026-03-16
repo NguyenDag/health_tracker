@@ -32,11 +32,13 @@ class HealthRepository implements IHealthRepository {
     for (var item in bp) {
       records.add(
         HealthRecord(
+          id : item['id'],
           type: HealthType.BP,
           systolic: item['systolic'],
           diastolic: item['diastolic'],
           pulse: item['pulse'],
-          createdAt: DateTime.parse(item['created_at']), id: '',
+          note: item['note'],
+          createdAt: DateTime.parse(item['created_at']),
         ),
       );
     }
@@ -45,9 +47,11 @@ class HealthRepository implements IHealthRepository {
     for (var item in sugar) {
       records.add(
         HealthRecord(
+          id : item['id'],
           type: HealthType.Sugar,
           glucoseValue: (item['glucose_value'] as num?)?.toDouble(),
           glucoseUnit: item['sugar_unit'],
+          note: item['note'],
           createdAt: DateTime.parse(item['created_at']),
         ),
       );
@@ -57,8 +61,10 @@ class HealthRepository implements IHealthRepository {
     for (var item in weight) {
       records.add(
         HealthRecord(
+          id : item['id'],
           type: HealthType.Weight,
           weight: (item['weight'] as num).toDouble(),
+          note: item['note'],
           createdAt: DateTime.parse(item['created_at']),
         ),
       );
@@ -68,8 +74,10 @@ class HealthRepository implements IHealthRepository {
     for (var item in spo2) {
       records.add(
         HealthRecord(
+          id : item['id'],
           type: HealthType.Spo2,
           spo2: item['spo2'],
+          note: item['note'],
           createdAt: DateTime.parse(item['created_at']),
         ),
       );
@@ -79,5 +87,26 @@ class HealthRepository implements IHealthRepository {
     records.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     return records;
+  }
+
+  @override
+  Future<void> deleteRecord(HealthRecord record) async{
+    switch (record.type) {
+      case HealthType.BP:
+        await bloodPressureApi.delete(record.id!);
+        break;
+
+      case HealthType.Sugar:
+        await bloodSugarApi.delete(record.id!);
+        break;
+
+      case HealthType.Weight:
+        await weightApi.delete(record.id!);
+        break;
+
+      case HealthType.Spo2:
+        await spo2Api.delete(record.id!);
+        break;
+    }
   }
 }

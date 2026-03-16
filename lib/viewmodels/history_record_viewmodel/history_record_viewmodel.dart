@@ -60,6 +60,16 @@ class HistoryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteRecord(HealthRecord record) async {
+    print("Deleting record id: ${record.id}");
+    await _repo.deleteRecord(record);
+    await load();
+    _all.removeWhere((r) => r.id == record.id);
+    _applyFilter();
+
+    notifyListeners();
+  }
+
   Map<String, List<HealthRecord>> get groupedRecords {
     Map<String, List<HealthRecord>> map = {};
 

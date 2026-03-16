@@ -29,4 +29,12 @@ class BloodPressureApi implements IBloodPressureApi{
 
     return List<Map<String, dynamic>>.from(data);
   }
+
+  @override
+  Future<void> delete(String id) async {
+    await supabase
+        .from('blood_pressure_records')
+        .delete()
+        .eq('id', id);
+  }
 }

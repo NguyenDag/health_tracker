@@ -30,4 +30,12 @@ class WeightApi implements IWegihtApi{
 
     return List<Map<String, dynamic>>.from(data);
   }
+
+  @override
+  Future<void> delete(String id) async {
+    await supabase
+        .from('weight_records')
+        .delete()
+        .eq('id', id);
+  }
 }

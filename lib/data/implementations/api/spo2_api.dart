@@ -31,4 +31,12 @@ class Spo2Api implements ISpo2Api{
     return List<Map<String, dynamic>>.from(data);
   }
 
+  @override
+  Future<void> delete(String id) async {
+    await supabase
+        .from('spo2_condition_records')
+        .delete()
+        .eq('id', id);
+  }
+
 }
