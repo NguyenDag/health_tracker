@@ -13,7 +13,7 @@ class AdminAiConfigPage extends StatefulWidget {
 class _AdminAiConfigPageState extends State<AdminAiConfigPage> {
   static const _defaultPrompt =
       'You are a helpful home health assistant. Analyze the user\'s vitals '
-      '(Blood pressure, SpO2, Weight) and provide concise, actionable advice...';
+      '(Blood pressure, Blood sugar, SpO2) and provide concise, actionable advice...';
 
   static const _defaultTemperature = '0.7';
   static const _defaultMaxTokens = '256';

@@ -9,27 +9,24 @@ import '../thresholds/admin_thresholds_page.dart';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const _metrics = ['blood_pressure', 'blood_sugar', 'spo2', 'weight'];
+const _metrics = ['blood_pressure', 'blood_sugar', 'spo2'];
 
 const _metricLabels = {
   'blood_pressure': 'Blood Pressure',
   'blood_sugar': 'Blood Sugar',
   'spo2': 'SpO2',
-  'weight': 'Weight',
 };
 
 const _metricIcons = {
   'blood_pressure': Icons.favorite_border,
   'blood_sugar': Icons.water_drop_outlined,
   'spo2': Icons.air,
-  'weight': Icons.monitor_weight_outlined,
 };
 
 const _metricColors = {
   'blood_pressure': AppColors.error,
   'blood_sugar': Color(0xFFF57C00),
   'spo2': AppColors.success,
-  'weight': Color(0xFF7B1FA2),
 };
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
