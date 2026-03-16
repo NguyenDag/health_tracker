@@ -15,13 +15,13 @@ class WeightRepo implements IWeightRepo{
   @override
   Future<bool> addRecord(WeightRecord record) async {
     try {
-      // final user = api.supabase.auth.currentUser;
-      //
-      // if (user == null) {
-      //   throw Exception("User not logged in");
-      // }
+      final user = api.supabase.auth.currentUser;
 
-      final dto = mapper.toDto(record, "db388042-0ab8-4d25-a121-92d1c625a7de", DateTime.now());
+      if (user == null) {
+        throw Exception("User not logged in");
+      }
+
+      final dto = mapper.toDto(record, user.id, DateTime.now());
 
       await api.insertRecord(dto);
 

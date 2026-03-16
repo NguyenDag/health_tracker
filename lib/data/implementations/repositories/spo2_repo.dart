@@ -12,13 +12,13 @@ class Spo2Repo implements ISpo2Repo{
   @override
   Future<bool> addRecord(Spo2Record spo2) async {
     try {
-      // final user = api.supabase.auth.currentUser;
-      //
-      // if (user == null) {
-      //   throw Exception("User not logged in");
-      // }
+      final user = api.supabase.auth.currentUser;
 
-      final dto = mapper.toDto(spo2, "db388042-0ab8-4d25-a121-92d1c625a7de", DateTime.now());
+      if (user == null) {
+        throw Exception("User not logged in");
+      }
+
+      final dto = mapper.toDto(spo2, user.id, DateTime.now());
 
       await api.insertRecord(dto);
 
