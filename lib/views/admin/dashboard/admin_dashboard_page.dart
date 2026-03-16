@@ -52,16 +52,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   Widget build(BuildContext context) {
     return Consumer2<AdminUsersViewModel, AdminThresholdsViewModel>(
       builder: (context, usersVM, thresholdsVM, _) {
-        final users = usersVM.users.where((u) => u.role != 'admin').toList();
-        final totalUsers = users.length;
-
-        final now = DateTime.now();
-        final newSignups = users
-            .where((u) =>
-                u.createdAt != null &&
-                u.createdAt!.year == now.year &&
-                u.createdAt!.month == now.month)
-            .length;
+        final totalUsers = usersVM.totalUsers;
+        final newSignups = usersVM.newSignupsThisMonth;
 
         final grouped = thresholdsVM.grouped;
 
@@ -79,7 +71,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               Text('Overview', style: AppTextStyles.h1.copyWith(fontSize: 26)),
               const SizedBox(height: 4),
               Text(
-                _monthLabel(now),
+                _monthLabel(DateTime.now()),
                 style: AppTextStyles.bodySmall
                     .copyWith(color: AppColors.textSecondary),
               ),

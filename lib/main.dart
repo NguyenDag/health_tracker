@@ -7,6 +7,7 @@ import 'package:health_tracker/core/network/supabase_config.dart';
 import 'package:health_tracker/data/implementations/repositories/health_repository.dart';
 import 'package:health_tracker/viewmodels/admin_users_viewmodel.dart';
 import 'package:health_tracker/viewmodels/admin_thresholds_viewmodel.dart';
+import 'package:health_tracker/viewmodels/admin_ai_config_viewmodel.dart';
 import 'package:health_tracker/viewmodels/home_viewmodel.dart';
 import 'package:health_tracker/viewmodels/stats_viewmodel.dart';
 import 'package:health_tracker/views/splash_screen.dart';
@@ -44,6 +45,7 @@ class HealthTrackerApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => AdminUsersViewModel()),
         ChangeNotifierProvider(create: (_) => AdminThresholdsViewModel()),
+        ChangeNotifierProvider(create: (_) => AdminAiConfigViewModel()),
       ],
       child: MaterialApp(
         title: 'HealthTracker',

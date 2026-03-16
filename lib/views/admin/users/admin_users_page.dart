@@ -14,11 +14,6 @@ class AdminUsersPage extends StatefulWidget {
 }
 
 class _AdminUsersPageState extends State<AdminUsersPage> {
-  String _selectedFilter = 'All';
-  String _searchQuery = '';
-
-  static const _filters = ['All', 'Active', 'Inactive'];
-
   static const List<Color> _avatarPalette = [
     Color(0xFF00695C),
     Color(0xFF37474F),
@@ -38,25 +33,6 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     final l = u.lastName?.isNotEmpty == true ? u.lastName![0] : '';
     final combined = (f + l).toUpperCase();
     return combined.isNotEmpty ? combined : '?';
-  }
-
-  List<UserProfile> _filtered(List<UserProfile> all) {
-    final q = _searchQuery.toLowerCase();
-    return all.where((u) {
-      if (u.role == 'admin') return false;
-      final name = u.fullName.toLowerCase();
-      final matchSearch = q.isEmpty ||
-          name.contains(q) ||
-          (u.email ?? '').toLowerCase().contains(q) ||
-          (u.phone ?? '').contains(q) ||
-          u.id.toLowerCase().contains(q);
-      final matchFilter = switch (_selectedFilter) {
-        'Active' => u.status == 'active',
-        'Inactive' => u.status != 'active',
-        _ => true,
-      };
-      return matchSearch && matchFilter;
-    }).toList();
   }
 
   @override
@@ -188,26 +164,26 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
           );
         }
 
-        final filtered = _filtered(vm.users);
+        final filtered = vm.filteredUsers;
 
         return Column(
           children: [
             _SearchBar(
-              onChanged: (v) => setState(() => _searchQuery = v),
+              onChanged: vm.setSearchQuery,
             ),
             _FilterChips(
-              filters: _filters,
-              selected: _selectedFilter,
-              onSelect: (f) => setState(() => _selectedFilter = f),
+              filters: AdminUsersViewModel.filters,
+              selected: vm.selectedFilter,
+              onSelect: vm.setFilter,
             ),
             _ListHeader(
               count: filtered.length,
-              total: vm.users.length,
+              total: vm.totalUsers,
               onRefresh: vm.loadUsers,
             ),
             Expanded(
               child: filtered.isEmpty
-                  ? _EmptyState(query: _searchQuery)
+                  ? _EmptyState(query: vm.searchQuery)
                   : RefreshIndicator(
                       onRefresh: vm.loadUsers,
                       child: ListView.builder(
