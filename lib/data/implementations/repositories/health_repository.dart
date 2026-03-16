@@ -1,5 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:health_tracker/data/interfaces/repositories/ihealth_repository.dart';
+import 'package:health_tracker/data/interfaces/repositories/i_health_repository.dart';
 import 'package:health_tracker/domain/entities/health_record.dart';
 import '../../../domain/enums/health_type.dart';
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:health_tracker/viewmodels/threshold_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -46,6 +47,7 @@ class HealthTrackerApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AdminUsersViewModel()),
         ChangeNotifierProvider(create: (_) => AdminThresholdsViewModel()),
         ChangeNotifierProvider(create: (_) => AdminAiConfigViewModel()),
+        ChangeNotifierProvider(create: (_) => ThresholdViewModel()),
       ],
       child: MaterialApp(
         title: 'HealthTracker',
