@@ -48,7 +48,9 @@ class _WeightFormState extends State<WeightForm> {
                 child: TextFormField(
                   controller: weightController,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),],
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                  ],
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -97,7 +99,9 @@ class _WeightFormState extends State<WeightForm> {
                 child: TextFormField(
                   controller: bodyFatController,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),],
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                  ],
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
