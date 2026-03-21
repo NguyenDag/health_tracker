@@ -74,7 +74,7 @@ class _Spo2FormState extends State<Spo2Form> {
 
         /// CONDITION
         _dropdownCard(
-          title: "CONDITION",
+          title: "ĐIỀU KIỆN ĐO",
           child: DropdownButton<Spo2Condition>(
             value: vm.spo2Condition,
             isExpanded: true,
@@ -83,7 +83,7 @@ class _Spo2FormState extends State<Spo2Form> {
               return DropdownMenuItem(
                 value: e,
                 child: Text(
-                    e == Spo2Condition.resting ? "Resting" : "After Exercise"),
+                    e == Spo2Condition.resting ? "Nghỉ ngơi" : "Sau tập luyện"),
               );
             }).toList(),
             onChanged: (v) => vm.spo2Condition = v!,
@@ -133,7 +133,7 @@ class _Spo2FormState extends State<Spo2Form> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "NOTE",
+          "CHÚ THÍCH",
           style: TextStyle(
               fontSize: 12, color: Colors.black, fontWeight: FontWeight.w900, letterSpacing: 1),
         ),
@@ -158,7 +158,7 @@ class _Spo2FormState extends State<Spo2Form> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "DATE & TIME",
+          "NGÀY THỰC HIỆN",
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w900,

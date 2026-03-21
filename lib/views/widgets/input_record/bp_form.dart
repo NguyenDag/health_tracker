@@ -30,13 +30,13 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
         Row(
           children: [
             _pressureCard(
-              title: "SYSTOLIC",
+              title: "HUYẾT ÁP TÂM THU",
               controller: systolicController,
               unit: "mmHg",
             ),
             const SizedBox(width: 15),
             _pressureCard(
-              title: "DIASTOLIC",
+              title: "HUYẾT ÁP TÂM TRƯƠNG",
               controller: diastolicController,
               unit: "mmHg",
             ),
@@ -106,7 +106,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                     onChanged: (value) {
                       final vm = context.read<AddRecordViewModel>();
 
-                      if (title == "SYSTOLIC") {
+                      if (title == "HUYẾT ÁP TÂM THU") {
                         vm.systolic = int.tryParse(value) ?? 0;
                       } else {
                         vm.diastolic = int.tryParse(value) ?? 0;
@@ -194,7 +194,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "DATE & TIME",
+          "NGÀY HIỆN TẠI",
           style: TextStyle(
             fontSize: 12,
             color: Colors.black,

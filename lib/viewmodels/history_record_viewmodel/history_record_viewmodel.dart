@@ -86,9 +86,9 @@ class HistoryViewModel extends ChangeNotifier {
 
       String key;
       if (diff == 0) {
-        key = "TODAY";
+        key = "HÔM NAY";
       } else if (diff == 1) {
-        key = "YESTERDAY";
+        key = "NGÀY MAI";
       } else {
         key =
             "${record.createdAt.day}/${record.createdAt.month}/${record.createdAt.year}";

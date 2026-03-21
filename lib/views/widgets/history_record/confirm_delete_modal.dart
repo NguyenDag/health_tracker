@@ -36,7 +36,7 @@ class ConfirmDeleteModal extends StatelessWidget {
             const SizedBox(height: 12),
 
             const Text(
-              "Confirm to delete record?",
+              "Bạn có xác nhận xoá bản ghi không?",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -46,7 +46,7 @@ class ConfirmDeleteModal extends StatelessWidget {
             const SizedBox(height: 8),
 
             const Text(
-              "Note: Your action does not undo\nPlease, consider carefully.",
+              "Hành động của bạn không thể khôi phục.\nHãy xem xét kĩ lưỡng",
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey),
             ),
@@ -64,7 +64,7 @@ class ConfirmDeleteModal extends StatelessWidget {
                   ),
                 ),
                 onPressed: onDelete,
-                child: const Text("Delete"),
+                child: const Text("Xoá"),
               ),
             ),
 
@@ -73,7 +73,7 @@ class ConfirmDeleteModal extends StatelessWidget {
             /// CANCEL
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
+              child: const Text("Huỷ"),
             )
           ],
         ),
