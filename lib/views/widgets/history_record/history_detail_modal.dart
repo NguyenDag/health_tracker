@@ -262,7 +262,10 @@ class HistoryDetailModal extends StatelessWidget {
         return Column(
           children: [
             _detailRow("Huyết áp tâm thu", record.systolic?.toString() ?? "-"),
-            _detailRow("Huyết áp tâm trương", record.diastolic?.toString() ?? "-"),
+            _detailRow(
+              "Huyết áp tâm trương",
+              record.diastolic?.toString() ?? "-",
+            ),
             _detailRow("Mạch tim", record.pulse?.toString() ?? "-"),
           ],
         );
@@ -281,7 +284,9 @@ class HistoryDetailModal extends StatelessWidget {
         );
 
       case HealthType.Spo2:
-        return Column(children: [_detailRow("Nồng độ O2", "${record.spo2 ?? "-"}%")]);
+        return Column(
+          children: [_detailRow("Nồng độ O2", "${record.spo2 ?? "-"}%")],
+        );
     }
   }
 
