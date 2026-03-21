@@ -106,7 +106,8 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                       if (value == null || value.trim().isEmpty) {
                         return "Không để trống";
                       }
-                      if (int.tryParse(value)! <= 0 || int.tryParse(value)! > 200) {
+                      if (int.tryParse(value)! <= 0 ||
+                          int.tryParse(value)! > 200) {
                         return "Không hợp lệ";
                       }
                       return null;
@@ -177,7 +178,8 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                     if (value == null || value.trim().isEmpty) {
                       return "Không để trống";
                     }
-                    if (int.tryParse(value)! <= 0 || int.tryParse(value)! > 200) {
+                    if (int.tryParse(value)! <= 0 ||
+                        int.tryParse(value)! > 200) {
                       return "Không hợp lệ";
                     }
                     return null;
