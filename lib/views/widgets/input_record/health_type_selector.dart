@@ -22,6 +22,18 @@ class HealthSegmentedControl extends StatelessWidget {
       child: Row(
         children: List.generate(items.length, (index) {
           final type = items[index];
+
+          String label;
+          if (type.name == "BP") {
+            label = "HUYẾT ÁP";
+          } else if (type.name == "Sugar") {
+            label = "ĐƯỜNG MÁU";
+          }else if (type.name == "Weight") {
+            label = "CÂN NẶNG";
+          } else {
+            label = "NỒNG ĐỘ O2";
+          }
+
           final isSelected = vm.selectedType == type;
 
           return Expanded(
@@ -35,7 +47,7 @@ class HealthSegmentedControl extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  type.name.toUpperCase(),
+                  label.toUpperCase(),
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,

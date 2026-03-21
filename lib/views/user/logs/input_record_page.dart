@@ -73,7 +73,7 @@ class _AddRecordView extends StatelessWidget {
           },
         ),
         title: const Text(
-          "Add New Record",
+          "Thêm thông tin chỉ số",
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         elevation: 0,
@@ -83,7 +83,6 @@ class _AddRecordView extends StatelessWidget {
           children: [
             const SizedBox(height: 12),
 
-            /// 🔹 Tab chọn loại chỉ số
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               // child: HealthTypeSelector(),
@@ -92,7 +91,6 @@ class _AddRecordView extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            /// 🔹 Form thay đổi theo type
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -102,7 +100,6 @@ class _AddRecordView extends StatelessWidget {
 
                     const SizedBox(height: 44),
 
-                    /// 🔹 Save Button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -126,7 +123,7 @@ class _AddRecordView extends StatelessWidget {
                           }
                         },
                         child: const Text(
-                          "Save Record",
+                          "Lưu bản ghi",
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
                       ),

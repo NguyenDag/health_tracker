@@ -15,7 +15,7 @@ class HistorySearch extends StatelessWidget {
       child: TextField(
         onChanged: vm.search,
         decoration: InputDecoration(
-          hintText: "Search records",
+          hintText: "Tìm kiếm bản ghi",
           prefixIcon: const Icon(Icons.search),
           filled: true,
           fillColor: Colors.grey.shade200,

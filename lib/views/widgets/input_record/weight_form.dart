@@ -23,7 +23,7 @@ class _WeightFormState extends State<WeightForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "WEIGHT",
+          "CÂN NẶNG",
           style: TextStyle(
               fontSize: 12, color: Colors.black, fontWeight: FontWeight.w900, letterSpacing: 1),
         ),
@@ -60,7 +60,7 @@ class _WeightFormState extends State<WeightForm> {
         const SizedBox(height: 20),
 
         _noteCard(
-          title: "BODY FAT (%)",
+          title: "TỈ LỆ MỠ (%)",
           onChanged: (v) =>
           vm.bodyFat = double.tryParse(v),
         ),
@@ -68,7 +68,7 @@ class _WeightFormState extends State<WeightForm> {
         const SizedBox(height: 20),
 
         _noteCard(
-          title: "NOTE",
+          title: "CHÚ THÍCH",
           onChanged: (v) => vm.weightNote = v,
         ),
 
@@ -114,7 +114,7 @@ class _WeightFormState extends State<WeightForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "DATE & TIME",
+          "NGÀY THỰC HIỆN",
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w900,
