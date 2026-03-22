@@ -715,20 +715,6 @@ class _UserDetailSheet extends StatelessWidget {
               label: 'Date of Birth',
               value: user.dob != null ? _fmtDate(user.dob!) : null,
             ),
-            _InfoRow(
-              icon: Icons.height,
-              label: 'Height',
-              value: user.height != null
-                  ? '${user.height!.toStringAsFixed(1)} cm'
-                  : null,
-            ),
-            _InfoRow(
-              icon: Icons.monitor_weight_outlined,
-              label: 'Weight',
-              value: user.weight != null
-                  ? '${user.weight!.toStringAsFixed(1)} kg'
-                  : null,
-            ),
 
             const SizedBox(height: 16),
             const Divider(),
