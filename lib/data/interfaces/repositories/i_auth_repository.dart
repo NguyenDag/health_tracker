@@ -48,4 +48,10 @@ abstract class IAuthRepository {
 
   /// True when there is an active Supabase session.
   bool get isLoggedIn;
+
+  /// Resend a verification email for the signup process.
+  Future<void> resendVerificationEmail(String email);
+
+  /// Check if the given email exists in the system (public.users table).
+  Future<bool> checkEmailExists(String email);
 }

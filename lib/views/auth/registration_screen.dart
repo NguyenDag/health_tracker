@@ -106,30 +106,39 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         _phoneError = 'Vui lòng nhập số điện thoại';
         valid = false;
       } else if (!RegExp(r'^(03|05|07|08|09)\d{8}$').hasMatch(phone)) {
-        _phoneError = 'Số điện thoại không hợp lệ (VD: 0912345678)';
+        _phoneError = 'Số điện thoại không hợp lệ';
         valid = false;
       } else {
         _phoneError = null;
       }
 
-      // DOB / Age calculation
+      // DOB validation
       if (_selectedDob == null) {
         _dobError = 'Vui lòng chọn ngày sinh';
         valid = false;
       } else {
-        final age = _calculateAge(_selectedDob!);
-        if (age < 0 || age > 100) {
-          _dobError = 'Tuổi phải từ 0 đến 100';
+        final now = DateTime.now();
+        if (_selectedDob!.isAfter(now)) {
+          _dobError = 'Ngày sinh không được chọn trong tương lai';
           valid = false;
         } else {
-          _dobError = null;
+          final age = _calculateAge(_selectedDob!);
+          if (age > 120) {
+            _dobError = 'Tuổi không hợp lệ (tối đa 120)';
+            valid = false;
+          } else {
+            _dobError = null;
+          }
         }
       }
 
       // Weight validation
       final weight = double.tryParse(_weightCtrl.text);
-      if (weight == null || weight <= 0 || weight > 500) {
-        _weightError = 'Cân nặng không hợp lệ (0-500kg)';
+      if (weight == null || weight <= 0) {
+        _weightError = 'Cân nặng phải là số dương';
+        valid = false;
+      } else if (weight > 500) {
+        _weightError = 'Cân nặng không được vượt quá 500kg';
         valid = false;
       } else {
         _weightError = null;
@@ -137,8 +146,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
       // Height validation
       final height = double.tryParse(_heightCtrl.text);
-      if (height == null || height <= 0 || height > 300) {
-        _heightError = 'Chiều cao không hợp lệ (0-300cm)';
+      if (height == null || height <= 0) {
+        _heightError = 'Chiều cao phải là số dương';
+        valid = false;
+      } else if (height > 300) {
+        _heightError = 'Chiều cao không được vượt quá 300cm';
         valid = false;
       } else {
         _heightError = null;
@@ -205,10 +217,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     if (!mounted) return;
 
     if (success) {
-      pushScreen(context, const VerificationScreen());
+      pushScreen(
+        context,
+        VerificationScreen(email: _emailCtrl.text.trim()),
+      );
     } else {
       setState(() {
-        _formError = vm.errorMessage ?? 'Đăng ký thất bại';
+        final error = vm.errorMessage ?? 'Đăng ký thất bại';
+        if (error.contains('đã được đăng ký')) {
+          _emailError = error;
+        } else {
+          _formError = error;
+        }
       });
     }
   }
@@ -220,26 +240,29 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: AuthBackground(
-        child: Column(
-          children: [
-            // ── App bar ──────────────────────────────────────────────
-            const _RegistrationAppBar(),
-
-            // ── Step header ──────────────────────────────────────────
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: ProgressStepHeader(
-                step: 1,
-                total: 2,
-                label: 'Tạo tài khoản',
+        child: CustomScrollView(
+          slivers: [
+            // ── Top Section ──────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Column(
+                children: const [
+                  _RegistrationAppBar(),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    child: ProgressStepHeader(
+                      step: 1,
+                      total: 2,
+                      label: 'Tạo tài khoản',
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                ],
               ),
             ),
 
-            const SizedBox(height: 24),
-
-            // ── Scrollable form ──────────────────────────────────────
-            Expanded(
-              child: SingleChildScrollView(
+            // ── Form Section ─────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,6 +272,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                     // First Name + Last Name
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Column(
@@ -260,9 +284,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 controller: _lastNameCtrl,
                                 onChanged: (_) =>
                                     setState(() => _lastNameError = null),
-                                decoration: InputDecoration(
-                                  hintText: 'Nguyễn',
-                                  errorText: _lastNameError,
+                                decoration: _buildInputDecoration(
+                                  hint: 'Nguyễn',
+                                  error: _lastNameError,
                                 ),
                               ),
                             ],
@@ -279,9 +303,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 controller: _firstNameCtrl,
                                 onChanged: (_) =>
                                     setState(() => _firstNameError = null),
-                                decoration: InputDecoration(
-                                  hintText: 'An',
-                                  errorText: _firstNameError,
+                                decoration: _buildInputDecoration(
+                                  hint: 'An',
+                                  error: _firstNameError,
                                 ),
                               ),
                             ],
@@ -299,10 +323,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       controller: _emailCtrl,
                       keyboardType: TextInputType.emailAddress,
                       onChanged: (_) => setState(() => _emailError = null),
-                      decoration: InputDecoration(
-                        hintText: 'example@email.com',
-                        errorText: _emailError,
-                        prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                      decoration: _buildInputDecoration(
+                        hint: 'example@email.com',
+                        error: _emailError,
+                        prefix: Icons.email_outlined,
                       ),
                     ),
 
@@ -315,11 +339,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       controller: _passwordCtrl,
                       obscureText: _obscurePass,
                       onChanged: (_) => setState(() => _passwordError = null),
-                      decoration: InputDecoration(
-                        hintText: 'Ít nhất 6 ký tự',
-                        errorText: _passwordError,
-                        prefixIcon: const Icon(Icons.lock_outline, size: 20),
-                        suffixIcon: IconButton(
+                      decoration: _buildInputDecoration(
+                        hint: 'Ít nhất 6 ký tự',
+                        error: _passwordError,
+                        prefix: Icons.lock_outline,
+                        suffix: IconButton(
                           onPressed: () =>
                               setState(() => _obscurePass = !_obscurePass),
                           icon: Icon(
@@ -327,6 +351,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
                             size: 20,
+                            color: const Color(0xFF00BFA5),
                           ),
                         ),
                       ),
@@ -342,11 +367,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       obscureText: _obscureConfirm,
                       onChanged: (_) =>
                           setState(() => _confirmPassError = null),
-                      decoration: InputDecoration(
-                        hintText: 'Nhập lại mật khẩu',
-                        errorText: _confirmPassError,
-                        prefixIcon: const Icon(Icons.lock_outline, size: 20),
-                        suffixIcon: IconButton(
+                      decoration: _buildInputDecoration(
+                        hint: 'Nhập lại mật khẩu',
+                        error: _confirmPassError,
+                        prefix: Icons.lock_outline,
+                        suffix: IconButton(
                           onPressed: () => setState(
                             () => _obscureConfirm = !_obscureConfirm,
                           ),
@@ -355,6 +380,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
                             size: 20,
+                            color: const Color(0xFF00BFA5),
                           ),
                         ),
                       ),
@@ -369,10 +395,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       controller: _phoneCtrl,
                       keyboardType: TextInputType.phone,
                       onChanged: (_) => setState(() => _phoneError = null),
-                      decoration: InputDecoration(
-                        hintText: '0912 345 678',
-                        errorText: _phoneError,
-                        prefixIcon: const Icon(Icons.phone_outlined, size: 20),
+                      decoration: _buildInputDecoration(
+                        hint: '0912 345 678',
+                        error: _phoneError,
+                        prefix: Icons.phone_outlined,
                       ),
                     ),
 
@@ -380,6 +406,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                     // DOB + Gender
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Column(
@@ -396,12 +423,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                     vertical: 14,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.grey.shade50,
+                                    color: const Color(0xFFF7F9FC),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
                                       color: _dobError != null
                                           ? Colors.red.shade400
-                                          : Colors.grey.shade200,
+                                          : const Color(0xFFE8ECF4),
                                     ),
                                   ),
                                   child: Row(
@@ -411,19 +438,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                         size: 18,
                                         color: _selectedDob == null
                                             ? Colors.grey
-                                            : Colors.black87,
+                                            : const Color(0xFF00BFA5),
                                       ),
                                       const SizedBox(width: 12),
-                                      Text(
-                                        _selectedDob == null
-                                            ? 'Chọn ngày'
-                                            : DateFormat(
-                                                'dd/MM/yyyy',
-                                              ).format(_selectedDob!),
-                                        style: TextStyle(
-                                          color: _selectedDob == null
-                                              ? Colors.grey
-                                              : Colors.black87,
+                                      Expanded(
+                                        child: Text(
+                                          _selectedDob == null
+                                              ? 'Chọn ngày'
+                                              : DateFormat(
+                                                  'dd/MM/yyyy',
+                                                ).format(_selectedDob!),
+                                          style: TextStyle(
+                                            color: _selectedDob == null
+                                                ? Colors.grey
+                                                : Colors.black87,
+                                            fontSize: 14,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ],
@@ -468,6 +499,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                     // Weight + Height
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Column(
@@ -531,80 +563,123 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       ],
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
             ),
 
-            // ── Register button ──────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-              child: Column(
-                children: [
-                  // ── General Form Error ──────────────────────────────────
-                  if (_formError != null) ...[
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.red.shade200),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            color: Colors.red.shade700,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _formError!,
-                              style: TextStyle(
-                                color: Colors.red.shade700,
-                                fontSize: 13,
+            // ── Register button Section ────────────────────────────────
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // ── General Form Error ──────────────────────────────────
+                    if (_formError != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red.shade700,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _formError!,
+                                style: TextStyle(
+                                  color: Colors.red.shade700,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  GradientButton(
-                    label: isLoading ? '' : 'Đăng ký',
-                    isLoading: isLoading,
-                    onPressed: isLoading ? null : _handleRegister,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Đã có tài khoản? ',
-                        style: TextStyle(fontSize: 13, color: Colors.grey),
-                      ),
-                      GestureDetector(
-                        onTap: () => pushScreen(context, const LoginScreen()),
-                        child: const Text(
-                          'Đăng nhập',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Color(0xFF00BFA5),
-                            fontWeight: FontWeight.w600,
-                          ),
+                          ],
                         ),
                       ),
                     ],
-                  ),
-                ],
+
+                    GradientButton(
+                      label: isLoading ? '' : 'Đăng ký',
+                      isLoading: isLoading,
+                      onPressed: isLoading ? null : _handleRegister,
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Đã có tài khoản? ',
+                          style: TextStyle(fontSize: 13, color: Colors.grey),
+                        ),
+                        GestureDetector(
+                          onTap: () => pushScreen(context, const LoginScreen()),
+                          child: const Text(
+                            'Đăng nhập',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF00BFA5),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration({
+    required String hint,
+    String? error,
+    IconData? prefix,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      errorText: error,
+      prefixIcon: prefix != null
+          ? Icon(prefix, size: 20, color: Colors.grey)
+          : null,
+      suffixIcon: suffix,
+      filled: true,
+      fillColor: const Color(0xFFF7F9FC),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFE8ECF4)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFE8ECF4)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF00BFA5), width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.red.shade300),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.red, width: 1.5),
       ),
     );
   }

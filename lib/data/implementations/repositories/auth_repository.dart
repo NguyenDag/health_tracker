@@ -124,4 +124,28 @@ class AuthRepository implements IAuthRepository {
   // ── session check ─────────────────────────────────────────────────
   @override
   bool get isLoggedIn => supabase.auth.currentSession != null;
+
+  // ── resend email ──────────────────────────────────────────────────
+  @override
+  Future<void> resendVerificationEmail(String email) async {
+    await supabase.auth.resend(
+      type: OtpType.signup,
+      email: email.trim(),
+    );
+  }
+
+  // ── check email exists ────────────────────────────────────────────
+  @override
+  Future<bool> checkEmailExists(String email) async {
+    try {
+      final data = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', email.trim())
+          .maybeSingle();
+      return data != null; // True if a user document exists
+    } catch (e) {
+      return false; // Safely fail in case RLS or network issue
+    }
+  }
 }
