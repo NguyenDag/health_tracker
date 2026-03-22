@@ -51,7 +51,4 @@ abstract class IAuthRepository {
 
   /// Resend a verification email for the signup process.
   Future<void> resendVerificationEmail(String email);
-
-  /// Check if the given email exists in the system (public.users table).
-  Future<bool> checkEmailExists(String email);
 }

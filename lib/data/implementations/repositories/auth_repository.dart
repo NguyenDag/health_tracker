@@ -133,19 +133,4 @@ class AuthRepository implements IAuthRepository {
       email: email.trim(),
     );
   }
-
-  // ── check email exists ────────────────────────────────────────────
-  @override
-  Future<bool> checkEmailExists(String email) async {
-    try {
-      final data = await supabase
-          .from('users')
-          .select('id')
-          .eq('email', email.trim())
-          .maybeSingle();
-      return data != null; // True if a user document exists
-    } catch (e) {
-      return false; // Safely fail in case RLS or network issue
-    }
-  }
 }
