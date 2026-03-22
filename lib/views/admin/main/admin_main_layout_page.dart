@@ -7,7 +7,6 @@ import '../../auth/login_page.dart';
 import '../dashboard/admin_dashboard_page.dart';
 import '../users/admin_users_page.dart';
 import '../thresholds/admin_thresholds_page.dart';
-import '../ai_config/admin_ai_config_page.dart';
 
 class AdminMainLayoutPage extends StatefulWidget {
   const AdminMainLayoutPage({super.key});
@@ -35,13 +34,6 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const AdminThresholdsPage()),
-      );
-      return;
-    }
-    if (index == 3) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const AdminAiConfigPage()),
       );
       return;
     }
@@ -174,13 +166,7 @@ class _AdminSideBar extends StatelessWidget {
               icon: Icons.tune_outlined,
               label: 'Config Threshold',
             ),
-            _buildItem(
-              context,
-              index: 3,
-              icon: Icons.smart_toy_outlined,
-              label: 'AI Config',
-            ),
-            const Spacer(),
+const Spacer(),
             const Divider(height: 1),
             _buildLogoutItem(context),
             const SizedBox(height: 8),
