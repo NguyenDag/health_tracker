@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:health_tracker/viewmodels/notification_viewmodel.dart';
 import 'package:health_tracker/viewmodels/threshold_viewmodel.dart';
 import 'package:health_tracker/data/implementations/api/blood_pressure_api.dart';
 import 'package:health_tracker/data/implementations/api/blood_sugar_api.dart';
@@ -41,6 +42,7 @@ class HealthTrackerApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => NotificationViewModel()..loadNotifications()),
         ChangeNotifierProvider(
           create: (_) => HomeViewModel(
             HealthRepository(
