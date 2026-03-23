@@ -23,6 +23,7 @@ abstract class IAuthRepository {
     required String gender,
     required double height,
     required double weight,
+    required DateTime dob,
   });
 
   /// Sign out the current user.
@@ -47,4 +48,7 @@ abstract class IAuthRepository {
 
   /// True when there is an active Supabase session.
   bool get isLoggedIn;
+
+  /// Resend a verification email for the signup process.
+  Future<void> resendVerificationEmail(String email);
 }

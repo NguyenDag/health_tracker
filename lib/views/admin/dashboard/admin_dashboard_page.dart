@@ -18,10 +18,10 @@ const _metrics = [
 ];
 
 const _metricLabels = {
-  'blood_pressure_systolic': 'Systolic',
-  'blood_pressure_diastolic': 'Diastolic',
-  'blood_pressure_pulse': 'Pulse',
-  'blood_sugar': 'Blood Sugar',
+  'blood_pressure_systolic': 'Tâm Thu',
+  'blood_pressure_diastolic': 'Tâm Trương',
+  'blood_pressure_pulse': 'Nhịp Tim',
+  'blood_sugar': 'Đường Huyết',
   'spo2': 'SpO2',
 };
 
@@ -80,7 +80,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
             children: [
               // ── Header ────────────────────────────────────────────
-              Text('Overview', style: AppTextStyles.h1.copyWith(fontSize: 26)),
+              Text('Tổng Quan', style: AppTextStyles.h1.copyWith(fontSize: 26)),
               const SizedBox(height: 4),
               Text(
                 _monthLabel(DateTime.now()),
@@ -95,7 +95,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   child: _StatCard(
                     icon: Icons.people_outline,
                     color: AppColors.primary,
-                    label: 'Total Users',
+                    label: 'Tổng Người Dùng',
                     value: usersVM.isLoading ? '—' : '$totalUsers',
                   ),
                 ),
@@ -104,7 +104,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   child: _StatCard(
                     icon: Icons.person_add_outlined,
                     color: const Color(0xFF7B1FA2),
-                    label: 'New This Month',
+                    label: 'Mới Tháng Này',
                     value: usersVM.isLoading ? '—' : '$newSignups',
                   ),
                 ),
@@ -115,7 +115,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Threshold Config', style: AppTextStyles.h3),
+                  Text('Cấu Hình Ngưỡng', style: AppTextStyles.h3),
                   GestureDetector(
                     onTap: () => Navigator.push(
                       context,
@@ -123,7 +123,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           builder: (_) => const AdminThresholdsPage()),
                     ),
                     child: Text(
-                      'View all',
+                      'Xem tất cả',
                       style: AppTextStyles.bodySmall
                           .copyWith(color: AppColors.primary),
                     ),
@@ -143,9 +143,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   String _monthLabel(DateTime d) {
     const months = [
-      'January', 'February', 'March', 'April',
-      'May', 'June', 'July', 'August',
-      'September', 'October', 'November', 'December',
+      'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4',
+      'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8',
+      'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12',
     ];
     return '${months[d.month - 1]} ${d.year}';
   }
@@ -253,7 +253,7 @@ class _ThresholdSummaryCard extends StatelessWidget {
                           .copyWith(color: AppColors.textPrimary)),
                 ),
                 if (count == 0)
-                  Text('No rules',
+                  Text('Chưa có quy tắc',
                       style: AppTextStyles.bodySmall
                           .copyWith(color: AppColors.textSecondary))
                 else
@@ -265,7 +265,7 @@ class _ThresholdSummaryCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      '$count ${count == 1 ? 'rule' : 'rules'}',
+                      '$count quy tắc',
                       style: AppTextStyles.label
                           .copyWith(color: color, fontWeight: FontWeight.w600),
                     ),

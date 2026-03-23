@@ -90,11 +90,11 @@ class _StatsPageState extends State<StatsPage> {
                 ],
               ),
               const SizedBox(height: 16),
-              _buildActionNeededCard(latestRecord),
+              _buildActionNeededCard(latestRecord, viewModel),
               const SizedBox(height: 16),
-              _buildSmartNutritionCard(latestRecord),
+              _buildSmartNutritionCard(latestRecord, viewModel),
               const SizedBox(height: 16),
-              _buildActivityAdviceCard(latestRecord),
+              _buildActivityAdviceCard(latestRecord, viewModel),
               const SizedBox(height: 80), // Padding for BottomNav
             ],
           ),
@@ -240,60 +240,167 @@ class _StatsPageState extends State<StatsPage> {
     return months[month - 1];
   }
 
-  Widget _buildActionNeededCard(HealthRecord? record) {
-    String advice = 'Your vitals are looking good. Keep up the healthy habits!';
-    bool warning = false;
+  /// Returns 'NORMAL', 'DANGER', or 'CRITICAL' based on threshold from DB.
+  String _evaluateRecord(HealthRecord? record, StatsViewModel vm) {
+    if (record == null) return 'NORMAL';
+    switch (record.type) {
+      case HealthType.BP:
+        if (record.systolic == null) return 'NORMAL';
+        return vm.thresholdSystolic?.evaluate(record.systolic!.toDouble()) ?? 'NORMAL';
+      case HealthType.Sugar:
+        if (record.glucoseValue == null) return 'NORMAL';
+        return vm.thresholdSugar?.evaluate(record.glucoseValue!) ?? 'NORMAL';
+      case HealthType.Spo2:
+        if (record.spo2 == null) return 'NORMAL';
+        return vm.thresholdSpo2?.evaluate(record.spo2!.toDouble()) ?? 'NORMAL';
+      case HealthType.Weight:
+        return 'NORMAL';
+    }
+  }
 
-    if (record != null) {
-      if (record.type == HealthType.Spo2 && (record.spo2 ?? 100) < 95) {
-        advice = 'Your SpO2 levels were slightly low (${record.spo2}%) at your last check. Consider some deep breathing exercises.';
-        warning = true;
-      } else if (record.type == HealthType.BP && (record.systolic ?? 0) > 140) {
-        advice = 'Your blood pressure is high (${record.systolic}/${record.diastolic}). Please rest and consult your doctor if it stays high.';
-        warning = true;
-      }
+  Widget _buildActionNeededCard(HealthRecord? record, StatsViewModel viewModel) {
+    final status = _evaluateRecord(record, viewModel);
+
+    final Color bgColor;
+    final Color iconColor;
+    final IconData icon;
+    final String title;
+    final Color titleColor;
+    String advice;
+
+    switch (status) {
+      case 'CRITICAL':
+        bgColor = const Color(0xFFFFF0F2);
+        iconColor = Colors.red;
+        icon = Icons.emergency;
+        title = 'Cần Hành Động Ngay';
+        titleColor = Colors.red.shade900;
+        advice = _criticalAdvice(record);
+        break;
+      case 'DANGER':
+        bgColor = const Color(0xFFFFF3E0);
+        iconColor = Colors.orange;
+        icon = Icons.warning_amber_rounded;
+        title = 'Cảnh Báo';
+        titleColor = Colors.orange.shade900;
+        advice = _dangerAdvice(record);
+        break;
+      default:
+        bgColor = const Color(0xFFF0FFF4);
+        iconColor = Colors.green;
+        icon = Icons.check_circle;
+        title = 'Tình Trạng Sức Khỏe';
+        titleColor = Colors.green.shade900;
+        advice = 'Các chỉ số của bạn đang trong ngưỡng bình thường. Hãy duy trì lối sống lành mạnh!';
     }
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: warning ? const Color(0xFFFFF0F2) : const Color(0xFFF0FFF4),
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: (warning ? Colors.red : Colors.green).withAlpha(30), shape: BoxShape.circle),
-            child: Icon(warning ? Icons.priority_high : Icons.check_circle, color: warning ? Colors.red : Colors.green, size: 20),
+            decoration: BoxDecoration(color: iconColor.withAlpha(30), shape: BoxShape.circle),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(warning ? 'Action Needed' : 'Vitals Status', style: AppTextStyles.subtitle.copyWith(color: warning ? Colors.red[900] : Colors.green[900])),
+                Text(title, style: AppTextStyles.subtitle.copyWith(color: titleColor)),
                 const SizedBox(height: 4),
-                Text(
-                  advice,
-                  style: AppTextStyles.bodyMedium.copyWith(color: warning ? Colors.red[800] : Colors.green[800]),
-                ),
+                Text(advice, style: AppTextStyles.bodyMedium.copyWith(color: titleColor.withAlpha(200))),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSmartNutritionCard(HealthRecord? record) {
+  String _dangerAdvice(HealthRecord? r) {
+    if (r == null) return 'Một số chỉ số hơi vượt ngưỡng. Hãy theo dõi sát sao hơn.';
+    switch (r.type) {
+      case HealthType.BP:
+        return 'Huyết áp hơi cao (${r.systolic}/${r.diastolic} mmHg). Hãy nghỉ ngơi, giảm căng thẳng và kiểm tra lại sau 30 phút.';
+      case HealthType.Sugar:
+        return 'Đường huyết ngoài ngưỡng bình thường (${r.glucoseValue} ${r.glucoseUnit ?? 'mg/dL'}). Theo dõi chế độ ăn và kiểm tra lại sớm.';
+      case HealthType.Spo2:
+        return 'SpO2 hơi thấp (${r.spo2}%). Hãy thử tập thở sâu ở nơi thoáng mát.';
+      case HealthType.Weight:
+        return 'Cân nặng đang vượt ngưỡng. Cần điều chỉnh chế độ ăn uống và vận động.';
+    }
+  }
+
+  String _criticalAdvice(HealthRecord? r) {
+    if (r == null) return 'Phát hiện chỉ số nguy hiểm. Hãy tìm kiếm hỗ trợ y tế ngay lập tức.';
+    switch (r.type) {
+      case HealthType.BP:
+        return 'Huyết áp quá cao (${r.systolic}/${r.diastolic} mmHg). Dừng hoạt động, ngồi xuống và liên hệ bác sĩ ngay.';
+      case HealthType.Sugar:
+        return 'Đường huyết ở mức nguy hiểm (${r.glucoseValue} ${r.glucoseUnit ?? 'mg/dL'}). Cần tìm kiếm hỗ trợ y tế ngay.';
+      case HealthType.Spo2:
+        return 'SpO2 quá thấp (${r.spo2}%). Cần cấp cứu y tế ngay lập tức.';
+      case HealthType.Weight:
+        return 'Cân nặng ở mức nguy hiểm. Hãy gặp bác sĩ càng sớm càng tốt.';
+    }
+  }
+
+  Widget _buildSmartNutritionCard(HealthRecord? record, StatsViewModel viewModel) {
+    final status = _evaluateRecord(record, viewModel);
+
+    String tag = 'LỜI KHUYÊN CHUNG';
+    String tip = 'Duy trì chế độ ăn cân bằng với ngũ cốc nguyên hạt và rau xanh để ổn định các chỉ số sức khỏe.';
+
+    if (record != null) {
+      switch (record.type) {
+        case HealthType.Sugar:
+          switch (status) {
+            case 'CRITICAL':
+              tag = 'ĐƯỜNG HUYẾT – NGUY HIỂM';
+              tip = 'Tránh ngay thực phẩm nhiều đường và tinh bột. Uống nước và tìm kiếm hỗ trợ y tế để kiểm soát đường huyết.';
+              break;
+            case 'DANGER':
+              tag = 'ĐƯỜNG HUYẾT – CẢNH BÁO';
+              tip = 'Giảm tinh bột tinh chế và nước ngọt. Chọn thực phẩm chỉ số GI thấp như rau củ, đậu đỏ, ngũ cốc nguyên hạt.';
+              break;
+            default:
+              tag = 'ĐƯỜNG HUYẾT – BÌNH THƯỜNG';
+              tip = 'Đường huyết ổn định! Tiếp tục chế độ ăn cân bằng và hạn chế đường bổ sung.';
+          }
+          break;
+        case HealthType.BP:
+          switch (status) {
+            case 'CRITICAL':
+              tag = 'HUYẾT ÁP – NGUY HIỂM';
+              tip = 'Tránh tuyệt đối muối, caffeine và thực phẩm chế biến sẵn. Thực hiện ngay chỉ dẫn ăn uống của bác sĩ.';
+              break;
+            case 'DANGER':
+              tag = 'HUYẾT ÁP – CẢNH BÁO';
+              tip = 'Áp dụng chế độ ăn ít muối (DASH). Tăng thực phẩm giàu kali như chuối, rau lá xanh và tránh thực phẩm chế biến sẵn.';
+              break;
+            default:
+              tag = 'HUYẾT ÁP – BÌNH THƯỜNG';
+              tip = 'Huyết áp được kiểm soát tốt. Tiếp tục chế độ ăn nhiều trái cây, rau củ và ngũ cốc nguyên hạt.';
+          }
+          break;
+        case HealthType.Weight:
+          tag = 'QUẢN LÝ CÂN NẶNG';
+          tip = 'Kiểm soát khẩu phần ăn và chọn thực phẩm giàu dinh dưỡng. Hạn chế chất béo bão hòa và đường bổ sung để duy trì cân nặng hợp lý.';
+          break;
+        case HealthType.Spo2:
+          tag = 'HỖ TRỢ HÔ HẤP';
+          tip = 'Thực phẩm giàu sắt và chống oxy hóa (rau lá xanh, quả mọng, đậu đỏ) giúp cải thiện lưu thông oxy trong máu.';
+          break;
+      }
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF8D6),
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: const Color(0xFFFFF8D6), borderRadius: BorderRadius.circular(16)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -307,22 +414,78 @@ class _StatsPageState extends State<StatsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Smart Nutrition Tip', style: AppTextStyles.subtitle.copyWith(color: Colors.black87)),
-                Text('GENERAL ADVICE', style: AppTextStyles.label.copyWith(color: Colors.orange[800], fontSize: 10)),
+                Text('Gợi Ý Dinh Dưỡng', style: AppTextStyles.subtitle.copyWith(color: Colors.black87)),
+                Text(tag, style: AppTextStyles.label.copyWith(color: Colors.orange[800], fontSize: 10)),
                 const SizedBox(height: 8),
-                Text(
-                  'Maintaining a balanced diet with whole grains and leafy greens helps stabilize your health metrics over time.',
-                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.black87),
-                ),
+                Text(tip, style: AppTextStyles.bodyMedium.copyWith(color: Colors.black87)),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildActivityAdviceCard(HealthRecord? record) {
+  Widget _buildActivityAdviceCard(HealthRecord? record, StatsViewModel viewModel) {
+    final status = _evaluateRecord(record, viewModel);
+
+    String tag = 'TIẾN ĐỘ HẰNG NGÀY';
+    String advice = 'Vận động thể chất đều đặn như đi bộ 20 phút mỗi ngày có thể cải thiện đáng kể sức khỏe tim mạch.';
+
+    if (record != null) {
+      switch (record.type) {
+        case HealthType.Spo2:
+          switch (status) {
+            case 'CRITICAL':
+              tag = 'SPO2 – NGUY HIỂM';
+              advice = 'Không tập thể dục. Nghỉ ngơi ngay ở nơi thoáng mát và tìm kiếm cấp cứu y tế nếu SpO2 không phục hồi.';
+              break;
+            case 'DANGER':
+              tag = 'SPO2 – CẢNH BÁO';
+              advice = 'Tránh vận động mạnh. Tập thở sâu chậm rãi ở nơi thoáng mát. Kiểm tra lại SpO2 thường xuyên.';
+              break;
+            default:
+              tag = 'SPO2 – BÌNH THƯỜNG';
+              advice = 'Mức oxy ổn định! Bạn có thể tập luyện từ vừa đến cao. Uống đủ nước và duy trì vận động đều đặn.';
+          }
+          break;
+        case HealthType.BP:
+          switch (status) {
+            case 'CRITICAL':
+              tag = 'HUYẾT ÁP – NGUY HIỂM';
+              advice = 'Dừng ngay mọi hoạt động thể chất. Nằm xuống, giữ bình tĩnh và liên hệ bác sĩ hoặc cấp cứu ngay lập tức.';
+              break;
+            case 'DANGER':
+              tag = 'HUYẾT ÁP – CẢNH BÁO';
+              advice = 'Chỉ chọn các hoạt động nhẹ như đi bộ hoặc yoga nhẹ. Tránh nâng tạ và cardio cường độ cao cho đến khi huyết áp về bình thường.';
+              break;
+            default:
+              tag = 'HUYẾT ÁP – BÌNH THƯỜNG';
+              advice = 'Huyết áp được kiểm soát tốt. Đặt mục tiêu ít nhất 30 phút vận động thể dục vừa phải mỗi ngày.';
+          }
+          break;
+        case HealthType.Sugar:
+          switch (status) {
+            case 'CRITICAL':
+              tag = 'ĐƯỜNG HUYẾT – NGUY HIỂM';
+              advice = 'Không tập khi đường huyết quá cao hoặc quá thấp. Ổn định chỉ số trước, tham khảo bác sĩ trước khi tập lại.';
+              break;
+            case 'DANGER':
+              tag = 'ĐƯỜNG HUYẾT – CẢNH BÁO';
+              advice = 'Đi bộ nhẹ sau bữa ăn giúp điều hòa đường huyết. Tránh tập nặng cho đến khi chỉ số ổn định trở lại.';
+              break;
+            default:
+              tag = 'ĐƯỜNG HUYẾT – BÌNH THƯỜNG';
+              advice = 'Đường huyết ổn định. Tập luyện đều đặn (150 phút/tuần) giúp duy trì mức glucose khỏe mạnh. Tiếp tục phát huy!';
+          }
+          break;
+        case HealthType.Weight:
+          tag = 'MỤC TIÊU CÂN NẶNG';
+          advice = 'Đặt mục tiêu ít nhất 150 phút vận động thể dục vừa phải mỗi tuần. Kết hợp cardio với luyện sức mạnh để đạt hiệu quả tốt nhất.';
+          break;
+      }
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -343,16 +506,13 @@ class _StatsPageState extends State<StatsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Activity Advice', style: AppTextStyles.subtitle.copyWith(color: Colors.black87)),
-                Text('DAILY PROGRESS', style: AppTextStyles.label.copyWith(color: AppColors.textSecondary, fontSize: 10)),
+                Text('Lời Khuyên Vận Động', style: AppTextStyles.subtitle.copyWith(color: Colors.black87)),
+                Text(tag, style: AppTextStyles.label.copyWith(color: AppColors.textSecondary, fontSize: 10)),
                 const SizedBox(height: 8),
-                Text(
-                  'Regular physical activity like a 20-minute daily walk can significantly improve your cardiovascular health.',
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
-                ),
+                Text(advice, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

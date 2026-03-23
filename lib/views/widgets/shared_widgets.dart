@@ -67,12 +67,14 @@ class GradientButton extends StatelessWidget {
     required this.onPressed,
     this.height = 54,
     this.trailing,
+    this.isLoading = false,
   });
 
   final String label;
   final VoidCallback? onPressed;  // nullable – pass null to disable the button
   final double height;
   final Widget? trailing;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -92,25 +94,35 @@ class GradientButton extends StatelessWidget {
           ],
         ),
         child: ElevatedButton(
-          onPressed: onPressed,
+          onPressed: isLoading ? null : onPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.transparent,
             shadowColor: Colors.transparent,
+            disabledBackgroundColor: Colors.transparent,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.w600,
-                  color: Colors.white, letterSpacing: 0.2,
+          child: isLoading
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600,
+                        color: Colors.white, letterSpacing: 0.2,
+                      ),
+                    ),
+                    if (trailing != null) ...[const SizedBox(width: 8), trailing!],
+                  ],
                 ),
-              ),
-              if (trailing != null) ...[const SizedBox(width: 8), trailing!],
-            ],
-          ),
         ),
       ),
     );
@@ -202,15 +214,18 @@ class UnitTextField extends StatelessWidget {
     super.key,
     required this.controller,
     required this.unit,
+    this.onChanged,
   });
 
   final TextEditingController controller;
   final String unit;
+  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      onChanged: onChanged,
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         suffixText: unit,
@@ -251,7 +266,7 @@ class GenderDropdown extends StatelessWidget {
   final String value;
   final ValueChanged<String?> onChanged;
 
-  static const _options = ['Male', 'Female', 'Other'];
+  static const _options = ['Nam', 'Nữ', 'Khác'];
 
   @override
   Widget build(BuildContext context) {
@@ -337,6 +352,54 @@ class OtpBox extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// AUTH BACKGROUND
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/// Wraps auth screens (Login, Registration) with a premium gradient blob background.
+class AuthBackground extends StatelessWidget {
+  const AuthBackground({super.key, required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // Base white background
+        Container(color: Colors.white),
+        // Top-left blob
+        Positioned(
+          top: -100,
+          left: -100,
+          child: Container(
+            width: 300,
+            height: 300,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.primary.withValues(alpha: 0.12),
+            ),
+          ),
+        ),
+        // Bottom-right blob
+        Positioned(
+          bottom: -150,
+          right: -100,
+          child: Container(
+            width: 400,
+            height: 400,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFF00BFA5).withValues(alpha: 0.08),
+            ),
+          ),
+        ),
+        // Content
+        SafeArea(child: child),
+      ],
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // GRADIENT BACKGROUND CONTAINER
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -378,7 +441,7 @@ class ProgressStepHeader extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'STEP $step OF $total',
+              'BƯỚC $step / $total',
               style: const TextStyle(
                 fontSize: 11, fontWeight: FontWeight.w600,
                 color: AppColors.textHint, letterSpacing: 1.2,
