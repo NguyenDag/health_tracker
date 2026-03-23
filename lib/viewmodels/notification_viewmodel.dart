@@ -14,7 +14,6 @@ class NotificationViewModel extends ChangeNotifier {
 
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
 
-
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -40,14 +39,10 @@ class NotificationViewModel extends ChangeNotifier {
   }
 
   List<HealthNotification> get alerts =>
-      _notifications
-          .where((n) => n.type == NotificationType.alert)
-          .toList();
+      _notifications.where((n) => n.type == NotificationType.alert).toList();
 
   List<HealthNotification> get reminders =>
-      _notifications
-          .where((n) => n.type == NotificationType.reminder)
-          .toList();
+      _notifications.where((n) => n.type == NotificationType.reminder).toList();
 
   Future<void> markAsRead(String id) async {
     await _repository.markAsRead(id);
@@ -69,7 +64,8 @@ class NotificationViewModel extends ChangeNotifier {
     }
   }
 
-  void clearBanner() { // 👈 thêm
+  void clearBanner() {
+    // 👈 thêm
     _pendingBanner = null;
     notifyListeners();
   }

@@ -92,9 +92,7 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
   Future<void> _openNotifications() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => NotificationHistoryScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => NotificationHistoryScreen()),
     );
     if (context.mounted) {
       await context.read<NotificationViewModel>().loadNotifications();
