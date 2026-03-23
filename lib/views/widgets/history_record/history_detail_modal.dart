@@ -160,42 +160,6 @@ class HistoryDetailModal extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            /// AI SUGGESTION
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAF3FF),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.blue.shade100),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.auto_awesome, color: Colors.blue, size: 18),
-                      SizedBox(width: 6),
-                      Text(
-                        "Lời khuyên AI",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    "Chỉ số bình thường",
-                      // record.result ??
-                          style: const TextStyle(fontSize: 13),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 22),
-
             /// BUTTONS
             Row(
               children: [
