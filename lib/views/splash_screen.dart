@@ -97,32 +97,35 @@ class _SplashScreenState extends State<SplashScreen>
         child: FadeTransition(
           opacity: _fadeIn,
           child: SafeArea(
-            child: Column(
-              children: [
-                const Spacer(flex: 3),
-
-                // ── Spinning / pulsing icon ─────────────────────────
-                _SpinningIcon(
-                  spinCtrl: _spinCtrl,
-                  pulseCtrl: _pulseCtrl,
-                  isLoading: _isLoading,
-                ),
-
-                const SizedBox(height: 32),
-                const Text('HealthTracker', style: AppTextStyles.heading1),
-                const SizedBox(height: 10),
-                const Text(
-                  'Monitor your vitals effortlessly',
-                  style: TextStyle(fontSize: 15, color: AppColors.textGrey),
-                ),
-
-                const Spacer(flex: 3),
-
-                // ── Loading indicator ───────────────────────────────
-                _LoadingIndicator(visible: _isLoading),
-
-                const SizedBox(height: 48),
-              ],
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                children: [
+                  const Spacer(flex: 3),
+  
+                  // ── Spinning / pulsing icon ─────────────────────────
+                  _SpinningIcon(
+                    spinCtrl: _spinCtrl,
+                    pulseCtrl: _pulseCtrl,
+                    isLoading: _isLoading,
+                  ),
+  
+                  const SizedBox(height: 32),
+                  const Text('HealthTracker', style: AppTextStyles.heading1),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Monitor your vitals effortlessly',
+                    style: TextStyle(fontSize: 15, color: AppColors.textGrey),
+                  ),
+  
+                  const Spacer(flex: 3),
+  
+                  // ── Loading indicator ───────────────────────────────
+                  _LoadingIndicator(visible: _isLoading),
+  
+                  const SizedBox(height: 48),
+                ],
+              ),
             ),
           ),
         ),

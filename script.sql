@@ -140,7 +140,8 @@ begin
     phone,
     gender,
     height,
-    weight
+    weight,
+    dob
   )
   values (
     new.id,
@@ -149,7 +150,8 @@ begin
     new.raw_user_meta_data->>'phone',
     new.raw_user_meta_data->>'gender',
     (new.raw_user_meta_data->>'height')::double precision,
-    (new.raw_user_meta_data->>'weight')::double precision
+    (new.raw_user_meta_data->>'weight')::double precision,
+    (new.raw_user_meta_data->>'dob')::timestamp
   );
 
   return new;

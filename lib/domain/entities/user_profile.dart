@@ -39,12 +39,19 @@ class UserProfile {
   }
 
   factory UserProfile.fromMap(Map<String, dynamic> map) {
+    final rawGender = map['gender'] as String?;
+    final mappedGender = {
+      'male': 'Nam',
+      'female': 'Nữ',
+      'other': 'Khác',
+    }[rawGender?.toLowerCase()] ?? rawGender;
+
     return UserProfile(
       id: map['id'] as String,
       email: map['email'] as String?,
       firstName: map['first_name'] as String?,
       lastName: map['last_name'] as String?,
-      gender: map['gender'] as String?,
+      gender: mappedGender,
       height: (map['height'] as num?)?.toDouble(),
       weight: (map['weight'] as num?)?.toDouble(),
       phone: map['phone'] as String?,
@@ -61,11 +68,17 @@ class UserProfile {
   }
 
   Map<String, dynamic> toMap() {
+    final mappedGender = {
+      'nam': 'male',
+      'nữ': 'female',
+      'khác': 'other',
+    }[gender?.toLowerCase()] ?? gender;
+
     return {
       'id': id,
       if (firstName != null) 'first_name': firstName,
       if (lastName != null) 'last_name': lastName,
-      if (gender != null) 'gender': gender,
+      if (gender != null) 'gender': mappedGender,
       if (height != null) 'height': height,
       if (weight != null) 'weight': weight,
       if (phone != null) 'phone': phone,

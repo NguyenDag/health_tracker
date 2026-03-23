@@ -9,6 +9,7 @@ import '../user/main/main_layout_page.dart';
 import '../widgets/shared_widgets.dart';
 import 'forgot_password_screen.dart';
 import 'registration_screen.dart';
+import '../admin/main/admin_main_layout_page.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LOGIN SCREEN
@@ -27,6 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscure = true;
   String? _emailError;
   String? _passError;
+  String? _formError;
 
   @override
   void dispose() {
@@ -42,6 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
     bool valid = true;
 
     setState(() {
+      _formError = null; // Clear overall form error on new attempt
       if (email.isEmpty) {
         _emailError = 'Vui lòng nhập email';
         valid = false;
@@ -76,18 +79,16 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      replaceWithFade(context, const MainLayoutPage());
+      final user = vm.currentUser;
+      if (user?.role == 'admin') {
+        replaceWithFade(context, const AdminMainLayoutPage());
+      } else {
+        replaceWithFade(context, const MainLayoutPage());
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(vm.errorMessage ?? 'Đăng nhập thất bại'),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
+      setState(() {
+        _formError = vm.errorMessage ?? 'Đăng nhập thất bại';
+      });
     }
   }
 
@@ -97,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
+      body: AuthBackground(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
@@ -148,18 +149,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 8),
               const _ForgotPasswordLink(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+
+              // ── General Form Error ──────────────────────────────────
+              if (_formError != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _formError!,
+                          style: TextStyle(color: Colors.red.shade700, fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
 
               // ── Log In button ───────────────────────────────────────
               GradientButton(
-                label: isLoading ? 'Đang đăng nhập…' : 'Đăng nhập',
+                label: isLoading ? '' : 'Đăng nhập',
+                isLoading: isLoading,
                 onPressed: isLoading ? null : _handleLogin,
               ),
-
-              if (isLoading) ...[
-                const SizedBox(height: 16),
-                const Center(child: CircularProgressIndicator()),
-              ],
 
               const SizedBox(height: 32),
 
@@ -188,8 +210,9 @@ class _LoginTopBar extends StatelessWidget {
         // Only show the back button when there is a previous route
         if (canPop) const AppBackButton() else const SizedBox(width: 32),
         const Spacer(),
-        const Text('ĐĂNG NHẬP', style: AppTextStyles.badge),
-        const Spacer(flex: 2),
+        const Text('Đăng nhập', style: AppTextStyles.heading3),
+        const Spacer(flex: 1),
+        const SizedBox(width: 32),
       ],
     );
   }
@@ -204,7 +227,7 @@ class _LoginHeadline extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         Text('Chào mừng trở lại', style: AppTextStyles.heading1),
         SizedBox(height: 8),
         Text(

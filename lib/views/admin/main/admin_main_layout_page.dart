@@ -7,7 +7,6 @@ import '../../auth/login_page.dart';
 import '../dashboard/admin_dashboard_page.dart';
 import '../users/admin_users_page.dart';
 import '../thresholds/admin_thresholds_page.dart';
-import '../ai_config/admin_ai_config_page.dart';
 
 class AdminMainLayoutPage extends StatefulWidget {
   const AdminMainLayoutPage({super.key});
@@ -25,7 +24,7 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
     const SizedBox.shrink(), // index 2: navigated via push
   ];
 
-  final List<String> _titles = ['Admin Dashboard', 'User Management'];
+  final List<String> _titles = ['Bảng Điều Khiển', 'Quản Lý Người Dùng'];
 
   // Sidebar indices:
   //   0 = Dashboard, 1 = User Management, 2 = Config Threshold (push), 3 = AI Config (push)
@@ -35,13 +34,6 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const AdminThresholdsPage()),
-      );
-      return;
-    }
-    if (index == 3) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const AdminAiConfigPage()),
       );
       return;
     }
@@ -142,7 +134,7 @@ class _AdminSideBar extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Admin Portal',
+                    'Cổng Quản Trị',
                     style: AppTextStyles.h3.copyWith(color: Colors.white),
                   ),
                   const SizedBox(height: 2),
@@ -160,27 +152,21 @@ class _AdminSideBar extends StatelessWidget {
               context,
               index: 0,
               icon: Icons.dashboard_outlined,
-              label: 'Dashboard',
+              label: 'Bảng Điều Khiển',
             ),
             _buildItem(
               context,
               index: 1,
               icon: Icons.people_outline,
-              label: 'User Management',
+              label: 'Quản Lý Người Dùng',
             ),
             _buildItem(
               context,
               index: 2,
               icon: Icons.tune_outlined,
-              label: 'Config Threshold',
+              label: 'Cấu Hình Ngưỡng',
             ),
-            _buildItem(
-              context,
-              index: 3,
-              icon: Icons.smart_toy_outlined,
-              label: 'AI Config',
-            ),
-            const Spacer(),
+const Spacer(),
             const Divider(height: 1),
             _buildLogoutItem(context),
             const SizedBox(height: 8),
@@ -221,7 +207,7 @@ class _AdminSideBar extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.logout, color: AppColors.error, size: 22),
       title: Text(
-        'Logout',
+        'Đăng Xuất',
         style: AppTextStyles.subtitle.copyWith(color: AppColors.error),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
