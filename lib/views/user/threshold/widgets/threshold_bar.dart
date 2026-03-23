@@ -4,10 +4,10 @@ import '../../../../../core/constants/app_text_styles.dart';
 
 class ThresholdBar extends StatelessWidget {
   final String title;
-  final double min;
-  final double safeMin;
-  final double safeMax;
-  final double max;
+  final double min;      // dangerMin
+  final double safeMin;  // normalMin
+  final double safeMax;  // normalMax
+  final double max;      // dangerMax
   final String unit;
 
   const ThresholdBar({
@@ -22,11 +22,15 @@ class ThresholdBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double total = max - min;
+    final double total = max - min;
 
-    double leftRatio = (safeMin - min) / total;
-    double safeRatio = (safeMax - safeMin) / total;
-    double rightRatio = (max - safeMax) / total;
+    // Flex values within the danger range (min..max)
+    final int leftDangerFlex = ((safeMin - min) / total * 100).round().clamp(1, 100);
+    final int normalFlex = ((safeMax - safeMin) / total * 100).round().clamp(1, 100);
+    final int rightDangerFlex = ((max - safeMax) / total * 100).round().clamp(1, 100);
+
+    // Critical zones shown as fixed end-caps (10% of the inner bar width)
+    const int criticalFlex = 10;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -38,81 +42,138 @@ class ThresholdBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          /// TITLE
           Text(
             title,
-            style: AppTextStyles.bodyLarge.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600),
           ),
 
           const SizedBox(height: 14),
 
-          /// RANGE BAR
+          // ── BAR: CRITICAL | DANGER | NORMAL | DANGER | CRITICAL ──────────
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Row(
               children: [
-
-                /// DANGER LEFT
+                // CRITICAL LEFT (< dangerMin)
                 Expanded(
-                  flex: (leftRatio * 100).round(),
-                  child: Container(
-                    height: 10,
-                    color: AppColors.error.withOpacity(0.3),
-                  ),
+                  flex: criticalFlex,
+                  child: Container(height: 12, color: AppColors.error),
                 ),
 
-                /// SAFE ZONE
+                // DANGER LEFT (dangerMin → normalMin)
                 Expanded(
-                  flex: (safeRatio * 100).round(),
-                  child: Container(
-                    height: 10,
-                    color: AppColors.success,
-                  ),
+                  flex: leftDangerFlex,
+                  child: Container(height: 12, color: AppColors.warning),
                 ),
 
-                /// DANGER RIGHT
+                // NORMAL (normalMin → normalMax)
                 Expanded(
-                  flex: (rightRatio * 100).round(),
-                  child: Container(
-                    height: 10,
-                    color: AppColors.error.withOpacity(0.3),
-                  ),
+                  flex: normalFlex,
+                  child: Container(height: 12, color: AppColors.success),
+                ),
+
+                // DANGER RIGHT (normalMax → dangerMax)
+                Expanded(
+                  flex: rightDangerFlex,
+                  child: Container(height: 12, color: AppColors.warning),
+                ),
+
+                // CRITICAL RIGHT (> dangerMax)
+                Expanded(
+                  flex: criticalFlex,
+                  child: Container(height: 12, color: AppColors.error),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
 
-          /// LABELS
+          // ── AXIS LABELS ───────────────────────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-
               Text(
-                "Tối thiểu: ${min.toStringAsFixed(0)} $unit",
-                style: AppTextStyles.bodySmall,
+                min.toStringAsFixed(0),
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
               ),
-
               Text(
-                "An toàn: ${safeMin.toStringAsFixed(0)} - ${safeMax.toStringAsFixed(0)}",
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.success,
-                  fontWeight: FontWeight.w500,
-                ),
+                safeMin.toStringAsFixed(0),
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.success, fontWeight: FontWeight.w600),
               ),
-
               Text(
-                "Tối đa: ${max.toStringAsFixed(0)} $unit",
-                style: AppTextStyles.bodySmall,
+                safeMax.toStringAsFixed(0),
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.success, fontWeight: FontWeight.w600),
+              ),
+              Text(
+                max.toStringAsFixed(0),
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // ── LEGEND ────────────────────────────────────────────────────────
+          Wrap(
+            spacing: 12,
+            runSpacing: 6,
+            children: [
+              _LegendItem(
+                color: AppColors.success,
+                label: 'Bình Thường',
+                range: '${safeMin.toStringAsFixed(0)} – ${safeMax.toStringAsFixed(0)} $unit',
+              ),
+              _LegendItem(
+                color: AppColors.warning,
+                label: 'Nguy Hiểm',
+                range: '${min.toStringAsFixed(0)} – ${safeMin.toStringAsFixed(0)} $unit',
+              ),
+              _LegendItem(
+                color: AppColors.warning,
+                label: 'Nguy Hiểm',
+                range: '${safeMax.toStringAsFixed(0)} – ${max.toStringAsFixed(0)} $unit',
+              ),
+              _LegendItem(
+                color: AppColors.error,
+                label: 'Nghiêm Trọng',
+                range: '< ${min.toStringAsFixed(0)}  hoặc  > ${max.toStringAsFixed(0)} $unit',
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _LegendItem extends StatelessWidget {
+  final Color color;
+  final String label;
+  final String range;
+
+  const _LegendItem({
+    required this.color,
+    required this.label,
+    required this.range,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 5),
+        Text(
+          '$label  $range',
+          style: AppTextStyles.bodySmall,
+        ),
+      ],
     );
   }
 }

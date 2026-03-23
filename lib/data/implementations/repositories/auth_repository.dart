@@ -124,4 +124,13 @@ class AuthRepository implements IAuthRepository {
   // ── session check ─────────────────────────────────────────────────
   @override
   bool get isLoggedIn => supabase.auth.currentSession != null;
+
+  // ── resend email ──────────────────────────────────────────────────
+  @override
+  Future<void> resendVerificationEmail(String email) async {
+    await supabase.auth.resend(
+      type: OtpType.signup,
+      email: email.trim(),
+    );
+  }
 }

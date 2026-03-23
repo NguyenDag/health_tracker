@@ -73,44 +73,64 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildAIInsightCard() {
-    return Card(
-      color: Colors.white,
-      shadowColor: Colors.black.withAlpha(13),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Consumer<HomeViewModel>(
+      builder: (context, vm, _) {
+        return Card(
+          color: Colors.white,
+          shadowColor: Colors.black.withAlpha(13),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.auto_awesome, color: AppColors.primary),
-                const SizedBox(width: 8),
-                Text('AI Health Insight', style: AppTextStyles.h3),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Your vitals are stable. Keep maintaining your daily activity and balanced diet. Consider a short walk today.',
-              style: AppTextStyles.bodyMedium,
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => widget.onNavigateToTab(1), // Nav to stats
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                Row(
+                  children: [
+                    const Icon(Icons.auto_awesome, color: AppColors.primary),
+                    const SizedBox(width: 8),
+                    Text('AI Health Insight', style: AppTextStyles.h3),
+                    const Spacer(),
+                    if (vm.isLoadingInsight)
+                      const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                vm.isLoadingInsight && vm.aiInsight == null
+                    ? Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withAlpha(15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      )
+                    : Text(
+                        vm.aiInsight ??
+                            'Hãy tiếp tục duy trì lối sống lành mạnh và theo dõi sức khỏe thường xuyên.',
+                        style: AppTextStyles.bodyMedium,
+                      ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => widget.onNavigateToTab(1),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text('Xem phân tích'),
                   ),
                 ),
-                child: const Text('View Analysis'),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

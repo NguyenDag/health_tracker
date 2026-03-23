@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import '../core/services/ai_insight_service.dart';
 import '../data/interfaces/repositories/i_health_repository.dart';
 import '../domain/entities/health_record.dart';
 import '../domain/enums/health_type.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final IHealthRepository _healthRepo;
+  final AiInsightService _aiService;
 
-  HomeViewModel(this._healthRepo);
+  HomeViewModel(this._healthRepo, this._aiService);
 
   HealthRecord? _latestBP;
   HealthRecord? _latestSugar;
@@ -16,6 +18,9 @@ class HomeViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+  String? _aiInsight;
+  bool _isLoadingInsight = false;
+
   HealthRecord? get latestBP => _latestBP;
   HealthRecord? get latestSugar => _latestSugar;
   HealthRecord? get latestWeight => _latestWeight;
@@ -23,6 +28,9 @@ class HomeViewModel extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  String? get aiInsight => _aiInsight;
+  bool get isLoadingInsight => _isLoadingInsight;
 
   Future<void> fetchLatestVitals() async {
     _isLoading = true;
@@ -47,5 +55,22 @@ class HomeViewModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+
+    _fetchAiInsight();
+  }
+
+  Future<void> _fetchAiInsight() async {
+    _isLoadingInsight = true;
+    notifyListeners();
+
+    _aiInsight = await _aiService.generateInsight(
+      bp: _latestBP,
+      sugar: _latestSugar,
+      weight: _latestWeight,
+      spo2: _latestSpo2,
+    );
+
+    _isLoadingInsight = false;
+    notifyListeners();
   }
 }
