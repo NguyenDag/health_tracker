@@ -18,10 +18,10 @@ const _metricTypes = [
 ];
 
 const _metricLabels = {
-  'blood_pressure_systolic': 'Systolic',
-  'blood_pressure_diastolic': 'Diastolic',
-  'blood_pressure_pulse': 'Pulse',
-  'blood_sugar': 'Blood Sugar',
+  'blood_pressure_systolic': 'Tâm Thu',
+  'blood_pressure_diastolic': 'Tâm Trương',
+  'blood_pressure_pulse': 'Nhịp Tim',
+  'blood_sugar': 'Đường Huyết',
   'spo2': 'SpO2',
 };
 
@@ -42,9 +42,9 @@ const _metricColors = {
 };
 
 const _metricGroupLabel = {
-  'blood_pressure_systolic': 'Blood Pressure',
-  'blood_pressure_diastolic': 'Blood Pressure',
-  'blood_pressure_pulse': 'Blood Pressure',
+  'blood_pressure_systolic': 'Huyết Áp',
+  'blood_pressure_diastolic': 'Huyết Áp',
+  'blood_pressure_pulse': 'Huyết Áp',
 };
 
 const _metricDefaultUnit = {
@@ -63,10 +63,10 @@ String _fmtNum(double v) =>
     v % 1 == 0 ? v.toInt().toString() : v.toStringAsFixed(1);
 
 String _ageKey(HealthThreshold t) {
-  if (t.fromAge == null && t.toAge == null) return 'All ages';
+  if (t.fromAge == null && t.toAge == null) return 'Mọi độ tuổi';
   final from = t.fromAge ?? 0;
   final to = t.toAge;
-  return (to == null || to >= 120) ? '$from+ yrs' : '$from–$to yrs';
+  return (to == null || to >= 120) ? '$from+ tuổi' : '$from–$to tuổi';
 }
 
 int _ageSortKey(String key) =>
@@ -121,18 +121,18 @@ class _AdminThresholdsPageState extends State<AdminThresholdsPage> {
                   color: AppColors.error, size: 18),
             ),
             const SizedBox(width: 10),
-            Text('Delete Rule', style: AppTextStyles.h3),
+            Text('Xóa Quy Tắc', style: AppTextStyles.h3),
           ]),
           content: Text(
-            'Remove threshold for '
+            'Xóa ngưỡng cho '
             '${_metricLabels[t.metricType] ?? t.metricType} '
-            '(${_ageKey(t)})?\n\nThis cannot be undone.',
+            '(${_ageKey(t)})?\n\nHành động này không thể hoàn tác.',
             style: AppTextStyles.bodyMedium,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('Hủy'),
             ),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
@@ -142,7 +142,7 @@ class _AdminThresholdsPageState extends State<AdminThresholdsPage> {
                     borderRadius: BorderRadius.circular(8)),
               ),
               icon: const Icon(Icons.delete_outline, size: 16),
-              label: const Text('Delete'),
+              label: const Text('Xóa'),
               onPressed: () async {
                 Navigator.pop(context);
                 await context.read<AdminThresholdsViewModel>().delete(t.id);
@@ -159,7 +159,7 @@ class _AdminThresholdsPageState extends State<AdminThresholdsPage> {
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Health Thresholds', style: AppTextStyles.h3),
+        title: Text('Ngưỡng Sức Khỏe', style: AppTextStyles.h3),
         centerTitle: true,
         actions: [
           IconButton(
@@ -175,7 +175,7 @@ class _AdminThresholdsPageState extends State<AdminThresholdsPage> {
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(
-          'Add Rule',
+          'Thêm Quy Tắc',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
       );
@@ -204,7 +204,7 @@ class _AdminThresholdsPageState extends State<AdminThresholdsPage> {
                 FilledButton.icon(
                   onPressed: vm.load,
                   icon: const Icon(Icons.refresh, size: 16),
-                  label: const Text('Retry'),
+                  label: const Text('Thử Lại'),
                 ),
               ]),
             ),
@@ -227,9 +227,9 @@ class _AdminThresholdsPageState extends State<AdminThresholdsPage> {
                       size: 36, color: AppColors.primary),
                 ),
                 const SizedBox(height: 16),
-                Text('No thresholds yet', style: AppTextStyles.subtitle),
+                Text('Chưa có ngưỡng nào', style: AppTextStyles.subtitle),
                 const SizedBox(height: 6),
-                Text('Tap + to add the first rule',
+                Text('Nhấn + để thêm quy tắc đầu tiên',
                     style: AppTextStyles.bodySmall
                         .copyWith(color: AppColors.textSecondary)),
               ]),
@@ -253,7 +253,7 @@ class _AdminThresholdsPageState extends State<AdminThresholdsPage> {
                     color: AppColors.textPrimary),
                 onPressed: () => Navigator.pop(context),
               ),
-              title: Text('Health Thresholds', style: AppTextStyles.h3),
+              title: Text('Ngưỡng Sức Khỏe', style: AppTextStyles.h3),
               centerTitle: true,
               actions: [
                 IconButton(
@@ -459,7 +459,7 @@ class _RecordCard extends StatelessWidget {
               Expanded(
                 child: _RangeLabel(
                   color: AppColors.success,
-                  label: 'Normal',
+                  label: 'Bình Thường',
                   value:
                       '${_fmtNum(record.normalMin)} – ${_fmtNum(record.normalMax)}$unit',
                 ),
@@ -468,7 +468,7 @@ class _RecordCard extends StatelessWidget {
               Expanded(
                 child: _RangeLabel(
                   color: AppColors.warning,
-                  label: 'Danger',
+                  label: 'Nguy Hiểm',
                   value:
                       '${_fmtNum(record.dangerMin)} – ${_fmtNum(record.dangerMax)}$unit',
                 ),
@@ -477,7 +477,7 @@ class _RecordCard extends StatelessWidget {
               Expanded(
                 child: _RangeLabel(
                   color: AppColors.error,
-                  label: 'Critical',
+                  label: 'Nghiêm Trọng',
                   value: '< ${_fmtNum(record.dangerMin)} or > ${_fmtNum(record.dangerMax)}$unit',
                 ),
               ),
@@ -664,7 +664,7 @@ class _ThresholdFormState extends State<_ThresholdForm> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(vm.error ?? 'Failed to save'),
+            content: Text(vm.error ?? 'Lưu thất bại'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -718,7 +718,7 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                 Row(children: [
                   Expanded(
                     child: Text(
-                      _isEdit ? 'Edit Rule' : 'New Threshold Rule',
+                      _isEdit ? 'Chỉnh Sửa Quy Tắc' : 'Quy Tắc Ngưỡng Mới',
                       style: AppTextStyles.h3,
                     ),
                   ),
@@ -740,7 +740,7 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                 const SizedBox(height: 20),
 
                 // ── Metric type ──────────────────────────────────
-                _Label('Metric Type'),
+                _Label('Loại Chỉ Số'),
                 const SizedBox(height: 8),
                 if (_isEdit)
                   _ReadonlyRow(
@@ -757,13 +757,13 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                 const SizedBox(height: 18),
 
                 // ── Age range ────────────────────────────────────
-                _Label('Age Range  (optional)'),
+                _Label('Độ Tuổi  (tùy chọn)'),
                 const SizedBox(height: 8),
                 Row(children: [
                   Expanded(
                       child: _NField(
                           controller: _fromAge,
-                          hint: 'From',
+                          hint: 'Từ',
                           integer: true)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -774,23 +774,23 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                   Expanded(
                       child: _NField(
                           controller: _toAge,
-                          hint: 'To',
+                          hint: 'Đến',
                           integer: true)),
                   const SizedBox(width: 8),
-                  Text('yrs',
+                  Text('tuổi',
                       style: AppTextStyles.bodySmall
                           .copyWith(color: AppColors.textSecondary)),
                 ]),
                 const SizedBox(height: 18),
 
                 // ── Normal range ─────────────────────────────────
-                _Label('Normal Range'),
+                _Label('Ngưỡng Bình Thường'),
                 const SizedBox(height: 8),
                 Row(children: [
                   Expanded(
                       child: _NField(
                           controller: _normalMin,
-                          hint: 'Min',
+                          hint: 'Tối thiểu',
                           validator: _required)),
                   Padding(
                     padding: const EdgeInsets.only(
@@ -802,7 +802,7 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                   Expanded(
                       child: _NField(
                           controller: _normalMax,
-                          hint: 'Max',
+                          hint: 'Tối đa',
                           validator: _required)),
                   const SizedBox(width: 8),
                   Text(_unit,
@@ -813,10 +813,10 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                 const SizedBox(height: 14),
 
                 // ── Danger range ─────────────────────────────────
-                _Label('Danger Range'),
+                _Label('Ngưỡng Nguy Hiểm'),
                 const SizedBox(height: 4),
                 Text(
-                  'Values outside normal but within danger → warn. Outside danger → critical.',
+                  'Ngoài ngưỡng bình thường nhưng trong ngưỡng nguy hiểm → cảnh báo. Ngoài ngưỡng nguy hiểm → nghiêm trọng.',
                   style: AppTextStyles.label
                       .copyWith(color: AppColors.textSecondary),
                 ),
@@ -825,7 +825,7 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                   Expanded(
                       child: _NField(
                           controller: _dangerMin,
-                          hint: 'Min',
+                          hint: 'Tối thiểu',
                           validator: _required)),
                   Padding(
                     padding: const EdgeInsets.only(
@@ -837,7 +837,7 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                   Expanded(
                       child: _NField(
                           controller: _dangerMax,
-                          hint: 'Max',
+                          hint: 'Tối đa',
                           validator: _required)),
                   const SizedBox(width: 8),
                   Text(_unit,
@@ -848,7 +848,7 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                 const SizedBox(height: 14),
 
                 // ── Unit ────────────────────────────────────────
-                _Label('Unit'),
+                _Label('Đơn Vị'),
                 const SizedBox(height: 8),
                 if (!_isEdit && _metricType == 'blood_sugar')
                   Row(
@@ -891,7 +891,7 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                                 strokeWidth: 2, color: Colors.white),
                           )
                         : Text(
-                            _isEdit ? 'Save Changes' : 'Add Rule',
+                            _isEdit ? 'Lưu Thay Đổi' : 'Thêm Quy Tắc',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -909,8 +909,8 @@ class _ThresholdFormState extends State<_ThresholdForm> {
   }
 
   String? _required(String? v) {
-    if (v == null || v.isEmpty) return 'Required';
-    if (double.tryParse(v) == null) return 'Invalid number';
+    if (v == null || v.isEmpty) return 'Bắt buộc';
+    if (double.tryParse(v) == null) return 'Số không hợp lệ';
     return null;
   }
 }

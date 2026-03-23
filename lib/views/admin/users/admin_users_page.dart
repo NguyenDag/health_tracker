@@ -68,19 +68,19 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text(
-          isActive ? 'Deactivate User' : 'Reactivate User',
+          isActive ? 'Vô Hiệu Hóa Người Dùng' : 'Kích Hoạt Lại Người Dùng',
           style: AppTextStyles.h3,
         ),
         content: Text(
           isActive
-              ? 'Deactivate ${_displayName(user)}? They will no longer be able to log in.'
-              : 'Reactivate ${_displayName(user)}? They will regain access.',
+              ? 'Vô hiệu hóa ${_displayName(user)}? Họ sẽ không thể đăng nhập.'
+              : 'Kích hoạt lại ${_displayName(user)}? Họ sẽ có thể truy cập lại.',
           style: AppTextStyles.bodyMedium,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Hủy'),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -96,19 +96,19 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                 final vm = context.read<AdminUsersViewModel>();
                 if (vm.error != null) {
                   _showSnackBar(
-                      'Failed to update status: ${vm.error}', AppColors.error);
+                      'Không thể cập nhật trạng thái: ${vm.error}', AppColors.error);
                 } else {
                   _showSnackBar(
                     isActive
-                        ? '${_displayName(user)} has been deactivated.'
-                        : '${_displayName(user)} has been reactivated.',
+                        ? '${_displayName(user)} đã bị vô hiệu hóa.'
+                        : '${_displayName(user)} đã được kích hoạt lại.',
                     isActive ? AppColors.warning : AppColors.success,
                   );
                 }
               }
             },
             child: Text(
-              isActive ? 'Deactivate' : 'Reactivate',
+              isActive ? 'Vô Hiệu Hóa' : 'Kích Hoạt Lại',
               style: const TextStyle(color: Colors.white),
             ),
           ),
@@ -146,7 +146,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                   const Icon(Icons.cloud_off,
                       size: 52, color: AppColors.textSecondary),
                   const SizedBox(height: 12),
-                  Text('Failed to load users',
+                  Text('Không thể tải danh sách người dùng',
                       style: AppTextStyles.subtitle),
                   const SizedBox(height: 6),
                   Text(vm.error!,
@@ -156,7 +156,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                   FilledButton.icon(
                     onPressed: vm.loadUsers,
                     icon: const Icon(Icons.refresh, size: 18),
-                    label: const Text('Retry'),
+                    label: const Text('Thử Lại'),
                   ),
                 ],
               ),
@@ -221,7 +221,7 @@ class _SearchBar extends StatelessWidget {
       child: TextField(
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: 'Search by name, phone, ID...',
+          hintText: 'Tìm theo tên, số điện thoại, ID...',
           hintStyle: AppTextStyles.bodyMedium,
           prefixIcon: const Icon(Icons.search,
               color: AppColors.textSecondary, size: 20),
@@ -323,8 +323,8 @@ class _ListHeader extends StatelessWidget {
         children: [
           Text(
             count == total
-                ? '$count USER${count == 1 ? '' : 'S'}'
-                : '$count of $total USER${total == 1 ? '' : 'S'}',
+                ? '$count NGƯỜI DÙNG'
+                : '$count / $total NGƯỜI DÙNG',
             style: AppTextStyles.label.copyWith(letterSpacing: 0.5),
           ),
           GestureDetector(
@@ -332,7 +332,7 @@ class _ListHeader extends StatelessWidget {
             child: Row(children: [
               const Icon(Icons.refresh, size: 15, color: AppColors.primary),
               const SizedBox(width: 4),
-              Text('Refresh',
+              Text('Làm Mới',
                   style: AppTextStyles.subtitle
                       .copyWith(color: AppColors.primary, fontSize: 12)),
             ]),
@@ -360,7 +360,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            query.isNotEmpty ? 'No users match "$query"' : 'No users found',
+            query.isNotEmpty ? 'Không tìm thấy người dùng khớp với "$query"' : 'Không tìm thấy người dùng',
             style: AppTextStyles.bodyMedium,
           ),
         ],
@@ -472,7 +472,7 @@ class _UserCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         // Status badge
                         _Badge(
-                          label: _isActive ? 'Active' : 'Inactive',
+                          label: _isActive ? 'Hoạt Động' : 'Không Hoạt Động',
                           color: _statusColor,
                         ),
                       ],
@@ -480,7 +480,7 @@ class _UserCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     // Email
                     Text(
-                      user.email ?? 'No email',
+                      user.email ?? 'Chưa có email',
                       style: AppTextStyles.bodySmall.copyWith(
                         color: user.email != null
                             ? AppColors.textSecondary
@@ -496,9 +496,9 @@ class _UserCard extends StatelessWidget {
                     // Last sign in or joined date
                     Text(
                       user.lastSignInAt != null
-                          ? 'Last seen ${_timeAgo(user.lastSignInAt!)}'
+                          ? 'Online ${_timeAgo(user.lastSignInAt!)}'
                           : user.createdAt != null
-                              ? 'Joined ${_fmtDate(user.createdAt!)}'
+                              ? 'Tham gia ${_fmtDate(user.createdAt!)}'
                               : '',
                       style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
                     ),
@@ -515,10 +515,10 @@ class _UserCard extends StatelessWidget {
                 },
                 itemBuilder: (_) => [
                   const PopupMenuItem(
-                      value: 'view', child: Text('View Details')),
+                      value: 'view', child: Text('Xem Chi Tiết')),
                   PopupMenuItem(
                     value: 'toggle',
-                    child: Text(_isActive ? 'Deactivate' : 'Reactivate'),
+                    child: Text(_isActive ? 'Vô Hiệu Hóa' : 'Kích Hoạt Lại'),
                   ),
                 ],
               ),
@@ -531,17 +531,17 @@ class _UserCard extends StatelessWidget {
 
   static String _fmtDate(DateTime dt) {
     const m = [
-      'Jan','Feb','Mar','Apr','May','Jun',
-      'Jul','Aug','Sep','Oct','Nov','Dec'
+      'Th1','Th2','Th3','Th4','Th5','Th6',
+      'Th7','Th8','Th9','Th10','Th11','Th12'
     ];
     return '${m[dt.month - 1]} ${dt.day}, ${dt.year}';
   }
 
   static String _timeAgo(DateTime dt) {
     final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 30) return '${diff.inDays}d ago';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} phút trước';
+    if (diff.inHours < 24) return '${diff.inHours} giờ trước';
+    if (diff.inDays < 30) return '${diff.inDays} ngày trước';
     return _fmtDate(dt);
   }
 }
@@ -584,7 +584,7 @@ class _UserDetailSheet extends StatelessWidget {
   bool get _isActive => user.status == 'active';
   Color get _statusColor =>
       _isActive ? AppColors.success : AppColors.textSecondary;
-  String get _statusLabel => _isActive ? 'Active' : 'Inactive';
+  String get _statusLabel => _isActive ? 'Hoạt Động' : 'Không Hoạt Động';
 
   String get _displayName =>
       user.fullName.isNotEmpty ? user.fullName : 'User ${user.id.substring(0, 8)}';
@@ -656,16 +656,16 @@ class _UserDetailSheet extends StatelessWidget {
             const SizedBox(height: 12),
 
             // Account info section
-            _SectionLabel('Account'),
+            _SectionLabel('Tài Khoản'),
             const SizedBox(height: 10),
             _InfoRow(
               icon: Icons.person_outline,
-              label: 'First name',
+              label: 'Họ',
               value: user.firstName,
             ),
             _InfoRow(
               icon: Icons.person_outline,
-              label: 'Last name',
+              label: 'Tên',
               value: user.lastName,
             ),
             _InfoRow(
@@ -675,22 +675,22 @@ class _UserDetailSheet extends StatelessWidget {
             ),
             _InfoRow(
               icon: Icons.phone_outlined,
-              label: 'Phone',
+              label: 'Điện thoại',
               value: user.phone,
             ),
             _InfoRow(
               icon: Icons.badge_outlined,
-              label: 'Role',
+              label: 'Vai trò',
               value: user.role,
             ),
             _InfoRow(
               icon: Icons.calendar_today_outlined,
-              label: 'Joined',
+              label: 'Ngày tham gia',
               value: user.createdAt != null ? _fmtDate(user.createdAt!) : null,
             ),
             _InfoRow(
               icon: Icons.access_time_outlined,
-              label: 'Last seen',
+              label: 'Lần cuối online',
               value: user.lastSignInAt != null
                   ? _fmtDate(user.lastSignInAt!)
                   : null,
@@ -701,18 +701,18 @@ class _UserDetailSheet extends StatelessWidget {
             const SizedBox(height: 12),
 
             // Health profile section
-            _SectionLabel('Health Profile'),
+            _SectionLabel('Hồ Sơ Sức Khỏe'),
             const SizedBox(height: 10),
             _InfoRow(
               icon: Icons.person_outline,
-              label: 'Gender',
+              label: 'Giới tính',
               value: user.gender?.isNotEmpty == true
                   ? _capitalize(user.gender!)
                   : null,
             ),
             _InfoRow(
               icon: Icons.cake_outlined,
-              label: 'Date of Birth',
+              label: 'Ngày sinh',
               value: user.dob != null ? _fmtDate(user.dob!) : null,
             ),
 
@@ -731,7 +731,7 @@ class _UserDetailSheet extends StatelessWidget {
                   color: _isActive ? AppColors.warning : AppColors.success,
                 ),
                 label: Text(
-                  _isActive ? 'Deactivate' : 'Reactivate',
+                  _isActive ? 'Vô Hiệu Hóa' : 'Kích Hoạt Lại',
                   style: TextStyle(
                       color: _isActive ? AppColors.warning : AppColors.success),
                 ),
@@ -750,8 +750,8 @@ class _UserDetailSheet extends StatelessWidget {
 
   static String _fmtDate(DateTime dt) {
     const m = [
-      'Jan','Feb','Mar','Apr','May','Jun',
-      'Jul','Aug','Sep','Oct','Nov','Dec'
+      'Th1','Th2','Th3','Th4','Th5','Th6',
+      'Th7','Th8','Th9','Th10','Th11','Th12'
     ];
     return '${m[dt.month - 1]} ${dt.day}, ${dt.year}';
   }
@@ -808,7 +808,7 @@ class _InfoRow extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              isNA ? 'N/A' : value!,
+              isNA ? 'Chưa có' : value!,
               style: isNA
                   ? AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textSecondary,

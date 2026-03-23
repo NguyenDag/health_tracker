@@ -15,9 +15,9 @@ class AdminUsersViewModel extends ChangeNotifier {
   String? _error;
 
   String _searchQuery = '';
-  String _selectedFilter = 'All';
+  String _selectedFilter = 'Tất Cả';
 
-  static const filters = ['All', 'Active', 'Inactive'];
+  static const filters = ['Tất Cả', 'Hoạt Động', 'Không Hoạt Động'];
 
   // ── Getters ────────────────────────────────────────────────────────────────
 
