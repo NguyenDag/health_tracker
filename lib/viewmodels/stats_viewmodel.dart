@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import '../data/implementations/repositories/threshold_repository.dart';
 import '../data/interfaces/repositories/i_health_repository.dart';
 import '../domain/entities/health_record.dart';
+import '../domain/entities/threshold.dart';
 import '../domain/enums/health_type.dart';
 
 class StatsViewModel extends ChangeNotifier {
   final IHealthRepository _healthRepo;
+  final ThresholdRepository _thresholdRepo = ThresholdRepository();
 
   StatsViewModel(this._healthRepo);
 
@@ -13,6 +16,10 @@ class StatsViewModel extends ChangeNotifier {
   String? _error;
   HealthType _activeType = HealthType.BP;
   int _selectedSegment = 2; // 0: Day, 1: Week, 2: Month, 3: Year
+
+  HealthThreshold? thresholdSystolic;
+  HealthThreshold? thresholdSugar;
+  HealthThreshold? thresholdSpo2;
 
   List<HealthRecord> get records => _records;
   bool get isLoading => _isLoading;
@@ -63,6 +70,26 @@ class StatsViewModel extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+
+    _loadThresholds();
+  }
+
+  Future<void> _loadThresholds() async {
+    try {
+      final list = await _thresholdRepo.getUserThresholds();
+      thresholdSystolic = _find(list, 'blood_pressure_systolic');
+      thresholdSugar = _find(list, 'blood_sugar');
+      thresholdSpo2 = _find(list, 'spo2');
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  HealthThreshold? _find(List<HealthThreshold> list, String type) {
+    try {
+      return list.firstWhere((t) => t.metricType == type);
+    } catch (_) {
+      return null;
     }
   }
 }
