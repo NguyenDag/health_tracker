@@ -14,6 +14,7 @@ import 'package:health_tracker/viewmodels/admin_users_viewmodel.dart';
 import 'package:health_tracker/viewmodels/admin_thresholds_viewmodel.dart';
 import 'package:health_tracker/viewmodels/admin_ai_config_viewmodel.dart';
 import 'package:health_tracker/viewmodels/home_viewmodel.dart';
+import 'package:health_tracker/core/services/ai_insight_service.dart';
 import 'package:health_tracker/viewmodels/stats_viewmodel.dart';
 import 'package:health_tracker/views/splash_screen.dart';
 import 'core/theme/app_theme.dart';
@@ -49,6 +50,7 @@ class HealthTrackerApp extends StatelessWidget {
               spo2Api: Spo2Api(supabase: supabase),
               weightApi: WeightApi(supabase: supabase),
             ),
+            AiInsightService(),
           ),
         ),
         ChangeNotifierProvider(
