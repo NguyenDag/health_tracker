@@ -460,8 +460,7 @@ class _RecordCard extends StatelessWidget {
                 child: _RangeLabel(
                   color: AppColors.success,
                   label: 'Bình Thường',
-                  value:
-                      '${_fmtNum(record.normalMin)} – ${_fmtNum(record.normalMax)}$unit',
+                  lines: ['${_fmtNum(record.normalMin)} – ${_fmtNum(record.normalMax)}$unit'],
                 ),
               ),
               const SizedBox(width: 8),
@@ -469,8 +468,12 @@ class _RecordCard extends StatelessWidget {
                 child: _RangeLabel(
                   color: AppColors.warning,
                   label: 'Nguy Hiểm',
-                  value:
-                      '${_fmtNum(record.dangerMin)} – ${_fmtNum(record.dangerMax)}$unit',
+                  lines: [
+                    if (record.normalMin > record.dangerMin)
+                      '${_fmtNum(record.dangerMin)} – ${_fmtNum(record.normalMin)}$unit',
+                    if (record.normalMax < record.dangerMax)
+                      '${_fmtNum(record.normalMax)} – ${_fmtNum(record.dangerMax)}$unit',
+                  ],
                 ),
               ),
               const SizedBox(width: 8),
@@ -478,7 +481,12 @@ class _RecordCard extends StatelessWidget {
                 child: _RangeLabel(
                   color: AppColors.error,
                   label: 'Nghiêm Trọng',
-                  value: '< ${_fmtNum(record.dangerMin)} or > ${_fmtNum(record.dangerMax)}$unit',
+                  lines: [
+                    if (record.normalMin > record.dangerMin)
+                      '< ${_fmtNum(record.dangerMin)}$unit',
+                    if (record.normalMax < record.dangerMax)
+                      '> ${_fmtNum(record.dangerMax)}$unit',
+                  ],
                 ),
               ),
             ]),
@@ -492,9 +500,9 @@ class _RecordCard extends StatelessWidget {
 class _RangeLabel extends StatelessWidget {
   final Color color;
   final String label;
-  final String value;
+  final List<String> lines;
   const _RangeLabel(
-      {required this.color, required this.label, required this.value});
+      {required this.color, required this.label, required this.lines});
 
   @override
   Widget build(BuildContext context) => Column(
@@ -515,9 +523,9 @@ class _RangeLabel extends StatelessWidget {
                     .copyWith(color: color, fontWeight: FontWeight.w600)),
           ]),
           const SizedBox(height: 2),
-          Text(value,
+          ...lines.map((l) => Text(l,
               style: AppTextStyles.label
-                  .copyWith(color: AppColors.textSecondary, fontSize: 10)),
+                  .copyWith(color: AppColors.textSecondary, fontSize: 10))),
         ],
       );
 }
@@ -570,12 +578,14 @@ class _RangeBar extends StatelessWidget {
           Text(_fmtNum(dMin),
               style: AppTextStyles.label
                   .copyWith(color: AppColors.textSecondary, fontSize: 10)),
-          Text(_fmtNum(nMin),
-              style: AppTextStyles.label
-                  .copyWith(color: AppColors.success, fontSize: 10)),
-          Text(_fmtNum(nMax),
-              style: AppTextStyles.label
-                  .copyWith(color: AppColors.success, fontSize: 10)),
+          if (nMin > dMin)
+            Text(_fmtNum(nMin),
+                style: AppTextStyles.label
+                    .copyWith(color: AppColors.success, fontSize: 10)),
+          if (nMax < dMax)
+            Text(_fmtNum(nMax),
+                style: AppTextStyles.label
+                    .copyWith(color: AppColors.success, fontSize: 10)),
           Text(_fmtNum(dMax),
               style: AppTextStyles.label
                   .copyWith(color: AppColors.textSecondary, fontSize: 10)),
