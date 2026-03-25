@@ -39,8 +39,8 @@ class AdminUsersViewModel extends ChangeNotifier {
           (u.phone ?? '').contains(q) ||
           u.id.toLowerCase().contains(q);
       final matchFilter = switch (_selectedFilter) {
-        'Active' => u.status == 'active',
-        'Inactive' => u.status != 'active',
+        'Hoạt Động' => u.status == 'active',
+        'Không Hoạt Động' => u.status != 'active',
         _ => true,
       };
       return matchSearch && matchFilter;
