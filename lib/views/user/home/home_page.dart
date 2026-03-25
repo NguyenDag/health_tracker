@@ -147,7 +147,7 @@ class _HomePageState extends State<HomePage> {
         _buildVitalCard(
           'HUYẾT ÁP',
           _formatBPValue(viewModel.latestBP),
-          'Bình thường',
+          _getShortStatus(viewModel.latestBP?.result),
           AppColors.primary,
           AppColors.bloodPressureBg,
           Icons.favorite_border,
@@ -156,7 +156,7 @@ class _HomePageState extends State<HomePage> {
         _buildVitalCard(
           'ĐƯỜNG HUYẾT',
           _formatSugarValue(viewModel.latestSugar),
-          'Bình thường',
+          _getShortStatus(viewModel.latestSugar?.result),
           Colors.purple,
           AppColors.bloodSugarBg,
           Icons.water_drop_outlined,
@@ -165,7 +165,7 @@ class _HomePageState extends State<HomePage> {
         _buildVitalCard(
           'CÂN NẶNG',
           _formatWeightValue(viewModel.latestWeight),
-          'Ổn định',
+          _getShortStatus(viewModel.latestWeight?.result),
           AppColors.warning,
           AppColors.weightBg,
           Icons.monitor_weight_outlined,
@@ -174,7 +174,7 @@ class _HomePageState extends State<HomePage> {
         _buildVitalCard(
           'SPO2',
           _formatSpo2Value(viewModel.latestSpo2),
-          'Bình thường',
+          _getShortStatus(viewModel.latestSpo2?.result),
           Colors.blue,
           AppColors.spo2Bg,
           Icons.air,
@@ -320,18 +320,7 @@ class _HomePageState extends State<HomePage> {
         }
 
         final dateStr = DateFormat('HH:mm, dd/MM/yyyy').format(record.createdAt);
-        
-        String displayStatus = record.result ?? '';
-        final lowerStatus = displayStatus.toLowerCase();
-        if (lowerStatus.contains('nghiêm trọng')) {
-          displayStatus = 'Nghiêm trọng';
-        } else if (lowerStatus.contains('bình thường')) {
-          displayStatus = 'Bình thường';
-        } else if (lowerStatus.contains('cảnh báo')) {
-          displayStatus = 'Cảnh báo';
-        } else if (lowerStatus.contains('tốt')) {
-          displayStatus = 'Tốt';
-        }
+        final displayStatus = _getShortStatus(record.result);
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 12.0),
@@ -435,5 +424,18 @@ class _HomePageState extends State<HomePage> {
       return AppColors.warning;
     }
     return AppColors.success;
+  }
+
+  String _getShortStatus(String? status, {String defaultStatus = 'Bình thường'}) {
+    if (status == null || status.isEmpty) return defaultStatus;
+    final lowerStatus = status.toLowerCase();
+    if (lowerStatus.contains('nghiêm trọng')) return 'Nghiêm trọng';
+    if (lowerStatus.contains('bình thường')) return 'Bình thường';
+    if (lowerStatus.contains('cảnh báo')) return 'Cảnh báo';
+    if (lowerStatus.contains('tốt')) return 'Tốt';
+    if (lowerStatus.contains('ổn định')) return 'Ổn định';
+    if (lowerStatus.contains('cao')) return 'Cao';
+    if (lowerStatus.contains('thấp')) return 'Thấp';
+    return status;
   }
 }

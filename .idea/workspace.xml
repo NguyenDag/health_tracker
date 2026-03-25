@@ -4,135 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="661b694c-2dc5-4c3d-895a-d8f8e47b923b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/markdown.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/admin_rls_policies.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/logo/banner.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/devtools_options.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/core/services/ai_insight_service.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/dto/blood_pressure_dto.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/dto/blood_sugar_dto.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/dto/spo2_condition_dto.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/dto/weight_dto.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/api/blood_pressure_api.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/api/blood_sugar_api.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/api/spo2_api.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/api/weight_api.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/mapper/blood_pressure_mapper.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/mapper/blood_sugar_mapper.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/mapper/spo2_mapper.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/mapper/weight_mapper.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/repositories/blood_pressure_repo.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/repositories/blood_sugar_repo.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/repositories/notification_repository.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/repositories/spo2_repo.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/repositories/threshold_repository.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/repositories/user_repository.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/implementations/repositories/weight_repo.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/interfaces/api/i_blood_pressure_api.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/interfaces/api/i_blood_sugar_api.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/interfaces/api/i_spo2_api.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/interfaces/api/i_weight_api.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/interfaces/repositories/i_blood_pressure_repo.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/interfaces/repositories/i_blood_sugar_repo.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/interfaces/repositories/i_notification_repository.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/interfaces/repositories/i_spo2_repo.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/interfaces/repositories/i_threshold_repository.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/interfaces/repositories/i_user_repository.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/interfaces/repositories/i_weight_repo.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/domain/entities/threshold.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/viewmodels/admin_ai_config_viewmodel.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/viewmodels/admin_thresholds_viewmodel.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/viewmodels/admin_users_viewmodel.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/viewmodels/threshold_viewmodel.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/views/widgets/history_record/confirm_delete_modal.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/views/widgets/history_record/history_detail_modal.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/seed_thresholds.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/architecture.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/constants/app_colors.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/constants/app_colors.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/di/injection.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/network/api_client.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/network/api_endpoints.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/router/app_router.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/router/app_router.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/extensions.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/logger.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/validators.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/dto/dto_sample.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/implementations/api/api_sample.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/implementations/api/api_sample.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/implementations/local/local_sample.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/implementations/mapper/mapper_sample.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/implementations/repositories/auth_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/implementations/repositories/auth_repository.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/implementations/repositories/health_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/implementations/repositories/health_repository.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/implementations/repositories/mock_notification_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/implementations/repositories/mock_notification_repository.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/implementations/repositories/repo_sample.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/interfaces/api/api_sample.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/interfaces/mapper/api_sample.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/interfaces/repositories/i_auth_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/interfaces/repositories/i_auth_repository.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/interfaces/repositories/ihealth_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/interfaces/repositories/i_health_repository.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/interfaces/repositories/notification_repository.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/interfaces/repositories/repo_sample.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/domain/entities/blood_pressure.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/entities/blood_pressure.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/domain/entities/blood_sugar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/entities/blood_sugar.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/domain/entities/entity_sample.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/domain/entities/health_notification.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/entities/health_notification.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/domain/entities/health_record.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/entities/health_record.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/domain/entities/spo2_record.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/entities/spo2_record.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/domain/entities/user_profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/entities/user_profile.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/domain/entities/weight_record.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/entities/weight_record.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/viewmodels/add_record_viewmodel/add_record_viewmodel.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/viewmodels/add_record_viewmodel/add_record_viewmodel.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/viewmodels/auth_viewmodel.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/viewmodels/auth_viewmodel.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/viewmodels/history_record_viewmodel/history_record_viewmodel.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/viewmodels/history_record_viewmodel/history_record_viewmodel.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/viewmodels/home_viewmodel.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/viewmodels/home_viewmodel.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/viewmodels/notification_viewmodel.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/viewmodels/notification_viewmodel.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/viewmodels/stats_viewmodel.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/viewmodels/stats_viewmodel.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/viewmodels/viewmodel_sample.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/admin/ai_config/admin_ai_config_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/admin/ai_config/admin_ai_config_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/admin/dashboard/admin_dashboard_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/admin/dashboard/admin_dashboard_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/admin/main/admin_main_layout_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/admin/main/admin_main_layout_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/admin/thresholds/admin_thresholds_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/admin/thresholds/admin_thresholds_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/admin/users/admin_users_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/admin/users/admin_users_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/auth/forgot_password_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/auth/forgot_password_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/auth/login_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/auth/login_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/auth/onboarding_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/auth/onboarding_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/auth/registration_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/auth/registration_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/auth/verification_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/auth/verification_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/splash_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/splash_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/home/home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/user/home/home_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/logs/add_record_page.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/logs/history_record_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/user/logs/history_record_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/logs/input_record_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/user/logs/input_record_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/logs/logs_page.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/main/main_layout_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/user/main/main_layout_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/notification/notification_history_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/user/notification/notification_history_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/notification/widgets/notification_tile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/user/notification/widgets/notification_tile.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/profile/edit_profile_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/user/profile/edit_profile_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/profile/profile_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/user/profile/profile_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/stats/stats_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/user/stats/stats_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/threshold/threshold_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/user/threshold/threshold_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/user/threshold/widgets/threshold_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/user/threshold/widgets/threshold_bar.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/widgets/custom_app_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/widgets/custom_app_bar.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/widgets/history_record/history_filter.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/widgets/history_record/history_filter.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/widgets/history_record/history_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/widgets/history_record/history_item.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/widgets/history_record/history_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/widgets/history_record/history_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/widgets/history_record/history_search.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/widgets/history_record/history_search.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/widgets/history_record/history_section.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/widgets/history_record/history_section.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/widgets/input_record/bp_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/widgets/input_record/bp_form.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/widgets/input_record/health_type_selector.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/widgets/input_record/health_type_selector.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/widgets/input_record/spo2_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/widgets/input_record/spo2_form.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/widgets/input_record/sugar_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/widgets/input_record/sugar_form.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/widgets/input_record/weight_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/widgets/input_record/weight_form.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/widgets/shared_widgets.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/widgets/shared_widgets.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/script.sql" beforeDir="false" afterPath="$PROJECT_DIR$/script.sql" afterDir="false" />
-    </list>
+    <list default="true" id="661b694c-2dc5-4c3d-895a-d8f8e47b923b" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -165,7 +37,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "Merging nguyenkiem",
+    "git-widget-placeholder": "main",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
