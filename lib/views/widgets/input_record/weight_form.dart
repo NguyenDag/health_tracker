@@ -12,8 +12,9 @@ class WeightForm extends StatefulWidget {
 
 class _WeightFormState extends State<WeightForm> {
   DateTime selectedDate = DateTime.now();
-  final TextEditingController weightController =
-  TextEditingController(text: "65");
+  final TextEditingController weightController = TextEditingController(
+    text: "65",
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,11 @@ class _WeightFormState extends State<WeightForm> {
         const Text(
           "CÂN NẶNG",
           style: TextStyle(
-              fontSize: 12, color: Colors.black, fontWeight: FontWeight.w900, letterSpacing: 1),
+            fontSize: 12,
+            color: Colors.black,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1,
+          ),
         ),
         const SizedBox(height: 6),
         Container(
@@ -40,19 +45,16 @@ class _WeightFormState extends State<WeightForm> {
                 child: TextField(
                   controller: weightController,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.bold),
-                  decoration:
-                  const InputDecoration(border: InputBorder.none),
-                  onChanged: (v) =>
-                  vm.weight = double.tryParse(v) ?? 0,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  decoration: const InputDecoration(border: InputBorder.none),
+                  onChanged: (v) => vm.weight = double.tryParse(v) ?? 0,
                 ),
               ),
-              const Text("kg",
-                  style: TextStyle(color: Colors.black))
+              const Text("kg", style: TextStyle(color: Colors.black)),
             ],
           ),
         ),
@@ -61,36 +63,36 @@ class _WeightFormState extends State<WeightForm> {
 
         _noteCard(
           title: "TỈ LỆ MỠ (%)",
-          onChanged: (v) =>
-          vm.bodyFat = double.tryParse(v),
+          onChanged: (v) => vm.bodyFat = double.tryParse(v),
         ),
 
         const SizedBox(height: 20),
 
-        _noteCard(
-          title: "CHÚ THÍCH",
-          onChanged: (v) => vm.weightNote = v,
-        ),
+        _noteCard(title: "CHÚ THÍCH", onChanged: (v) => vm.weightNote = v),
 
         const SizedBox(height: 20),
 
         /// DATE & TIME
         _dateTimeCard(),
-
       ],
     );
   }
 
-  Widget _noteCard(
-      {required String title,
-        required Function(String) onChanged}) {
+  Widget _noteCard({
+    required String title,
+    required Function(String) onChanged,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
           style: const TextStyle(
-              fontSize: 12, color: Colors.black, fontWeight: FontWeight.w900, letterSpacing: 1),
+            fontSize: 12,
+            color: Colors.black,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1,
+          ),
         ),
         const SizedBox(height: 6),
         Container(
@@ -100,8 +102,7 @@ class _WeightFormState extends State<WeightForm> {
             borderRadius: BorderRadius.circular(14),
           ),
           child: TextField(
-            decoration:
-            const InputDecoration(border: InputBorder.none),
+            decoration: const InputDecoration(border: InputBorder.none),
             onChanged: onChanged,
           ),
         ),
@@ -123,46 +124,26 @@ class _WeightFormState extends State<WeightForm> {
           ),
         ),
         const SizedBox(height: 6),
-        GestureDetector(
-          onTap: () async {
-            final pickedDate = await showDatePicker(
-              context: context,
-              initialDate: selectedDate,
-              firstDate: DateTime(2020),
-              lastDate: DateTime.now(),
-            );
-
-            if (pickedDate != null) {
-              setState(() {
-                selectedDate = pickedDate;
-              });
-            }
-          },
-          child: Container(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_today_outlined, size: 18),
-                const SizedBox(width: 10),
-                Text(
-                  "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-                  style: TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-                const Spacer(),
-                const Icon(Icons.keyboard_arrow_down),
-              ],
-            ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.calendar_today_outlined, size: 18),
+              const SizedBox(width: 10),
+              Text(
+                "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                style: TextStyle(color: Colors.black),
+              ),
+              const Spacer(),
+              const Icon(Icons.keyboard_arrow_down),
+            ],
           ),
         ),
       ],
     );
   }
-
 }
