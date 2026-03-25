@@ -50,9 +50,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
                 child: TextField(
                   controller: sugarController,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -108,10 +106,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
                 label = "Sau khi ăn";
               }
 
-              return DropdownMenuItem(
-                value: e,
-                child: Text(label),
-              );
+              return DropdownMenuItem(value: e, child: Text(label));
             }).toList(),
             onChanged: (v) => vm.sugarType = v!,
           ),
@@ -169,39 +164,23 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
           ),
         ),
         const SizedBox(height: 6),
-        GestureDetector(
-          onTap: () async {
-            final pickedDate = await showDatePicker(
-              context: context,
-              initialDate: selectedDate,
-              firstDate: DateTime(2020),
-              lastDate: DateTime.now(),
-            );
-
-            if (pickedDate != null) {
-              setState(() {
-                selectedDate = pickedDate;
-              });
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_today_outlined, size: 18),
-                const SizedBox(width: 10),
-                Text(
-                  "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-                  style: TextStyle(color: Colors.black),
-                ),
-                const Spacer(),
-                const Icon(Icons.keyboard_arrow_down),
-              ],
-            ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.calendar_today_outlined, size: 18),
+              const SizedBox(width: 10),
+              Text(
+                "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                style: TextStyle(color: Colors.black),
+              ),
+              const Spacer(),
+              const Icon(Icons.keyboard_arrow_down),
+            ],
           ),
         ),
       ],
@@ -209,7 +188,6 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
   }
 
   Widget _noteCard(BuildContext context) {
-
     final vm = context.read<AddRecordViewModel>();
 
     return Column(
