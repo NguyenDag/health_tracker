@@ -71,6 +71,9 @@ class HealthRepository implements IHealthRepository {
           weight: (item['weight'] as num).toDouble(),
           note: item['note'],
           result: item['result'],
+          bodyFat: item['body_fat'] != null
+              ? (item['body_fat'] as num).toDouble()
+              : null,
           createdAt: DateTime.parse(item['created_at']),
         ),
       );
@@ -159,6 +162,7 @@ class HealthRepository implements IHealthRepository {
       diastolic: json['diastolic'],
       pulse: json['pulse'],
       glucoseValue: json['glucose_value']?.toDouble(),
+      bodyFat: json['body_fat']?.toDouble(),
       glucoseUnit: json['sugar_unit'],
       weight: json['weight']?.toDouble(),
       spo2: json['spo2'],

@@ -15,6 +15,9 @@ class _WeightFormState extends State<WeightForm> {
   final TextEditingController weightController = TextEditingController(
     text: "65",
   );
+  final TextEditingController bodyFatController = TextEditingController(
+    text: "5.0",
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +27,7 @@ class _WeightFormState extends State<WeightForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "CÂN NẶNG",
+          "CÂN NẶNG *",
           style: TextStyle(
             fontSize: 12,
             color: Colors.black,
@@ -42,15 +45,26 @@ class _WeightFormState extends State<WeightForm> {
           child: Row(
             children: [
               Expanded(
-                child: TextField(
+                child: TextFormField(
                   controller: weightController,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),],
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                   decoration: const InputDecoration(border: InputBorder.none),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Không để trống";
+                    }
+
+                    final number = double.tryParse(value);
+                    if (number == null || number <= 0 || number >= 300) {
+                      return "Không hợp lệ";
+                    }
+                    return null;
+                  },
                   onChanged: (v) => vm.weight = double.tryParse(v) ?? 0,
                 ),
               ),
@@ -61,9 +75,58 @@ class _WeightFormState extends State<WeightForm> {
 
         const SizedBox(height: 20),
 
-        _noteCard(
-          title: "TỈ LỆ MỠ (%)",
-          onChanged: (v) => vm.bodyFat = double.tryParse(v),
+        const Text(
+          "TỈ LỆ MỠ (%)",
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.black,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: bodyFatController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),],
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  decoration: const InputDecoration(border: InputBorder.none),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return null;
+                    }
+
+                    final number = double.tryParse(value);
+
+                    if (number == null || number <= 0 || number >= 100) {
+                      return "Không hợp lệ";
+                    }
+                    return null;
+                  },
+                  onChanged: (v) {
+                    if (v.trim().isEmpty) {
+                      vm.bodyFat = null;
+                    } else {
+                      vm.bodyFat = double.tryParse(v);
+                    }
+                  },
+                ),
+              ),
+              const Text("%", style: TextStyle(color: Colors.black)),
+            ],
+          ),
         ),
 
         const SizedBox(height: 20),
@@ -138,8 +201,6 @@ class _WeightFormState extends State<WeightForm> {
                 "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
                 style: TextStyle(color: Colors.black),
               ),
-              const Spacer(),
-              const Icon(Icons.keyboard_arrow_down),
             ],
           ),
         ),
