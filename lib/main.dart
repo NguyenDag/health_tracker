@@ -8,13 +8,14 @@ import 'package:health_tracker/data/implementations/api/spo2_api.dart';
 import 'package:health_tracker/data/implementations/api/weight_api.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import 'package:health_tracker/core/network/supabase_config.dart';
+import 'package:health_tracker/core/services/notification_service.dart';
 import 'package:health_tracker/data/implementations/repositories/health_repository.dart';
 import 'package:health_tracker/viewmodels/admin_users_viewmodel.dart';
 import 'package:health_tracker/viewmodels/admin_thresholds_viewmodel.dart';
 import 'package:health_tracker/viewmodels/admin_ai_config_viewmodel.dart';
 import 'package:health_tracker/viewmodels/home_viewmodel.dart';
+import 'package:health_tracker/viewmodels/reminder_settings_viewmodel.dart';
 import 'package:health_tracker/core/services/ai_insight_service.dart';
 import 'package:health_tracker/viewmodels/stats_viewmodel.dart';
 import 'package:health_tracker/views/splash_screen.dart';
@@ -32,6 +33,10 @@ void main() async {
     url: SupabaseConfig.url,
     anonKey: SupabaseConfig.anonKey,
   );
+
+  // Khởi tạo notification service
+  await NotificationService.instance.init();
+
   runApp(const HealthTrackerApp());
 }
 
@@ -69,6 +74,7 @@ class HealthTrackerApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AdminThresholdsViewModel()),
         ChangeNotifierProvider(create: (_) => AdminAiConfigViewModel()),
         ChangeNotifierProvider(create: (_) => ThresholdViewModel()),
+        ChangeNotifierProvider(create: (_) => ReminderSettingsViewModel()),
       ],
       child: MaterialApp(
         title: 'HealthTracker',

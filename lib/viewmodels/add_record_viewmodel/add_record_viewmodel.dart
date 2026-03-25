@@ -11,6 +11,7 @@ import '../../domain/entities/spo2_record.dart';
 import '../../domain/entities/weight_record.dart';
 import '../../domain/enums/health_type.dart';
 import '../../viewmodels/notification_viewmodel.dart'; // 👈 thêm
+import '../../core/services/notification_service.dart';
 
 class AddRecordViewModel extends ChangeNotifier {
   final BloodPressureRepo bpRepository;
@@ -110,9 +111,10 @@ class AddRecordViewModel extends ChangeNotifier {
       result = await weightRepository.addRecord(record);
     }
 
-    // 👇 Reload notification ngay sau khi lưu thành công
     if (result) {
+      // Reload notification và đánh dấu đã ghi chỉ số hôm nay
       await notificationViewModel.loadNotifications();
+      await NotificationService.markSubmittedToday();
     }
 
     return result;

@@ -102,7 +102,6 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                       fontWeight: FontWeight.bold,
                     ),
                     decoration: const InputDecoration(border: InputBorder.none),
-                    decoration: const InputDecoration(border: InputBorder.none),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Không để trống";
@@ -174,7 +173,6 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
-                  decoration: const InputDecoration(border: InputBorder.none),
                   decoration: const InputDecoration(border: InputBorder.none),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -257,6 +255,4 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
       ),
     );
   }
-}
-
 }

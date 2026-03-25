@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:health_tracker/views/user/threshold/threshold_screen.dart';
+import 'package:health_tracker/views/user/settings/reminder_settings_page.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../auth/login_page.dart';
@@ -261,6 +262,10 @@ class ProfilePage extends StatelessWidget {
             'Cài đặt thông báo',
             Colors.blue,
             Colors.blue.withAlpha(20),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ReminderSettingsPage()),
+            ),
           ),
         ],
       ),

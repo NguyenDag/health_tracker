@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"flutter_local_notifications\\\\|workmanager\\\\|background\" c:UsersNvtaiDesktopSES8PRM393projectshealth_tracker --include=*.dart --include=*.yaml)",
+      "Bash(find c:UsersNvtaiDesktopSES8PRM393projectshealth_trackerios -type f -name *.swift -o -name GeneratedPluginRegistrant.swift)",
+      "Bash(grep -r \"shared_preferences\\\\|SharedPreferences\" /c/Users/Nvtai/Desktop/SES8/PRM393/projects/health_tracker/lib --include=*.dart)"
+    ]
+  }
+}
