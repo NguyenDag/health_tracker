@@ -47,14 +47,43 @@ class HistoryViewModel extends ChangeNotifier {
   }
 
   void _applyFilter() {
+    final query = searchQuery.toLowerCase();
+
     filtered = _all.where((record) {
-      final matchType = selectedFilter == null || record.type == selectedFilter;
+      final matchType =
+          selectedFilter == null || record.type == selectedFilter;
 
-      final matchSearch = record.type.name.toLowerCase().contains(
-        searchQuery.toLowerCase(),
-      );
+      bool matchSearch = false;
 
-      return matchType && matchSearch;
+      switch (record.type.name) {
+        case "BP":
+          matchSearch =
+              record.systolic.toString().contains(query) ||
+                  record.diastolic.toString().contains(query) ||
+                  record.pulse.toString().contains(query) ||
+                  record.result.toString().toLowerCase().contains(query);
+          break;
+
+        case "Sugar":
+          matchSearch =
+              record.glucoseValue.toString().contains(query) ||
+                  record.result.toString().toLowerCase().contains(query);
+          break;
+
+        case "Weight":
+          matchSearch =
+              record.weight.toString().contains(query) ||
+                  record.result.toString().toLowerCase().contains(query);
+          break;
+
+        default:
+          matchSearch =
+              record.spo2.toString().contains(query) ||
+                  record.result.toString().toLowerCase().contains(query);
+          break;
+      }
+
+      return matchType && (query.isEmpty || matchSearch);
     }).toList();
 
     notifyListeners();
