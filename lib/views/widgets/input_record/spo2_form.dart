@@ -59,7 +59,7 @@ class _Spo2FormState extends State<Spo2Form> {
                     if (value == null || value.trim().isEmpty) {
                       return "Không để trống";
                     }
-                    if (int.tryParse(value)! <= 0 || int.tryParse(value)! >= 100) {
+                    if (int.tryParse(value)! <= 0 || int.tryParse(value)! > 100) {
                       return "Không hợp lệ";
                     }
                     return null;
