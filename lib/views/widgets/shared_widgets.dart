@@ -65,7 +65,7 @@ class GradientButton extends StatelessWidget {
     super.key,
     required this.label,
     required this.onPressed,
-    this.height = 54,
+    this.height = 56,
     this.trailing,
     this.isLoading = false,
   });
@@ -78,52 +78,50 @@ class GradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: height,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: AppGradients.primary,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.38),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: ElevatedButton(
-          onPressed: isLoading ? null : onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            disabledBackgroundColor: Colors.transparent,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      decoration: BoxDecoration(
+        gradient: AppGradients.primary,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
-          child: isLoading
-              ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600,
-                        color: Colors.white, letterSpacing: 0.2,
-                      ),
-                    ),
-                    if (trailing != null) ...[const SizedBox(width: 8), trailing!],
-                  ],
-                ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: isLoading ? null : onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          disabledBackgroundColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
+        child: isLoading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold,
+                      color: Colors.white, letterSpacing: 0.5,
+                    ),
+                  ),
+                  if (trailing != null) ...[const SizedBox(width: 8), trailing!],
+                ],
+              ),
       ),
     );
   }
@@ -201,7 +199,64 @@ class FormFieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: AppTextStyles.label);
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        text,
+        style: AppTextStyles.label.copyWith(
+          color: AppColors.textMid,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AUTH INPUT DECORATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+class AuthInputDecoration {
+  static InputDecoration build({
+    required String hintText,
+    String? errorText,
+    IconData? prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      errorText: errorText,
+      hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 14),
+      prefixIcon: prefixIcon != null
+          ? Icon(prefixIcon, color: AppColors.primary.withValues(alpha: 0.7), size: 20)
+          : null,
+      suffixIcon: suffixIcon,
+      filled: true,
+      fillColor: AppColors.inputBg,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Colors.red, width: 1.5),
+      ),
+      errorStyle: const TextStyle(fontSize: 12, height: 0.8),
+    );
   }
 }
 
@@ -215,11 +270,13 @@ class UnitTextField extends StatelessWidget {
     required this.controller,
     required this.unit,
     this.onChanged,
+    this.errorText,
   });
 
   final TextEditingController controller;
   final String unit;
   final ValueChanged<String>? onChanged;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -227,26 +284,26 @@ class UnitTextField extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       keyboardType: TextInputType.number,
-      decoration: InputDecoration(
-        suffixText: unit,
-        suffixStyle: const TextStyle(
-          fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary,
+      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+      decoration: AuthInputDecoration.build(
+        hintText: '0',
+        errorText: errorText,
+      ).copyWith(
+        suffixIcon: Container(
+          width: 45,
+          alignment: Alignment.center,
+          margin: const EdgeInsets.only(right: 8),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            unit,
+            style: const TextStyle(
+              fontSize: 10, fontWeight: FontWeight.w800, color: AppColors.primary,
+            ),
+          ),
         ),
-        filled: true,
-        fillColor: AppColors.inputBg,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.borderLight),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.borderLight),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       ),
     );
   }
