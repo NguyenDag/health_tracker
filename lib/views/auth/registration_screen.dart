@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../core/router/app_router.dart';
 import '../../viewmodels/auth_viewmodel.dart';
@@ -179,10 +180,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: const Color(0xFF00BFA5),
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
               onPrimary: Colors.white,
-              onSurface: Colors.black,
+              onSurface: AppColors.textDark,
             ),
           ),
           child: child!,
@@ -279,14 +280,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const FormFieldLabel('Họ'),
-                              const SizedBox(height: 8),
                               TextField(
                                 controller: _lastNameCtrl,
                                 onChanged: (_) =>
                                     setState(() => _lastNameError = null),
-                                decoration: _buildInputDecoration(
-                                  hint: 'Nguyễn',
-                                  error: _lastNameError,
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                decoration: AuthInputDecoration.build(
+                                  hintText: 'Nguyễn',
+                                  errorText: _lastNameError,
                                 ),
                               ),
                             ],
@@ -298,14 +299,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const FormFieldLabel('Tên'),
-                              const SizedBox(height: 8),
                               TextField(
                                 controller: _firstNameCtrl,
                                 onChanged: (_) =>
                                     setState(() => _firstNameError = null),
-                                decoration: _buildInputDecoration(
-                                  hint: 'An',
-                                  error: _firstNameError,
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                decoration: AuthInputDecoration.build(
+                                  hintText: 'An',
+                                  errorText: _firstNameError,
                                 ),
                               ),
                             ],
@@ -318,15 +319,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                     // Email
                     const FormFieldLabel('Email'),
-                    const SizedBox(height: 8),
                     TextField(
                       controller: _emailCtrl,
                       keyboardType: TextInputType.emailAddress,
                       onChanged: (_) => setState(() => _emailError = null),
-                      decoration: _buildInputDecoration(
-                        hint: 'example@email.com',
-                        error: _emailError,
-                        prefix: Icons.email_outlined,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      decoration: AuthInputDecoration.build(
+                        hintText: 'example@email.com',
+                        errorText: _emailError,
+                        prefixIcon: Icons.email_outlined,
                       ),
                     ),
 
@@ -334,16 +335,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                     // Password
                     const FormFieldLabel('Mật khẩu'),
-                    const SizedBox(height: 8),
                     TextField(
                       controller: _passwordCtrl,
                       obscureText: _obscurePass,
                       onChanged: (_) => setState(() => _passwordError = null),
-                      decoration: _buildInputDecoration(
-                        hint: 'Ít nhất 6 ký tự',
-                        error: _passwordError,
-                        prefix: Icons.lock_outline,
-                        suffix: IconButton(
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      decoration: AuthInputDecoration.build(
+                        hintText: 'Ít nhất 6 ký tự',
+                        errorText: _passwordError,
+                        prefixIcon: Icons.lock_outline,
+                        suffixIcon: IconButton(
                           onPressed: () =>
                               setState(() => _obscurePass = !_obscurePass),
                           icon: Icon(
@@ -351,7 +352,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
                             size: 20,
-                            color: const Color(0xFF00BFA5),
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
@@ -361,17 +362,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                     // Confirm Password
                     const FormFieldLabel('Xác nhận mật khẩu'),
-                    const SizedBox(height: 8),
                     TextField(
                       controller: _confirmPassCtrl,
                       obscureText: _obscureConfirm,
                       onChanged: (_) =>
                           setState(() => _confirmPassError = null),
-                      decoration: _buildInputDecoration(
-                        hint: 'Nhập lại mật khẩu',
-                        error: _confirmPassError,
-                        prefix: Icons.lock_outline,
-                        suffix: IconButton(
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      decoration: AuthInputDecoration.build(
+                        hintText: 'Nhập lại mật khẩu',
+                        errorText: _confirmPassError,
+                        prefixIcon: Icons.lock_outline,
+                        suffixIcon: IconButton(
                           onPressed: () => setState(
                             () => _obscureConfirm = !_obscureConfirm,
                           ),
@@ -380,7 +381,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
                             size: 20,
-                            color: const Color(0xFF00BFA5),
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
@@ -390,15 +391,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                     // Phone
                     const FormFieldLabel('Số điện thoại'),
-                    const SizedBox(height: 8),
                     TextField(
                       controller: _phoneCtrl,
                       keyboardType: TextInputType.phone,
                       onChanged: (_) => setState(() => _phoneError = null),
-                      decoration: _buildInputDecoration(
-                        hint: '0912 345 678',
-                        error: _phoneError,
-                        prefix: Icons.phone_outlined,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      decoration: AuthInputDecoration.build(
+                        hintText: '0912 345 678',
+                        errorText: _phoneError,
+                        prefixIcon: Icons.phone_outlined,
                       ),
                     ),
 
@@ -437,8 +438,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                         Icons.calendar_today_outlined,
                                         size: 18,
                                         color: _selectedDob == null
-                                            ? Colors.grey
-                                            : const Color(0xFF00BFA5),
+                                            ? AppColors.textHint
+                                            : AppColors.primary,
                                       ),
                                       const SizedBox(width: 12),
                                       Expanded(
@@ -510,6 +511,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               UnitTextField(
                                 controller: _weightCtrl,
                                 unit: 'KG',
+                                errorText: _heightError,
                                 onChanged: (_) =>
                                     setState(() => _weightError = null),
                               ),
@@ -540,6 +542,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               UnitTextField(
                                 controller: _heightCtrl,
                                 unit: 'CM',
+                                errorText: _weightError,
                                 onChanged: (_) =>
                                     setState(() => _heightError = null),
                               ),
@@ -628,8 +631,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             'Đăng nhập',
                             style: TextStyle(
                               fontSize: 13,
-                              color: Color(0xFF00BFA5),
-                              fontWeight: FontWeight.w600,
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
@@ -645,44 +648,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  InputDecoration _buildInputDecoration({
-    required String hint,
-    String? error,
-    IconData? prefix,
-    Widget? suffix,
-  }) {
-    return InputDecoration(
-      hintText: hint,
-      errorText: error,
-      prefixIcon: prefix != null
-          ? Icon(prefix, size: 20, color: Colors.grey)
-          : null,
-      suffixIcon: suffix,
-      filled: true,
-      fillColor: const Color(0xFFF7F9FC),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE8ECF4)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE8ECF4)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF00BFA5), width: 1.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.red.shade300),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.red, width: 1.5),
-      ),
-    );
-  }
 }
 
 // ─── Sub-widget: app bar ──────────────────────────────────────────────────────
@@ -717,11 +682,17 @@ class _RegistrationHeadline extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Tạo tài khoản mới', style: AppTextStyles.heading2),
-        const SizedBox(height: 6),
-        const Text(
-          'Nhập thông tin để cá nhân hóa hành trình sức khoẻ của bạn.',
-          style: AppTextStyles.body,
+        Text(
+          'Tạo tài khoản mới',
+          style: AppTextStyles.heading2.copyWith(color: AppColors.textDark),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Nhập thông tin để bắt đầu hành trình sức khoẻ cá nhân của bạn.',
+          style: AppTextStyles.body.copyWith(
+            color: AppColors.textGrey,
+            height: 1.4,
+          ),
         ),
       ],
     );
