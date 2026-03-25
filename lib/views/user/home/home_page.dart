@@ -146,7 +146,7 @@ class _HomePageState extends State<HomePage> {
         _buildVitalCard(
           'BLOOD PRESSURE',
           _formatBPValue(viewModel.latestBP),
-          'Normal',
+          _getShortStatus(viewModel.latestBP?.result),
           AppColors.primary,
           AppColors.bloodPressureBg,
           Icons.favorite_border,
@@ -155,7 +155,7 @@ class _HomePageState extends State<HomePage> {
         _buildVitalCard(
           'BLOOD SUGAR',
           _formatSugarValue(viewModel.latestSugar),
-          'Normal',
+          _getShortStatus(viewModel.latestSugar?.result),
           Colors.purple,
           AppColors.bloodSugarBg,
           Icons.water_drop_outlined,
@@ -164,7 +164,7 @@ class _HomePageState extends State<HomePage> {
         _buildVitalCard(
           'WEIGHT',
           _formatWeightValue(viewModel.latestWeight),
-          'Steady',
+          _getShortStatus(viewModel.latestWeight?.result),
           AppColors.warning,
           AppColors.weightBg,
           Icons.monitor_weight_outlined,
@@ -173,7 +173,7 @@ class _HomePageState extends State<HomePage> {
         _buildVitalCard(
           'SPO2',
           _formatSpo2Value(viewModel.latestSpo2),
-          'Normal',
+          _getShortStatus(viewModel.latestSpo2?.result),
           Colors.blue,
           AppColors.spo2Bg,
           Icons.air,
@@ -233,7 +233,10 @@ class _HomePageState extends State<HomePage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTextStyles.label.copyWith(fontSize: 10)),
+                  Text(
+                    title,
+                    style: AppTextStyles.label.copyWith(fontSize: 10),
+                  ),
                   const SizedBox(height: 4),
                   Text(value, style: AppTextStyles.h2.copyWith(fontSize: 18)),
                   const SizedBox(height: 4),
@@ -268,27 +271,62 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildTrendsList() {
     return Column(
-      children: [
-        _buildTrendItem(
-          'Active Calories',
-          'Daily average',
-          '450 kcal',
-          '+12% vs last wk',
-          AppColors.warning,
-          Icons.trending_up,
-          AppColors.activeCaloriesBg,
-        ),
-        const SizedBox(height: 12),
-        _buildTrendItem(
-          'Sleep Quality',
-          'Restorative sleep',
-          '7h 20m',
-          'Consistent',
-          AppColors.primary,
-          Icons.nightlight_round,
-          AppColors.sleepQualityBg,
-        ),
-      ],
+      children: viewModel.recentRecords.map((record) {
+        String title = '';
+        String value = '';
+        IconData icon = Icons.help_outline;
+        Color color = AppColors.primary;
+        Color bgColor = AppColors.primary.withAlpha(20);
+
+        switch (record.type) {
+          case HealthType.BP:
+            title = 'Huyết áp';
+            value = '${record.systolic}/${record.diastolic} mmHg';
+            icon = Icons.favorite_border;
+            color = AppColors.primary;
+            bgColor = AppColors.bloodPressureBg;
+            break;
+          case HealthType.Sugar:
+            title = 'Đường huyết';
+            value = '${record.glucoseValue} ${record.glucoseUnit ?? 'mg/dL'}';
+            icon = Icons.water_drop_outlined;
+            color = Colors.purple;
+            bgColor = AppColors.bloodSugarBg;
+            break;
+          case HealthType.Weight:
+            title = 'Cân nặng';
+            value = '${record.weight} kg';
+            icon = Icons.monitor_weight_outlined;
+            color = AppColors.warning;
+            bgColor = AppColors.weightBg;
+            break;
+          case HealthType.Spo2:
+            title = 'SPO2';
+            value = '${record.spo2}%';
+            icon = Icons.air;
+            color = Colors.blue;
+            bgColor = AppColors.spo2Bg;
+            break;
+        }
+
+        final dateStr = DateFormat(
+          'HH:mm, dd/MM/yyyy',
+        ).format(record.createdAt);
+        final displayStatus = _getShortStatus(record.result);
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: _buildTrendItem(
+            title,
+            dateStr,
+            value,
+            displayStatus,
+            color,
+            icon,
+            bgColor,
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -331,5 +369,34 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-}
 
+  Color _getStatusColor(String status) {
+    final lowerStatus = status.toLowerCase();
+    if (lowerStatus.contains('nghiêm trọng') ||
+        lowerStatus.contains('cao') ||
+        lowerStatus.contains('thấp') ||
+        lowerStatus.contains('bất thường')) {
+      return AppColors.error;
+    }
+    if (lowerStatus.contains('cảnh báo') || lowerStatus.contains('tiền')) {
+      return AppColors.warning;
+    }
+    return AppColors.success;
+  }
+
+  String _getShortStatus(
+    String? status, {
+    String defaultStatus = 'Bình thường',
+  }) {
+    if (status == null || status.isEmpty) return defaultStatus;
+    final lowerStatus = status.toLowerCase();
+    if (lowerStatus.contains('nghiêm trọng')) return 'Nghiêm trọng';
+    if (lowerStatus.contains('bình thường')) return 'Bình thường';
+    if (lowerStatus.contains('cảnh báo')) return 'Cảnh báo';
+    if (lowerStatus.contains('tốt')) return 'Tốt';
+    if (lowerStatus.contains('ổn định')) return 'Ổn định';
+    if (lowerStatus.contains('cao')) return 'Cao';
+    if (lowerStatus.contains('thấp')) return 'Thấp';
+    return status;
+  }
+}
