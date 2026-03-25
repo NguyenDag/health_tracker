@@ -9,6 +9,9 @@ class NotificationViewModel extends ChangeNotifier {
 
   List<HealthNotification> get notifications => _notifications;
 
+  HealthNotification? _pendingBanner;
+  HealthNotification? get pendingBanner => _pendingBanner;
+
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
 
 
@@ -19,7 +22,18 @@ class NotificationViewModel extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
+    final previous = List<HealthNotification>.from(_notifications);
     _notifications = await _repository.getNotifications();
+
+    // 👇 Tìm thông báo mới chưa đọc để hiện banner
+    final newUnread = _notifications.where((n) {
+      final isNew = !previous.any((p) => p.id == n.id);
+      return isNew && !n.isRead;
+    }).toList();
+
+    if (newUnread.isNotEmpty) {
+      _pendingBanner = newUnread.first;
+    }
 
     _isLoading = false;
     notifyListeners();
@@ -53,5 +67,10 @@ class NotificationViewModel extends ChangeNotifier {
       );
       notifyListeners();
     }
+  }
+
+  void clearBanner() { // 👈 thêm
+    _pendingBanner = null;
+    notifyListeners();
   }
 }
