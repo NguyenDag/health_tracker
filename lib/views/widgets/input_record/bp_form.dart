@@ -102,6 +102,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                       fontWeight: FontWeight.bold,
                     ),
                     decoration: const InputDecoration(border: InputBorder.none),
+                    decoration: const InputDecoration(border: InputBorder.none),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Không để trống";
@@ -174,6 +175,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                     fontWeight: FontWeight.bold,
                   ),
                   decoration: const InputDecoration(border: InputBorder.none),
+                  decoration: const InputDecoration(border: InputBorder.none),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Không để trống";
@@ -232,4 +234,29 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
       ],
     );
   }
+
+  Widget _healthTip() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAF7EF),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.tips_and_updates, color: Color(0xFF2ECC71)),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              "Your diastolic reading is higher than your usual average. "
+              "Ensure you've been resting for 5 minutes before recording.",
+              style: TextStyle(fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 }
