@@ -52,7 +52,8 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Text('Dữ liệu gần đây', style: AppTextStyles.h2),
                     GestureDetector(
-                      onTap: () => widget.onNavigateToTab(2), // Nav to History/Logs
+                      onTap: () =>
+                          widget.onNavigateToTab(2), // Nav to History/Logs
                       child: Text(
                         'Xem tất cả',
                         style: AppTextStyles.subtitle.copyWith(
@@ -234,7 +235,10 @@ class _HomePageState extends State<HomePage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTextStyles.label.copyWith(fontSize: 10)),
+                  Text(
+                    title,
+                    style: AppTextStyles.label.copyWith(fontSize: 10),
+                  ),
                   const SizedBox(height: 4),
                   Text(value, style: AppTextStyles.h2.copyWith(fontSize: 18)),
                   const SizedBox(height: 4),
@@ -319,7 +323,9 @@ class _HomePageState extends State<HomePage> {
             break;
         }
 
-        final dateStr = DateFormat('HH:mm, dd/MM/yyyy').format(record.createdAt);
+        final dateStr = DateFormat(
+          'HH:mm, dd/MM/yyyy',
+        ).format(record.createdAt);
         final displayStatus = _getShortStatus(record.result);
 
         return Padding(
@@ -426,7 +432,10 @@ class _HomePageState extends State<HomePage> {
     return AppColors.success;
   }
 
-  String _getShortStatus(String? status, {String defaultStatus = 'Bình thường'}) {
+  String _getShortStatus(
+    String? status, {
+    String defaultStatus = 'Bình thường',
+  }) {
     if (status == null || status.isEmpty) return defaultStatus;
     final lowerStatus = status.toLowerCase();
     if (lowerStatus.contains('nghiêm trọng')) return 'Nghiêm trọng';
