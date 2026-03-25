@@ -18,6 +18,7 @@ import '../../../data/implementations/repositories/blood_pressure_repo.dart';
 import '../../../data/implementations/repositories/blood_sugar_repo.dart';
 import '../../../domain/enums/health_type.dart';
 import '../../../viewmodels/add_record_viewmodel/add_record_viewmodel.dart';
+import '../../../viewmodels/notification_viewmodel.dart';
 import '../../widgets/input_record/bp_form.dart';
 import '../../widgets/input_record/health_type_selector.dart';
 import '../../widgets/input_record/spo2_form.dart';
@@ -30,26 +31,24 @@ class AddRecordScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AddRecordViewModel(
+      create: (ctx) => AddRecordViewModel(
         bpRepository: BloodPressureRepo(
           mapper: BloodPressureMapper(),
           api: BloodPressureApi(supabase: supabase),
         ),
-
         sugarRepository: BloodSugarRepo(
           mapper: BloodSugarMapper(),
           api: BloodSugarApi(supabase: supabase),
         ),
-
         spo2Repository: Spo2Repo(
           api: Spo2Api(supabase: supabase),
           mapper: Spo2Mapper(),
         ),
-
         weightRepository: WeightRepo(
           api: WeightApi(supabase: supabase),
           mapper: WeightMapper(),
         ),
+        notificationViewModel: ctx.read<NotificationViewModel>(), // 👈 thêm
       ),
       child: const _AddRecordView(),
     );
