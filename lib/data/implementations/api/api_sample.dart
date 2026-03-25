@@ -217,11 +217,12 @@ class ApiSample {
   // =====================================================
 
   Future<List<Map<String, dynamic>>> getNotifications() async {
-    print("id $currentUserId");
+    final now = DateTime.now().toIso8601String();
     final data = await supabase
         .from('notifications')
         .select()
         .eq('user_id', currentUserId!)
+        .lte('triggered_at', now) // chỉ lấy thông báo đã fire
         .order('triggered_at', ascending: false);
     return data;
   }

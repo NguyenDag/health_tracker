@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
 
@@ -15,6 +16,10 @@ class NotificationService {
   static const String _channelId = 'health_reminder';
   static const String _channelName = 'Nhắc nhở sức khỏe';
   static const String _keyLastSubmit = 'health_last_submit_date';
+
+  // Badge dùng để phân biệt loại reminder trong DB
+  static const String _badgeFixed = 'fixed_reminder';
+  static const String _badgeSmart = 'smart_reminder';
 
   // ── Init ──────────────────────────────────────────────────────────────────
 
@@ -46,19 +51,26 @@ class NotificationService {
 
   // ── Fixed Reminder ────────────────────────────────────────────────────────
 
-  /// Lên lịch nhắc cố định mỗi ngày lúc [time].
   Future<void> scheduleFixedReminder(TimeOfDay time) async {
-    await cancelFixedReminder();
+    final scheduled = _nextOccurrence(time);
+    await _plugin.cancel(_fixedId);
     await _plugin.zonedSchedule(
       _fixedId,
       'Nhắc nhở sức khỏe 💪',
       'Đừng quên ghi lại chỉ số sức khỏe hôm nay nhé!',
-      _nextOccurrence(time),
+      scheduled,
       _details(),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
+    );
+    // Lưu vào lịch sử thông báo trong app
+    await _upsertHistory(
+      badge: _badgeFixed,
+      title: 'Nhắc nhở sức khỏe 💪',
+      body: 'Đừng quên ghi lại chỉ số sức khỏe hôm nay nhé!',
+      triggeredAt: scheduled,
     );
   }
 
@@ -66,38 +78,38 @@ class NotificationService {
 
   // ── Smart Reminder ────────────────────────────────────────────────────────
 
-  /// Lên lịch smart reminder mỗi ngày lúc [deadline].
-  /// Nếu user submit hôm nay trước deadline → notification bị cancel
-  /// rồi reschedule cho ngày mai.
   Future<void> scheduleSmartReminder(TimeOfDay deadline) async {
-    await cancelSmartReminder();
+    final scheduled = _nextOccurrence(deadline);
+    await _plugin.cancel(_smartId);
     await _plugin.zonedSchedule(
       _smartId,
       'Bạn chưa ghi chỉ số hôm nay 📋',
       'Hãy ghi lại để theo dõi sức khỏe tốt hơn!',
-      _nextOccurrence(deadline),
+      scheduled,
       _details(),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );
+    await _upsertHistory(
+      badge: _badgeSmart,
+      title: 'Bạn chưa ghi chỉ số hôm nay 📋',
+      body: 'Hãy ghi lại để theo dõi sức khỏe tốt hơn!',
+      triggeredAt: scheduled,
+    );
   }
 
   Future<void> cancelSmartReminder() => _plugin.cancel(_smartId);
 
-  /// Reschedule smart reminder cho ngày MAI (dùng sau khi user submit).
+  /// Reschedule smart reminder cho ngày MAI sau khi user submit data.
   Future<void> _rescheduleSmartForTomorrow(TimeOfDay deadline) async {
-    await cancelSmartReminder();
+    await _plugin.cancel(_smartId);
     final now = tz.TZDateTime.now(tz.local);
-    // Tính thời điểm ngày mai cùng giờ
     final tomorrow = tz.TZDateTime(
       tz.local,
-      now.year,
-      now.month,
-      now.day + 1,
-      deadline.hour,
-      deadline.minute,
+      now.year, now.month, now.day + 1,
+      deadline.hour, deadline.minute,
     );
     await _plugin.zonedSchedule(
       _smartId,
@@ -110,15 +122,19 @@ class NotificationService {
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );
+    await _upsertHistory(
+      badge: _badgeSmart,
+      title: 'Bạn chưa ghi chỉ số hôm nay 📋',
+      body: 'Hãy ghi lại để theo dõi sức khỏe tốt hơn!',
+      triggeredAt: tomorrow,
+    );
   }
 
-  /// Gọi SAU MỖI LẦN user lưu record thành công.
-  /// Lưu ngày hôm nay + reschedule smart reminder cho ngày mai.
+  /// Gọi sau mỗi lần user lưu record thành công.
   static Future<void> markSubmittedToday() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyLastSubmit, _todayKey());
 
-    // Nếu smart reminder đang bật → skip hôm nay, reschedule cho ngày mai
     final smartEnabled = prefs.getBool('smart_reminder_enabled') ?? false;
     if (smartEnabled) {
       final hour = prefs.getInt('smart_reminder_hour') ?? 20;
@@ -128,18 +144,55 @@ class NotificationService {
     }
   }
 
+  // ── Supabase History ──────────────────────────────────────────────────────
+
+  /// Xóa các record tương lai cùng badge, sau đó insert record mới.
+  /// Nếu không có user đăng nhập hoặc lỗi mạng → bỏ qua, không crash.
+  Future<void> _upsertHistory({
+    required String badge,
+    required String title,
+    required String body,
+    required tz.TZDateTime triggeredAt,
+  }) async {
+    try {
+      final client = Supabase.instance.client;
+      final userId = client.auth.currentUser?.id;
+      if (userId == null) return;
+
+      final now = DateTime.now().toIso8601String();
+
+      // Xóa record tương lai cùng loại của user này
+      await client
+          .from('notifications')
+          .delete()
+          .eq('user_id', userId)
+          .eq('badge', badge)
+          .gte('triggered_at', now);
+
+      // Insert record mới
+      await client.from('notifications').insert({
+        'user_id': userId,
+        'title': title,
+        'body': body,
+        'type': 'reminder',
+        'badge': badge,
+        'is_read': false,
+        'triggered_at': triggeredAt.toIso8601String(),
+      });
+    } catch (_) {
+      // Lỗi mạng / chưa đăng nhập → không làm gián đoạn lên lịch thông báo
+    }
+  }
+
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  /// Tính thời điểm tiếp theo của [time] (hôm nay hoặc ngày mai nếu đã qua).
   tz.TZDateTime _nextOccurrence(TimeOfDay time) {
     final now = tz.TZDateTime.now(tz.local);
     var scheduled = tz.TZDateTime(
       tz.local,
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
+      now.year, now.month, now.day,
+      time.hour, time.minute,
     );
     if (scheduled.isBefore(now)) {
       scheduled = scheduled.add(const Duration(days: 1));
