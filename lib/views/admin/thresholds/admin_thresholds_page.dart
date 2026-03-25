@@ -95,15 +95,20 @@ class _AdminThresholdsPageState extends State<AdminThresholdsPage> {
     return [...ordered, ...extras];
   }
 
-  void _openForm({HealthThreshold? editing}) => showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (_) => ChangeNotifierProvider.value(
-          value: context.read<AdminThresholdsViewModel>(),
-          child: _ThresholdForm(editing: editing),
-        ),
-      );
+  void _openForm({HealthThreshold? editing}) {
+    // Capture messenger của page cha TRƯỚC khi mở sheet để snackbar
+    // hiển thị phía trên bottom sheet thay vì bị đè phía dưới.
+    final messenger = ScaffoldMessenger.of(context);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => ChangeNotifierProvider.value(
+        value: context.read<AdminThresholdsViewModel>(),
+        child: _ThresholdForm(editing: editing, messenger: messenger),
+      ),
+    );
+  }
 
   void _confirmDelete(HealthThreshold t) => showDialog(
         context: context,
@@ -599,7 +604,8 @@ class _RangeBar extends StatelessWidget {
 
 class _ThresholdForm extends StatefulWidget {
   final HealthThreshold? editing;
-  const _ThresholdForm({this.editing});
+  final ScaffoldMessengerState messenger;
+  const _ThresholdForm({this.editing, required this.messenger});
   @override
   State<_ThresholdForm> createState() => _ThresholdFormState();
 }
@@ -617,6 +623,7 @@ class _ThresholdFormState extends State<_ThresholdForm> {
   final _dangerMax = TextEditingController();
   bool _saving = false;
   bool _deleting = false;
+  String? _errorMessage;
 
   bool get _isEdit => widget.editing != null;
 
@@ -652,7 +659,7 @@ class _ThresholdFormState extends State<_ThresholdForm> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _saving = true);
+    setState(() { _saving = true; _errorMessage = null; });
     final vm = context.read<AdminThresholdsViewModel>();
     final t = HealthThreshold(
       id: widget.editing?.id ?? '',
@@ -666,18 +673,32 @@ class _ThresholdFormState extends State<_ThresholdForm> {
       dangerMax: double.parse(_dangerMax.text),
       unit: _unit.trim().isNotEmpty ? _unit.trim() : null,
     );
+    // --- Validate age range ---
+    // 1. Overlap: range mới trùng với rule cùng loại đã tồn tại
+    final overlapError = vm.ageOverlapError(
+      t,
+      excludeId: _isEdit ? widget.editing!.id : null,
+    );
+    if (overlapError != null) {
+      setState(() { _saving = false; _errorMessage = overlapError; });
+      return;
+    }
+    // 2. Gap: thu hẹp range khi edit tạo khoảng trống không có rule nào phủ
+    if (_isEdit) {
+      final gapError = vm.ageGapWarning(t, widget.editing!.id);
+      if (gapError != null) {
+        setState(() { _saving = false; _errorMessage = gapError; });
+        return;
+      }
+    }
+
     final ok = _isEdit ? await vm.update(t) : await vm.add(t);
     if (mounted) {
       setState(() => _saving = false);
       if (ok) {
         Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(vm.error ?? 'Lưu thất bại'),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        setState(() => _errorMessage = vm.error ?? 'Lưu thất bại');
       }
     }
   }
@@ -881,6 +902,35 @@ class _ThresholdFormState extends State<_ThresholdForm> {
                     label: _unit.isNotEmpty ? _unit : '—',
                   ),
                 const SizedBox(height: 24),
+
+                // Inline error
+                if (_errorMessage != null)
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withAlpha(20),
+                      border: Border.all(color: AppColors.error.withAlpha(80)),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.error_outline,
+                            color: AppColors.error, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: AppTextStyles.bodySmall
+                                .copyWith(color: AppColors.error),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
                 // Save button
                 SizedBox(
