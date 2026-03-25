@@ -50,21 +50,21 @@ class StatsViewModel extends ChangeNotifier {
       int limit = 100;
 
       switch (_selectedSegment) {
-        case 0: // Day
-          startDate = DateTime(now.year, now.month, now.day);
+        case 0: // Day (last 24 hours)
+          startDate = now.subtract(const Duration(days: 1));
           break;
-        case 1: // Week
+        case 1: // Week (last 7 days)
           startDate = now.subtract(const Duration(days: 7));
           break;
-        case 2: // Month
+        case 2: // Month (last 30 days)
           startDate = now.subtract(const Duration(days: 30));
           break;
-        case 3: // Year
+        case 3: // Year (last 365 days)
           startDate = now.subtract(const Duration(days: 365));
           break;
       }
 
-      _records = await _healthRepo.fetchRecordsByType(_activeType, limit: limit, startDate: startDate);
+      _records = await _healthRepo.fetchRecordsByType(_activeType, limit: limit, startDate: startDate?.toUtc());
     } catch (e) {
       _error = e.toString();
     } finally {

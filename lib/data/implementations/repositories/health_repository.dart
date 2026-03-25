@@ -166,6 +166,8 @@ class HealthRepository implements IHealthRepository {
       glucoseUnit: json['sugar_unit'],
       weight: json['weight']?.toDouble(),
       spo2: json['spo2'],
+      result: json['result'],
+      note: json['note'],
     );
   }
 

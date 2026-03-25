@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
@@ -38,7 +39,7 @@ class _StatsPageState extends State<StatsPage> {
     });
   }
 
-  final List<String> _segments = ['Day', 'Week', 'Month', 'Year'];
+  final List<String> _segments = ['Ngày', 'Tuần', 'Tháng', 'Năm'];
 
   String _getValueForRecord(HealthRecord? record, HealthType type) {
     if (record == null) return '--';
@@ -86,7 +87,7 @@ class _StatsPageState extends State<StatsPage> {
                 children: [
                   const Icon(Icons.auto_awesome, color: AppColors.primary),
                   const SizedBox(width: 8),
-                  Text('AI Health Advice', style: AppTextStyles.h2),
+                  Text('Lời khuyên sức khỏe AI', style: AppTextStyles.h2),
                 ],
               ),
               const SizedBox(height: 16),
@@ -166,12 +167,12 @@ class _StatsPageState extends State<StatsPage> {
                   itemBuilder: (BuildContext context) => HealthType.values.map((type) {
                     return PopupMenuItem<HealthType>(
                       value: type,
-                      child: Text(type.name.toUpperCase()),
+                      child: Text(_getHealthTypeName(type)),
                     );
                   }).toList(),
                   child: Row(
                     children: [
-                      Text(viewModel.activeType.name.toUpperCase().replaceAll('_', ' '), style: AppTextStyles.label),
+                      Text(_getHealthTypeName(viewModel.activeType), style: AppTextStyles.label),
                       const Icon(Icons.keyboard_arrow_down, size: 16, color: AppColors.textSecondary),
                     ],
                   ),
@@ -200,7 +201,7 @@ class _StatsPageState extends State<StatsPage> {
             if (viewModel.isLoading)
               const SizedBox(height: 150, child: Center(child: CircularProgressIndicator())),
             if (!viewModel.isLoading && viewModel.records.isEmpty)
-              const SizedBox(height: 150, child: Center(child: Text('No data found'))),
+              const SizedBox(height: 150, child: Center(child: Text('Không có dữ liệu'))),
             if (!viewModel.isLoading && viewModel.records.isNotEmpty)
               Column(
                 children: [
@@ -221,9 +222,9 @@ class _StatsPageState extends State<StatsPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(viewModel.records.last.createdAt.day.toString() + ' ' + _getMonthName(viewModel.records.last.createdAt.month),
+                      Text(_formatChartDate(viewModel.records.last.createdAt, viewModel.selectedSegment),
                         style: AppTextStyles.label.copyWith(color: AppColors.textSecondary)),
-                      Text(viewModel.records.first.createdAt.day.toString() + ' ' + _getMonthName(viewModel.records.first.createdAt.month),
+                      Text(_formatChartDate(viewModel.records.first.createdAt, viewModel.selectedSegment),
                         style: AppTextStyles.label.copyWith(color: AppColors.textSecondary)),
                     ],
                   )
@@ -235,9 +236,27 @@ class _StatsPageState extends State<StatsPage> {
     );
   }
 
-  String _getMonthName(int month) {
-    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-    return months[month - 1];
+  String _getHealthTypeName(HealthType type) {
+    switch (type) {
+      case HealthType.BP:
+        return 'HUYẾT ÁP';
+      case HealthType.Sugar:
+        return 'ĐƯỜNG HUYẾT';
+      case HealthType.Weight:
+        return 'CÂN NẶNG';
+      case HealthType.Spo2:
+        return 'SPO2';
+    }
+  }
+
+  String _formatChartDate(DateTime date, int segment) {
+    if (segment == 0) { // Day
+      return DateFormat('HH:mm').format(date);
+    } else if (segment == 3) { // Year
+      return DateFormat('MM/yyyy').format(date);
+    } else { // Week, Month
+      return DateFormat('dd/MM').format(date);
+    }
   }
 
   /// Returns 'NORMAL', 'DANGER', or 'CRITICAL' based on threshold from DB.

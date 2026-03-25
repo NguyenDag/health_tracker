@@ -14,6 +14,7 @@ class HomeViewModel extends ChangeNotifier {
   HealthRecord? _latestSugar;
   HealthRecord? _latestWeight;
   HealthRecord? _latestSpo2;
+  List<HealthRecord> _recentRecords = [];
 
   bool _isLoading = false;
   String? _error;
@@ -25,6 +26,7 @@ class HomeViewModel extends ChangeNotifier {
   HealthRecord? get latestSugar => _latestSugar;
   HealthRecord? get latestWeight => _latestWeight;
   HealthRecord? get latestSpo2 => _latestSpo2;
+  List<HealthRecord> get recentRecords => _recentRecords;
 
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -43,12 +45,16 @@ class HomeViewModel extends ChangeNotifier {
         _healthRepo.fetchLatestRecord(HealthType.Sugar),
         _healthRepo.fetchLatestRecord(HealthType.Weight),
         _healthRepo.fetchLatestRecord(HealthType.Spo2),
+        _healthRepo.fetchRecords(),
       ]);
 
-      _latestBP = results[0];
-      _latestSugar = results[1];
-      _latestWeight = results[2];
-      _latestSpo2 = results[3];
+      _latestBP = results[0] as HealthRecord?;
+      _latestSugar = results[1] as HealthRecord?;
+      _latestWeight = results[2] as HealthRecord?;
+      _latestSpo2 = results[3] as HealthRecord?;
+      
+      final allRecords = results[4] as List<HealthRecord>;
+      _recentRecords = allRecords.take(3).toList();
     } catch (e) {
       _error = e.toString();
     } finally {

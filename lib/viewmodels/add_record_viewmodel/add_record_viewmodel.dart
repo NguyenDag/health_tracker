@@ -10,18 +10,21 @@ import '../../domain/entities/blood_sugar.dart';
 import '../../domain/entities/spo2_record.dart';
 import '../../domain/entities/weight_record.dart';
 import '../../domain/enums/health_type.dart';
+import '../../viewmodels/notification_viewmodel.dart'; // 👈 thêm
 
 class AddRecordViewModel extends ChangeNotifier {
   final BloodPressureRepo bpRepository;
   final BloodSugarRepo sugarRepository;
   final Spo2Repo spo2Repository;
   final WeightRepo weightRepository;
+  final NotificationViewModel notificationViewModel; // 👈 thêm
 
   AddRecordViewModel({
     required this.bpRepository,
     required this.sugarRepository,
     required this.spo2Repository,
     required this.weightRepository,
+    required this.notificationViewModel, // 👈 thêm
   });
 
   HealthType selectedType = HealthType.BP;
@@ -73,6 +76,8 @@ class AddRecordViewModel extends ChangeNotifier {
   }
 
   Future<bool> save() async {
+    bool result = false;
+
     if (selectedType == HealthType.BP) {
       final record = BloodPressure(
         systolic: systolic,
@@ -80,7 +85,7 @@ class AddRecordViewModel extends ChangeNotifier {
         pulse: pulse,
         note: bpNote,
       );
-      return await bpRepository.addBloodPressure(record);
+      result = await bpRepository.addBloodPressure(record);
     } else if (selectedType == HealthType.Sugar) {
       final record = BloodSugar(
         glucoseValue: glucoseValue,
@@ -88,24 +93,28 @@ class AddRecordViewModel extends ChangeNotifier {
         measurementType: sugarType,
         note: sugarNote,
       );
-
-      return await sugarRepository.addRecord(record);
+      result = await sugarRepository.addRecord(record);
     } else if (selectedType == HealthType.Spo2) {
       final record = Spo2Record(
         spo2: spo2,
         condition: spo2Condition,
         note: spo2Note,
       );
-
-      return await spo2Repository.addRecord(record);
+      result = await spo2Repository.addRecord(record);
     } else if (selectedType == HealthType.Weight) {
-
       final record = WeightRecord(
         weight: weight,
         bodyFat: bodyFat,
         note: weightNote,
       );
-      return await weightRepository.addRecord(record);
-    } else return false;
+      result = await weightRepository.addRecord(record);
+    }
+
+    // 👇 Reload notification ngay sau khi lưu thành công
+    if (result) {
+      await notificationViewModel.loadNotifications();
+    }
+
+    return result;
   }
 }

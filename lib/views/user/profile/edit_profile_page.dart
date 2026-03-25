@@ -21,6 +21,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
   DateTime? _dob;
   String _gender = 'male';
 
+  // --- Validation error messages ---
+  String? _firstNameError;
+  String? _lastNameError;
+  String? _phoneError;
+  String? _heightError;
+  String? _weightError;
+  String? _dobError;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +52,78 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _heightCtrl.dispose();
     _weightCtrl.dispose();
     super.dispose();
+  }
+
+  int _calculateAge(DateTime dob) {
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+    return age;
+  }
+
+  bool _validate() {
+    bool valid = true;
+    setState(() {
+      // First name
+      _firstNameError = _firstNameCtrl.text.trim().isEmpty
+          ? 'Vui lòng nhập tên'
+          : null;
+      if (_firstNameError != null) valid = false;
+
+      // Last name
+      _lastNameError = _lastNameCtrl.text.trim().isEmpty
+          ? 'Vui lòng nhập họ'
+          : null;
+      if (_lastNameError != null) valid = false;
+
+      // Phone
+      final phone = _phoneCtrl.text.trim();
+      if (phone.isEmpty) {
+        _phoneError = 'Vui lòng nhập số điện thoại';
+        valid = false;
+      } else if (!RegExp(r'^(03|05|07|08|09)\d{8}$').hasMatch(phone)) {
+        _phoneError = 'Số điện thoại không hợp lệ (VD: 0912345678)';
+        valid = false;
+      } else {
+        _phoneError = null;
+      }
+
+      // DOB / Age
+      if (_dob == null) {
+        _dobError = 'Vui lòng chọn ngày sinh';
+        valid = false;
+      } else {
+        final age = _calculateAge(_dob!);
+        if (age < 0 || age > 100) {
+          _dobError = 'Tuổi phải từ 0 đến 100';
+          valid = false;
+        } else {
+          _dobError = null;
+        }
+      }
+
+      // Weight
+      final weight = double.tryParse(_weightCtrl.text);
+      if (weight == null || weight <= 0 || weight > 500) {
+        _weightError = 'Cân nặng không hợp lệ (0-500kg)';
+        valid = false;
+      } else {
+        _weightError = null;
+      }
+
+      // Height
+      final height = double.tryParse(_heightCtrl.text);
+      if (height == null || height <= 0 || height > 300) {
+        _heightError = 'Chiều cao không hợp lệ (0-300cm)';
+        valid = false;
+      } else {
+        _heightError = null;
+      }
+    });
+    return valid;
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -71,6 +151,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _handleSave() async {
+    if (!_validate()) return;
+
     final authVM = context.read<AuthViewModel>();
     final user = authVM.currentUser;
     if (user == null) return;
@@ -133,11 +215,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             child: isLoading
                 ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                  )
-                : const Text('Lưu thay đổi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+            )
+                : const Text('Lưu thay đổi',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
         ),
       ),
@@ -151,14 +234,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
               'Thông tin cá nhân',
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: _buildTextField('Họ', _lastNameCtrl)),
+                    Expanded(
+                      child: _buildTextField('Họ', _lastNameCtrl,
+                          errorText: _lastNameError),
+                    ),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildTextField('Tên', _firstNameCtrl)),
+                    Expanded(
+                      child: _buildTextField('Tên', _firstNameCtrl,
+                          errorText: _firstNameError),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
-                _buildDateField('Ngày sinh', _dob),
+                _buildDateField('Ngày sinh', _dob, errorText: _dobError),
                 const SizedBox(height: 20),
                 _buildGenderField(),
               ],
@@ -167,13 +257,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
             _buildSection(
               'Liên hệ & Chỉ số',
               children: [
-                _buildTextField('Số điện thoại', _phoneCtrl, keyboardType: TextInputType.phone),
+                _buildTextField(
+                  'Số điện thoại',
+                  _phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  errorText: _phoneError,
+                ),
                 const SizedBox(height: 20),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: _buildTextField('Chiều cao (cm)', _heightCtrl, keyboardType: TextInputType.number)),
+                    Expanded(
+                      child: _buildTextField(
+                        'Chiều cao (cm)',
+                        _heightCtrl,
+                        keyboardType: TextInputType.number,
+                        errorText: _heightError,
+                      ),
+                    ),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildTextField('Cân nặng (kg)', _weightCtrl, keyboardType: TextInputType.number)),
+                    Expanded(
+                      child: _buildTextField(
+                        'Cân nặng (kg)',
+                        _weightCtrl,
+                        keyboardType: TextInputType.number,
+                        errorText: _weightError,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -190,7 +300,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
       children: [
         Text(
           title,
-          style: AppTextStyles.label.copyWith(color: AppColors.textPrimary.withAlpha(150), fontSize: 11, fontWeight: FontWeight.w800),
+          style: AppTextStyles.label.copyWith(
+            color: AppColors.textPrimary.withAlpha(150),
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+          ),
         ),
         const SizedBox(height: 12),
         Container(
@@ -199,7 +313,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
-              BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 10, offset: const Offset(0, 4)),
+              BoxShadow(
+                  color: Colors.black.withAlpha(5),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4)),
             ],
           ),
           child: Column(children: children),
@@ -210,20 +327,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Widget _buildProfileAvatar(BuildContext context) {
     final user = context.watch<AuthViewModel>().currentUser;
-    final initials = (user?.firstName != null && user!.firstName!.isNotEmpty) ? user.firstName![0].toUpperCase() : '?';
+    final initials =
+    (user?.firstName != null && user!.firstName!.isNotEmpty)
+        ? user.firstName![0].toUpperCase()
+        : '?';
 
     return Stack(
       alignment: Alignment.bottomRight,
       children: [
         Container(
           padding: const EdgeInsets.all(3),
-          decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+          decoration:
+          const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
           child: CircleAvatar(
             radius: 50,
             backgroundColor: AppColors.primaryLight,
             child: Text(
               initials,
-              style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.primary),
+              style: const TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary),
             ),
           ),
         ),
@@ -232,7 +356,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 4)],
+            boxShadow: [
+              BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 4)
+            ],
           ),
           child: const Icon(Icons.camera_alt, color: AppColors.primary, size: 18),
         ),
@@ -240,11 +366,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {TextInputType? keyboardType}) {
+  Widget _buildTextField(
+      String label,
+      TextEditingController controller, {
+        TextInputType? keyboardType,
+        String? errorText,
+      }) {
+    final hasError = errorText != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 6),
         TextField(
           controller: controller,
@@ -253,35 +391,70 @@ class _EditProfilePageState extends State<EditProfilePage> {
           decoration: InputDecoration(
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(vertical: 8),
-            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.withAlpha(30))),
-            focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: hasError ? AppColors.error : Colors.grey.withAlpha(80),
+              ),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: hasError ? AppColors.error : AppColors.primary,
+              ),
+            ),
+            errorText: errorText,
+            errorStyle: const TextStyle(fontSize: 11, color: AppColors.error),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildDateField(String label, DateTime? date) {
+  Widget _buildDateField(String label, DateTime? date, {String? errorText}) {
+    final hasError = errorText != null;
     return GestureDetector(
       onTap: () => _selectDate(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500),
+          ),
           const SizedBox(height: 6),
           Row(
             children: [
               Expanded(
                 child: Text(
-                  date != null ? DateFormat('dd/MM/yyyy').format(date) : 'Chọn ngày sinh',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  date != null
+                      ? DateFormat('dd/MM/yyyy').format(date)
+                      : 'Chọn ngày sinh',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: date != null
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
+                  ),
                 ),
               ),
-              const Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.primary),
+              const Icon(Icons.calendar_today_outlined,
+                  size: 16, color: AppColors.primary),
             ],
           ),
           const SizedBox(height: 8),
-          Divider(height: 1, color: Colors.grey.withAlpha(30)),
+          Divider(
+              height: 1,
+              color: hasError ? AppColors.error : Colors.grey.withAlpha(80)),
+          if (hasError) ...[
+            const SizedBox(height: 4),
+            Text(
+              errorText,
+              style: const TextStyle(fontSize: 11, color: AppColors.error),
+            ),
+          ],
         ],
       ),
     );
@@ -291,7 +464,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Giới tính', style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+        const Text(
+          'Giới tính',
+          style: TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 6),
         Row(
           children: [
@@ -316,15 +495,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
             padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: isSelected ? AppColors.primary : Colors.grey.withAlpha(50), width: 2),
+              border: Border.all(
+                color: isSelected
+                    ? AppColors.primary
+                    : Colors.grey.withAlpha(50),
+                width: 2,
+              ),
             ),
             child: CircleAvatar(
               radius: 6,
-              backgroundColor: isSelected ? AppColors.primary : Colors.transparent,
+              backgroundColor:
+              isSelected ? AppColors.primary : Colors.transparent,
             ),
           ),
           const SizedBox(width: 8),
-          Text(label, style: TextStyle(fontSize: 14, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400)),
+          Text(
+            label,
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight:
+                isSelected ? FontWeight.w600 : FontWeight.w400),
+          ),
         ],
       ),
     );
