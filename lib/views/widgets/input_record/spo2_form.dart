@@ -27,7 +27,7 @@ class _Spo2FormState extends State<Spo2Form> {
       children: [
         /// SPO2 VALUE
         const Text(
-          "SpO₂",
+          "SpO₂ *",
           style: TextStyle(
             fontSize: 12,
             color: Colors.black,
@@ -46,7 +46,7 @@ class _Spo2FormState extends State<Spo2Form> {
           child: Row(
             children: [
               Expanded(
-                child: TextField(
+                child: TextFormField(
                   controller: spo2Controller,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -55,6 +55,15 @@ class _Spo2FormState extends State<Spo2Form> {
                     fontWeight: FontWeight.bold,
                   ),
                   decoration: const InputDecoration(border: InputBorder.none),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Không để trống";
+                    }
+                    if (int.tryParse(value)! <= 0 || int.tryParse(value)! >= 100) {
+                      return "Không hợp lệ";
+                    }
+                    return null;
+                  },
                   onChanged: (v) {
                     vm.spo2 = int.tryParse(v) ?? 0;
                     setState(() {});
@@ -70,7 +79,7 @@ class _Spo2FormState extends State<Spo2Form> {
 
         /// CONDITION
         _dropdownCard(
-          title: "ĐIỀU KIỆN ĐO",
+          title: "ĐIỀU KIỆN ĐO *",
           child: DropdownButton<Spo2Condition>(
             value: vm.spo2Condition,
             isExpanded: true,
@@ -183,8 +192,6 @@ class _Spo2FormState extends State<Spo2Form> {
                 "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
                 style: TextStyle(color: Colors.black),
               ),
-              const Spacer(),
-              const Icon(Icons.keyboard_arrow_down),
             ],
           ),
         ),

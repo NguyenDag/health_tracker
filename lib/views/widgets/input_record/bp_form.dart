@@ -33,13 +33,13 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
         Row(
           children: [
             _pressureCard(
-              title: "HUYẾT ÁP TÂM THU",
+              title: "HUYẾT ÁP TÂM THU *",
               controller: systolicController,
               unit: "mmHg",
             ),
             const SizedBox(width: 15),
             _pressureCard(
-              title: "HUYẾT ÁP TÂM TRƯƠNG",
+              title: "HUYẾT ÁP TÂM TRƯƠNG *",
               controller: diastolicController,
               unit: "mmHg",
             ),
@@ -93,7 +93,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: TextFormField(
                     controller: controller,
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -102,6 +102,15 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                       fontWeight: FontWeight.bold,
                     ),
                     decoration: const InputDecoration(border: InputBorder.none),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Không để trống";
+                      }
+                      if (int.tryParse(value)! <= 0 || int.tryParse(value)! > 200) {
+                        return "Không hợp lệ";
+                      }
+                      return null;
+                    },
                     onChanged: (value) {
                       final vm = context.read<AddRecordViewModel>();
 
@@ -137,7 +146,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "NHỊP TIM",
+          "NHỊP TIM *",
           style: TextStyle(
             fontSize: 12,
             color: Colors.black,
@@ -155,7 +164,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
           child: Row(
             children: [
               Expanded(
-                child: TextField(
+                child: TextFormField(
                   controller: pulseController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -164,6 +173,15 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                     fontWeight: FontWeight.bold,
                   ),
                   decoration: const InputDecoration(border: InputBorder.none),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Không để trống";
+                    }
+                    if (int.tryParse(value)! <= 0 || int.tryParse(value)! > 200) {
+                      return "Không hợp lệ";
+                    }
+                    return null;
+                  },
                   onChanged: (value) {
                     final vm = context.read<AddRecordViewModel>();
                     vm.pulse = int.tryParse(value) ?? 0;
@@ -206,35 +224,10 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                 "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
                 style: TextStyle(color: Colors.black),
               ),
-              const Spacer(),
-              const Icon(Icons.keyboard_arrow_down),
             ],
           ),
         ),
       ],
-    );
-  }
-
-  Widget _healthTip() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEAF7EF),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: const Row(
-        children: [
-          Icon(Icons.tips_and_updates, color: Color(0xFF2ECC71)),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              "Your diastolic reading is higher than your usual average. "
-              "Ensure you've been resting for 5 minutes before recording.",
-              style: TextStyle(fontSize: 13),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

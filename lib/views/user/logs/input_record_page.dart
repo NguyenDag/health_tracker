@@ -61,6 +61,7 @@ class _AddRecordView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final formKey = GlobalKey<FormState>();
     final vm = context.watch<AddRecordViewModel>();
 
     return Scaffold(
@@ -96,7 +97,10 @@ class _AddRecordView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    _buildForm(vm),
+                    Form(
+                      key: formKey,
+                      child: _buildForm(vm),
+                    ),
 
                     const SizedBox(height: 44),
 
@@ -111,6 +115,9 @@ class _AddRecordView extends StatelessWidget {
                           backgroundColor: AppColors.primary,
                         ),
                         onPressed: () async {
+                          if (!formKey.currentState!.validate()) {
+                            return;
+                          }
                           final success = await vm.save();
 
                           if (success) {

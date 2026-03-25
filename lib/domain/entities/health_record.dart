@@ -13,6 +13,7 @@ class HealthRecord {
   final String? glucoseUnit;
   final String? result;
   final double? weight;
+  final double? bodyFat;
   final String? note;
   final int? spo2;
 
@@ -29,5 +30,6 @@ class HealthRecord {
     this.spo2,
     this.result,
     this.note,
+    this.bodyFat,
   });
 }

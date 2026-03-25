@@ -280,7 +280,10 @@ class HistoryDetailModal extends StatelessWidget {
 
       case HealthType.Weight:
         return Column(
-          children: [_detailRow("Cân nặng", "${record.weight ?? "-"} kg")],
+          children: [
+            _detailRow("Cân nặng", "${record.weight ?? "-"} kg"),
+            _detailRow("Tỉ lệ mỡ", "${record.bodyFat ?? "-"} %"),
+          ],
         );
 
       case HealthType.Spo2:

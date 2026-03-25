@@ -28,7 +28,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
       children: [
         /// GLUCOSE VALUE
         const Text(
-          "ĐƯỜNG HUYẾT",
+          "ĐƯỜNG HUYẾT *",
           style: TextStyle(
             fontSize: 12,
             color: Colors.black,
@@ -47,15 +47,26 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
           child: Row(
             children: [
               Expanded(
-                child: TextField(
+                child: TextFormField(
                   controller: sugarController,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),],
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                   decoration: const InputDecoration(border: InputBorder.none),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Không để trống";
+                    }
+
+                    final number = double.tryParse(value);
+                    if (number == null || number <= 0 || number >= 190) {
+                      return "Không hợp lệ";
+                    }
+                    return null;
+                  },
                   onChanged: (v) {
                     vm.glucoseValue = double.tryParse(v) ?? 0;
                     setState(() {});
@@ -73,7 +84,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
         const SizedBox(height: 20),
 
         _dropdownCard(
-          title: "ĐƠN VỊ",
+          title: "ĐƠN VỊ *",
           child: DropdownButton<SugarUnit>(
             value: vm.sugarUnit,
             isExpanded: true,
@@ -91,7 +102,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
         const SizedBox(height: 20),
 
         _dropdownCard(
-          title: "THỜI ĐIỂM ĐO",
+          title: "THỜI ĐIỂM ĐO *",
           child: DropdownButton<SugarMeasurementType>(
             value: vm.sugarType,
             isExpanded: true,
@@ -178,8 +189,6 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
                 "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
                 style: TextStyle(color: Colors.black),
               ),
-              const Spacer(),
-              const Icon(Icons.keyboard_arrow_down),
             ],
           ),
         ),
