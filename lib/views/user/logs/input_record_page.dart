@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:health_tracker/core/constants/app_colors.dart';
+import 'package:health_tracker/data/implementations/api/spo2_api.dart';
+import 'package:health_tracker/data/implementations/api/weight_api.dart';
+import 'package:health_tracker/data/implementations/mapper/spo2_mapper.dart';
+import 'package:health_tracker/data/implementations/mapper/weight_mapper.dart';
+import 'package:health_tracker/data/implementations/repositories/spo2_repo.dart';
+import 'package:health_tracker/data/implementations/repositories/weight_repo.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/network/supabase_config.dart';
+import '../../../data/implementations/api/blood_pressure_api.dart';
+import '../../../data/implementations/api/blood_sugar_api.dart';
+import '../../../data/implementations/mapper/blood_pressure_mapper.dart';
+import '../../../data/implementations/mapper/blood_sugar_mapper.dart';
+import '../../../data/implementations/repositories/blood_pressure_repo.dart';
+import '../../../data/implementations/repositories/blood_sugar_repo.dart';
 import '../../../domain/enums/health_type.dart';
 import '../../../viewmodels/add_record_viewmodel/add_record_viewmodel.dart';
 import '../../widgets/input_record/bp_form.dart';
@@ -16,7 +30,27 @@ class AddRecordScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AddRecordViewModel(),
+      create: (_) => AddRecordViewModel(
+        bpRepository: BloodPressureRepo(
+          mapper: BloodPressureMapper(),
+          api: BloodPressureApi(supabase: supabase),
+        ),
+
+        sugarRepository: BloodSugarRepo(
+          mapper: BloodSugarMapper(),
+          api: BloodSugarApi(supabase: supabase),
+        ),
+
+        spo2Repository: Spo2Repo(
+          api: Spo2Api(supabase: supabase),
+          mapper: Spo2Mapper(),
+        ),
+
+        weightRepository: WeightRepo(
+          api: WeightApi(supabase: supabase),
+          mapper: WeightMapper(),
+        ),
+      ),
       child: const _AddRecordView(),
     );
   }
@@ -39,7 +73,7 @@ class _AddRecordView extends StatelessWidget {
           },
         ),
         title: const Text(
-          "Add New Record",
+          "Thêm thông tin chỉ số",
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         elevation: 0,
@@ -49,7 +83,6 @@ class _AddRecordView extends StatelessWidget {
           children: [
             const SizedBox(height: 12),
 
-            /// 🔹 Tab chọn loại chỉ số
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               // child: HealthTypeSelector(),
@@ -58,7 +91,6 @@ class _AddRecordView extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            /// 🔹 Form thay đổi theo type
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -66,34 +98,8 @@ class _AddRecordView extends StatelessWidget {
                   children: [
                     _buildForm(vm),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 44),
 
-                    /// 🔹 DateTime chung
-                    // ListTile(
-                    //   contentPadding: EdgeInsets.zero,
-                    //   leading: const Icon(Icons.calendar_today),
-                    //   title: Text(
-                    //     "${vm.measuredAt}",
-                    //   ),
-                    //   trailing: const Icon(Icons.arrow_drop_down),
-                    //   onTap: () async {
-                    //     final date = await showDatePicker(
-                    //       context: context,
-                    //       initialDate: vm.measuredAt,
-                    //       firstDate: DateTime(2020),
-                    //       lastDate: DateTime.now(),
-                    //     );
-                    //
-                    //     if (date != null) {
-                    //       vm.measuredAt = date;
-                    //       vm.notifyListeners();
-                    //     }
-                    //   },
-                    // ),
-
-                    const SizedBox(height: 24),
-
-                    /// 🔹 Save Button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -104,18 +110,22 @@ class _AddRecordView extends StatelessWidget {
                           ),
                           backgroundColor: AppColors.primary,
                         ),
-                        onPressed: () {
-                          vm.saveMock(); // mock save
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Record Saved (Mock)"),
-                            ),
-                          );
+                        onPressed: () async {
+                          final success = await vm.save();
+
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Record Saved")),
+                            );
+                          }
+                          if (success) {
+                            Navigator.pop(context, true);
+                          }
                         },
-                        child: const Text("Save Record", style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16
-                        ),),
+                        child: const Text(
+                          "Lưu bản ghi",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
                       ),
                     ),
 

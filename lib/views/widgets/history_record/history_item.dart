@@ -2,15 +2,31 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/entities/health_record.dart';
 import '../../../domain/enums/health_type.dart';
+import '../../../viewmodels/history_record_viewmodel/history_record_viewmodel.dart';
+import 'history_detail_modal.dart';
 
 class HistoryItem extends StatelessWidget {
   final HealthRecord record;
+  final HistoryViewModel vm;
 
-  const HistoryItem({super.key, required this.record});
+  const HistoryItem({
+    super.key,
+    required this.record,
+    required this.vm,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (_) => HistoryDetailModal(record: record, vm: vm,),
+          );
+        },
+        child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -32,22 +48,23 @@ class HistoryItem extends StatelessWidget {
                 Text(
                   _valueText(),
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                      fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   _subtitle(),
-                  style: const TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.black),
                 ),
               ],
             ),
           ),
           Text(
-            "${record.measuredAt.hour}:${record.measuredAt.minute.toString().padLeft(2, '0')}",
-            style: const TextStyle(color: Colors.grey),
+            "${record.createdAt.hour}:${record.createdAt.minute.toString().padLeft(2, '0')}",
+            style: const TextStyle(color: Colors.black),
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -56,7 +73,7 @@ class HistoryItem extends StatelessWidget {
       case HealthType.BP:
         return "${record.systolic}/${record.diastolic} mmHg";
       case HealthType.Sugar:
-        return "${record.glucose} ${record.glucoseUnit}";
+        return "${record.glucoseValue} ${record.glucoseUnit}";
       case HealthType.Weight:
         return "${record.weight} kg";
       case HealthType.Spo2:
@@ -67,13 +84,13 @@ class HistoryItem extends StatelessWidget {
   String _subtitle() {
     switch (record.type) {
       case HealthType.BP:
-        return "Blood Pressure";
+        return "Huyết áp (HA)";
       case HealthType.Sugar:
-        return "Blood Sugar";
+        return "Đường máu (Đường)";
       case HealthType.Weight:
-        return "Weight";
+        return "Cân nặng";
       case HealthType.Spo2:
-        return "SpO2";
+        return "Nồng độ O2";
     }
   }
 

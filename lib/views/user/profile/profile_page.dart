@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:health_tracker/views/user/threshold/threshold_screen.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
-import '../../admin/main/admin_main_layout_page.dart';
 import '../../auth/login_page.dart';
-import '../notification/notification_history_screen.dart';
 import 'edit_profile_page.dart';
 import 'change_password_page.dart';
 
@@ -34,7 +32,7 @@ class ProfilePage extends StatelessWidget {
               const SizedBox(height: 24),
               _buildSectionHeader('HỖ TRỢ & PHÁP LÝ'),
               _buildSupportGroup(),
-              const SizedBox(height: 40),
+              const SizedBox(height: 48),
               _buildLogoutButton(context, authVM),
               const SizedBox(height: 80), // Fab space
             ],
@@ -344,37 +342,9 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildAdminSwitchButton(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          height: 56,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.primary.withAlpha(50)),
-          ),
-          child: TextButton.icon(
-            onPressed: () => Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const AdminMainLayoutPage()),
-            ),
-            icon: const Icon(Icons.admin_panel_settings_outlined, color: AppColors.primary),
-            label: const Text(
-              'Chuyển sang chế độ Admin',
-              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildLogoutButton(BuildContext context, AuthViewModel authVM) {
     return Column(
       children: [
-        _buildAdminSwitchButton(context),
-        const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
           child: TextButton.icon(

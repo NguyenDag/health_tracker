@@ -1,31 +1,33 @@
 import '../enums/health_type.dart';
 
 class HealthRecord {
-  final String id;
+  final String? id;
   final HealthType type;
-  final DateTime measuredAt;
+  final DateTime createdAt;
 
   final int? systolic;
   final int? diastolic;
   final int? pulse;
 
-  final double? glucose;
+  final double? glucoseValue;
   final String? glucoseUnit;
-
+  final String? result;
   final double? weight;
-
+  final String? note;
   final int? spo2;
 
   HealthRecord({
-    required this.id,
+    this.id,
     required this.type,
-    required this.measuredAt,
+    required this.createdAt,
     this.systolic,
     this.diastolic,
     this.pulse,
-    this.glucose,
+    this.glucoseValue,
     this.glucoseUnit,
     this.weight,
     this.spo2,
+    this.result,
+    this.note,
   });
 }

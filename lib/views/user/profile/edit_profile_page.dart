@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../viewmodels/auth_viewmodel.dart';
-import '../../../domain/entities/user_profile.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -92,18 +91,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Cập nhật hồ sơ thành công!'),
-          backgroundColor: AppColors.success,
-        ),
+        const SnackBar(content: Text('Cập nhật hồ sơ thành công!')),
       );
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authVM.errorMessage ?? 'Cập nhật thất bại'),
-          backgroundColor: Colors.redAccent,
-        ),
+        SnackBar(content: Text(authVM.errorMessage ?? 'Cập nhật thất bại')),
       );
     }
   }

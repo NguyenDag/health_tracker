@@ -24,3 +24,11 @@ void replaceWithFade(BuildContext ctx, Widget screen) {
         FadeTransition(opacity: anim, child: child),
   ));
 }
+
+/// Push a new screen and remove all previous routes (make it root).
+void pushAsRoot(BuildContext ctx, Widget screen) {
+  Navigator.of(ctx).pushAndRemoveUntil(
+    MaterialPageRoute(builder: (_) => screen),
+    (route) => false,
+  );
+}

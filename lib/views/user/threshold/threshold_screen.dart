@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:health_tracker/views/user/threshold/widgets/threshold_bar.dart';
+import 'package:provider/provider.dart';
+import '../../../core/constants/app_text_styles.dart';
+import '../../../viewmodels/threshold_viewmodel.dart';
+import 'widgets/threshold_bar.dart';
 
 class ThresholdsScreen extends StatefulWidget {
   const ThresholdsScreen({super.key});
@@ -9,127 +12,118 @@ class ThresholdsScreen extends StatefulWidget {
 }
 
 class _ThresholdsScreenState extends State<ThresholdsScreen> {
-  bool push = true;
-  bool sms = true;
+
   bool morning = true;
   bool evening = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      context.read<ThresholdViewModel>().loadThresholds();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+
+    final vm = context.watch<ThresholdViewModel>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F3F7),
+
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leadingWidth: 100,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
         centerTitle: true,
-        title: const Text(
-          "Thresholds",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
-        ),
+        title: Text("Ngưỡng Sức Khỏe",style: AppTextStyles.h2),
       ),
-      body: ListView(
+
+      body: vm.loading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
         padding: const EdgeInsets.all(16),
         children: [
+
           const Text(
-            "SAFE RANGES & THRESHOLDS",
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+            "PHẠM VI AN TOÀN & NGƯỠNG SỨC KHỎE",
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey),
           ),
+
           const SizedBox(height: 16),
 
-          const ThresholdBar(
-            title: "Blood Pressure (Systolic)",
-            unit: "mmHg",
-            min: "Min: 90",
-            safe: "Safe: 90 - 120",
-            max: "Max: 120",
+          ThresholdBar(
+            title: "Huyết Áp Tâm Thu",
+            unit: vm.systolic?.unit ?? "",
+            min: vm.systolic!.dangerMin,
+            safeMin: vm.systolic!.normalMin,
+            safeMax: vm.systolic!.normalMax,
+            max: vm.systolic!.dangerMax,
           ),
 
-          const ThresholdBar(
-            title: "Blood Sugar",
-            unit: "mg/dL",
-            min: "Min: 70",
-            safe: "Safe: 70 - 130",
-            max: "Max: 130",
+          ThresholdBar(
+            title: "Huyết Áp Tâm Trương",
+            unit: vm.diastolic?.unit ?? "",
+            min: vm.diastolic!.dangerMin,
+            safeMin: vm.diastolic!.normalMin,
+            safeMax: vm.diastolic!.normalMax,
+            max: vm.diastolic!.dangerMax,
           ),
 
-          const ThresholdBar(
-            title: "SpO2 (Oxygen)",
-            unit: "%",
-            min: "Low: <95",
-            safe: "Target: 95 - 100",
-            max: "",
+          ThresholdBar(
+            title: "Huyết Áp Xung",
+            unit: vm.pulse?.unit ?? "",
+            min: vm.pulse!.dangerMin,
+            safeMin: vm.pulse!.normalMin,
+            safeMax: vm.pulse!.normalMax,
+            max: vm.pulse!.dangerMax,
+          ),
+
+          ThresholdBar(
+            title: "Đường Huyết",
+            min: vm.bloodSugar!.dangerMin,
+            safeMin: vm.bloodSugar!.normalMin,
+            safeMax: vm.bloodSugar!.normalMax,
+            max: vm.bloodSugar!.dangerMax,
+            unit: vm.bloodSugar!.unit ?? "",
+          ),
+
+          ThresholdBar(
+            title: "SpO2 (Oxy)",
+            min: vm.spo2!.dangerMin,
+            safeMin: vm.spo2!.normalMin,
+            safeMax: vm.spo2!.normalMax,
+            max: vm.spo2!.dangerMax,
+            unit: vm.spo2!.unit ?? "",
           ),
 
           const SizedBox(height: 24),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "DAILY CHECK-IN",
+                "MẸO SỨC KHỎE",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.grey,
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  // TODO: Add new reminder logic
-                },
-                child: const Text(
-                  "Add New",
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
+
+              const SizedBox(height: 12),
+
+              const Text("• Duy trì huyết áp dưới 120 mmHg."),
+              const SizedBox(height: 6),
+
+              const Text("• Giữ lượng đường trong máu ổn định bằng các bữa ăn cân bằng dinh dưỡng."),
+              const SizedBox(height: 6),
+
+              const Text("• Nồng độ SpO2 dưới 92% có thể cần được chăm sóc y tế."),
             ],
-          ),
-
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text("Morning Measurement"),
-            subtitle: const Text("08:00 AM"),
-            value: morning,
-            onChanged: (v) => setState(() => morning = v),
-          ),
-
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text("Evening Review"),
-            subtitle: const Text("08:30 PM"),
-            value: evening,
-            onChanged: (v) => setState(() => evening = v),
-          ),
-
-          const SizedBox(height: 32),
-
-          /// SAVE BUTTON
-          SizedBox(
-            height: 55,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3D7BF7),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              onPressed: () {},
-              child: const Text(
-                "Save Configuration",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
+          )
         ],
       ),
     );

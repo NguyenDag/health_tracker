@@ -1,5 +1,7 @@
 import 'package:health_tracker/core/network/supabase_config.dart';
 
+import '../../../domain/entities/threshold.dart';
+
 class ApiSample {
   // =====================================================
   // AUTH
@@ -215,6 +217,7 @@ class ApiSample {
   // =====================================================
 
   Future<List<Map<String, dynamic>>> getNotifications() async {
+    print("id $currentUserId");
     final data = await supabase
         .from('notifications')
         .select()
@@ -229,5 +232,19 @@ class ApiSample {
         .from('notifications')
         .update({'is_read': true})
         .eq('id', id);
+  }
+
+
+  Future<List<HealthThreshold>> getThresholdsByAge(int age) async {
+
+    final data = await supabase
+        .from('thresholds')
+        .select()
+        .lte('from_age', age)
+        .gte('to_age', age);
+
+    return (data as List)
+        .map((e) => HealthThreshold.fromMap(e))
+        .toList();
   }
 }

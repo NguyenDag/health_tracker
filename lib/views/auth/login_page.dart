@@ -9,6 +9,7 @@ import '../user/main/main_layout_page.dart';
 import '../widgets/shared_widgets.dart';
 import 'forgot_password_screen.dart';
 import 'registration_screen.dart';
+import '../admin/main/admin_main_layout_page.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LOGIN SCREEN
@@ -27,6 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscure = true;
   String? _emailError;
   String? _passError;
+  String? _formError;
 
   @override
   void dispose() {
@@ -42,6 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
     bool valid = true;
 
     setState(() {
+      _formError = null; // Clear overall form error on new attempt
       if (email.isEmpty) {
         _emailError = 'Vui lòng nhập email';
         valid = false;
@@ -76,18 +79,16 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      replaceWithFade(context, const MainLayoutPage());
+      final user = vm.currentUser;
+      if (user?.role == 'admin') {
+        replaceWithFade(context, const AdminMainLayoutPage());
+      } else {
+        replaceWithFade(context, const MainLayoutPage());
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(vm.errorMessage ?? 'Đăng nhập thất bại'),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
+      setState(() {
+        _formError = vm.errorMessage ?? 'Đăng nhập thất bại';
+      });
     }
   }
 
@@ -97,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
+      body: AuthBackground(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
@@ -113,23 +114,19 @@ class _LoginScreenState extends State<LoginScreen> {
               // ── Headline ────────────────────────────────────────────
               const _LoginHeadline(),
 
-              const SizedBox(height: 36),
+              const SizedBox(height: 32),
 
               // ── Email field ─────────────────────────────────────────
               const FormFieldLabel('Email'),
-              const SizedBox(height: 8),
               TextField(
                 controller: _emailCtrl,
                 keyboardType: TextInputType.emailAddress,
                 onChanged: (_) => setState(() => _emailError = null),
-                decoration: InputDecoration(
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                decoration: AuthInputDecoration.build(
                   hintText: 'example@email.com',
                   errorText: _emailError,
-                  prefixIcon: const Icon(
-                    Icons.email_outlined,
-                    color: AppColors.textHint,
-                    size: 20,
-                  ),
+                  prefixIcon: Icons.email_outlined,
                 ),
               ),
 
@@ -137,7 +134,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // ── Password field ──────────────────────────────────────
               const FormFieldLabel('Mật khẩu'),
-              const SizedBox(height: 8),
               _PasswordField(
                 controller: _passCtrl,
                 obscure: _obscure,
@@ -146,20 +142,41 @@ class _LoginScreenState extends State<LoginScreen> {
                 onChanged: (_) => setState(() => _passError = null),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               const _ForgotPasswordLink(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
+
+              // ── General Form Error ──────────────────────────────────
+              if (_formError != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _formError!,
+                          style: TextStyle(color: Colors.red.shade700, fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
 
               // ── Log In button ───────────────────────────────────────
               GradientButton(
-                label: isLoading ? 'Đang đăng nhập…' : 'Đăng nhập',
+                label: isLoading ? '' : 'Đăng nhập',
+                isLoading: isLoading,
                 onPressed: isLoading ? null : _handleLogin,
               ),
-
-              if (isLoading) ...[
-                const SizedBox(height: 16),
-                const Center(child: CircularProgressIndicator()),
-              ],
 
               const SizedBox(height: 32),
 
@@ -188,8 +205,9 @@ class _LoginTopBar extends StatelessWidget {
         // Only show the back button when there is a previous route
         if (canPop) const AppBackButton() else const SizedBox(width: 32),
         const Spacer(),
-        const Text('ĐĂNG NHẬP', style: AppTextStyles.badge),
-        const Spacer(flex: 2),
+        const Text('Đăng nhập', style: AppTextStyles.heading3),
+        const Spacer(flex: 1),
+        const SizedBox(width: 32),
       ],
     );
   }
@@ -204,12 +222,22 @@ class _LoginHeadline extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text('Chào mừng trở lại', style: AppTextStyles.heading1),
-        SizedBox(height: 8),
+      children: [
         Text(
-          'Đăng nhập để theo dõi sức khoẻ của bạn.',
-          style: AppTextStyles.body,
+          'Chào mừng trở lại',
+          style: AppTextStyles.heading1.copyWith(
+            color: AppColors.textDark,
+            letterSpacing: -0.8,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Đăng nhập để tiếp tục theo dõi sức khoẻ và đạt được mục tiêu của bạn.',
+          style: AppTextStyles.body.copyWith(
+            color: AppColors.textGrey,
+            fontSize: 15,
+            height: 1.4,
+          ),
         ),
       ],
     );
@@ -239,14 +267,11 @@ class _PasswordField extends StatelessWidget {
       controller: controller,
       obscureText: obscure,
       onChanged: onChanged,
-      decoration: InputDecoration(
+      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+      decoration: AuthInputDecoration.build(
         hintText: 'Nhập mật khẩu của bạn',
         errorText: errorText,
-        prefixIcon: const Icon(
-          Icons.lock_outline,
-          color: AppColors.textHint,
-          size: 20,
-        ),
+        prefixIcon: Icons.lock_outline,
         suffixIcon: IconButton(
           onPressed: onToggle,
           icon: Icon(

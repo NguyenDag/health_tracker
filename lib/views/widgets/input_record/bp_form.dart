@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
+import '../../../viewmodels/add_record_viewmodel/add_record_viewmodel.dart';
 
 class BloodPressureForm extends StatefulWidget {
   const BloodPressureForm({super.key});
@@ -8,22 +11,21 @@ class BloodPressureForm extends StatefulWidget {
 }
 
 class _BloodPressureFormState extends State<BloodPressureForm> {
-  final TextEditingController systolicController =
-  TextEditingController(text: "120");
-  final TextEditingController diastolicController =
-  TextEditingController(text: "80");
-  final TextEditingController pulseController =
-  TextEditingController(text: "72");
+  final TextEditingController systolicController = TextEditingController(
+    text: "120",
+  );
+  final TextEditingController diastolicController = TextEditingController(
+    text: "80",
+  );
+  final TextEditingController pulseController = TextEditingController(
+    text: "72",
+  );
 
   DateTime selectedDate = DateTime.now();
 
-  bool get isDiastolicHigh {
-    final value = int.tryParse(diastolicController.text) ?? 0;
-    return value >= 90;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final vm = context.read<AddRecordViewModel>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -31,16 +33,15 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
         Row(
           children: [
             _pressureCard(
-              title: "SYSTOLIC",
+              title: "HUYẾT ÁP TÂM THU",
               controller: systolicController,
               unit: "mmHg",
             ),
             const SizedBox(width: 15),
             _pressureCard(
-              title: "DIASTOLIC",
+              title: "HUYẾT ÁP TÂM TRƯƠNG",
               controller: diastolicController,
               unit: "mmHg",
-              isError: isDiastolicHigh,
             ),
           ],
         ),
@@ -56,9 +57,6 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
         _dateTimeCard(),
 
         const SizedBox(height: 20),
-
-        /// HEALTH TIP
-        if (isDiastolicHigh) _healthTip(),
       ],
     );
   }
@@ -77,7 +75,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
             title,
             style: const TextStyle(
               fontSize: 12,
-              color: Colors.grey,
+              color: Colors.black,
               fontWeight: FontWeight.w900,
               letterSpacing: 1,
             ),
@@ -98,20 +96,26 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                   child: TextField(
                     controller: controller,
                     keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                    ),
-                    onChanged: (_) => setState(() {}),
+                    decoration: const InputDecoration(border: InputBorder.none),
+                    onChanged: (value) {
+                      final vm = context.read<AddRecordViewModel>();
+
+                      if (title == "HUYẾT ÁP TÂM THU") {
+                        vm.systolic = int.tryParse(value) ?? 0;
+                      } else {
+                        vm.diastolic = int.tryParse(value) ?? 0;
+                      }
+
+                      setState(() {});
+                    },
                   ),
                 ),
-                Text(
-                  unit,
-                  style: const TextStyle(color: Colors.grey),
-                ),
+                Text(unit, style: const TextStyle(color: Colors.black)),
               ],
             ),
           ),
@@ -122,7 +126,7 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                 "Slightly high",
                 style: TextStyle(color: Colors.red, fontSize: 12),
               ),
-            )
+            ),
         ],
       ),
     );
@@ -133,10 +137,10 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "PULSE",
+          "NHỊP TIM",
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey,
+            color: Colors.black,
             fontWeight: FontWeight.w900,
             letterSpacing: 1,
           ),
@@ -154,19 +158,19 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
                 child: TextField(
                   controller: pulseController,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                  ),
+                  decoration: const InputDecoration(border: InputBorder.none),
+                  onChanged: (value) {
+                    final vm = context.read<AddRecordViewModel>();
+                    vm.pulse = int.tryParse(value) ?? 0;
+                  },
                 ),
               ),
-              const Text(
-                "bpm",
-                style: TextStyle(color: Colors.grey),
-              )
+              const Text("bpm", style: TextStyle(color: Colors.black)),
             ],
           ),
         ),
@@ -179,48 +183,32 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "DATE & TIME",
+          "NGÀY HIỆN TẠI",
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey,
+            color: Colors.black,
             fontWeight: FontWeight.w900,
             letterSpacing: 1,
           ),
         ),
         const SizedBox(height: 6),
-        GestureDetector(
-          onTap: () async {
-            final pickedDate = await showDatePicker(
-              context: context,
-              initialDate: selectedDate,
-              firstDate: DateTime(2020),
-              lastDate: DateTime.now(),
-            );
-
-            if (pickedDate != null) {
-              setState(() {
-                selectedDate = pickedDate;
-              });
-            }
-          },
-          child: Container(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_today_outlined, size: 18),
-                const SizedBox(width: 10),
-                Text(
-                  "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-                ),
-                const Spacer(),
-                const Icon(Icons.keyboard_arrow_down),
-              ],
-            ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.calendar_today_outlined, size: 18),
+              const SizedBox(width: 10),
+              Text(
+                "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                style: TextStyle(color: Colors.black),
+              ),
+              const Spacer(),
+              const Icon(Icons.keyboard_arrow_down),
+            ],
           ),
         ),
       ],
@@ -241,10 +229,10 @@ class _BloodPressureFormState extends State<BloodPressureForm> {
           Expanded(
             child: Text(
               "Your diastolic reading is higher than your usual average. "
-                  "Ensure you've been resting for 5 minutes before recording.",
+              "Ensure you've been resting for 5 minutes before recording.",
               style: TextStyle(fontSize: 13),
             ),
-          )
+          ),
         ],
       ),
     );

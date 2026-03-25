@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:health_tracker/data/implementations/api/blood_pressure_api.dart';
+import 'package:health_tracker/data/implementations/api/blood_sugar_api.dart';
+import 'package:health_tracker/data/implementations/api/spo2_api.dart';
+import 'package:health_tracker/data/implementations/api/weight_api.dart';
 
+import '../../core/network/supabase_config.dart';
 import '../../data/implementations/repositories/health_repository.dart';
 import '../../domain/entities/health_record.dart';
 import '../../domain/enums/health_type.dart';
 
 class HistoryViewModel extends ChangeNotifier {
-  final _repo = HealthRepository();
+  final _repo = HealthRepository(
+    bloodPressureApi: BloodPressureApi(supabase: supabase),
+    bloodSugarApi: BloodSugarApi(supabase: supabase),
+    spo2Api: Spo2Api(supabase: supabase),
+    weightApi: WeightApi(supabase: supabase),
+  );
 
   List<HealthRecord> _all = [];
   List<HealthRecord> filtered = [];
@@ -37,16 +47,54 @@ class HistoryViewModel extends ChangeNotifier {
   }
 
   void _applyFilter() {
+    final query = searchQuery.toLowerCase();
+
     filtered = _all.where((record) {
       final matchType =
           selectedFilter == null || record.type == selectedFilter;
 
-      final matchSearch = record.type.name
-          .toLowerCase()
-          .contains(searchQuery.toLowerCase());
+      bool matchSearch = false;
 
-      return matchType && matchSearch;
+      switch (record.type.name) {
+        case "BP":
+          matchSearch =
+              record.systolic.toString().contains(query) ||
+                  record.diastolic.toString().contains(query) ||
+                  record.pulse.toString().contains(query) ||
+                  record.result.toString().toLowerCase().contains(query);
+          break;
+
+        case "Sugar":
+          matchSearch =
+              record.glucoseValue.toString().contains(query) ||
+                  record.result.toString().toLowerCase().contains(query);
+          break;
+
+        case "Weight":
+          matchSearch =
+              record.weight.toString().contains(query) ||
+                  record.result.toString().toLowerCase().contains(query);
+          break;
+
+        default:
+          matchSearch =
+              record.spo2.toString().contains(query) ||
+                  record.result.toString().toLowerCase().contains(query);
+          break;
+      }
+
+      return matchType && (query.isEmpty || matchSearch);
     }).toList();
+
+    notifyListeners();
+  }
+
+  Future<void> deleteRecord(HealthRecord record) async {
+    print("Deleting record id: ${record.id}");
+    await _repo.deleteRecord(record);
+    await load();
+    _all.removeWhere((r) => r.id == record.id);
+    _applyFilter();
 
     notifyListeners();
   }
@@ -56,16 +104,23 @@ class HistoryViewModel extends ChangeNotifier {
 
     for (var record in filtered) {
       final now = DateTime.now();
-      final diff = now.difference(record.measuredAt).inDays;
+      final today = DateTime(now.year, now.month, now.day);
+      final recordDate = DateTime(
+        record.createdAt.year,
+        record.createdAt.month,
+        record.createdAt.day,
+      );
+
+      final diff = today.difference(recordDate).inDays;
 
       String key;
       if (diff == 0) {
-        key = "TODAY";
+        key = "HÔM NAY";
       } else if (diff == 1) {
-        key = "YESTERDAY";
+        key = "NGÀY MAI";
       } else {
         key =
-        "${record.measuredAt.day}/${record.measuredAt.month}/${record.measuredAt.year}";
+            "${record.createdAt.day}/${record.createdAt.month}/${record.createdAt.year}";
       }
 
       map.putIfAbsent(key, () => []);

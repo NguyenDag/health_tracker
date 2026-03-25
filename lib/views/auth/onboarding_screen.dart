@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../core/router/app_router.dart';
-import '../app_painters.dart';
 import '../widgets/shared_widgets.dart';
 import 'login_page.dart';
 import 'registration_screen.dart';
@@ -53,10 +52,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         child: SafeArea(
           child: Column(
             children: [
-              // ── Illustration ──────────────────────────────────────────────
-              const Expanded(flex: 5, child: _SceneryIllustration()),
+              // ── Logo Hero ──────────────────────────────────────────────
+              const Expanded(flex: 5, child: _LogoHero()),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 20),
 
               // ── Animated content area ─────────────────────────────────────
               FadeTransition(
@@ -78,32 +77,49 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 }
 
-// ─── Sub-widget: scenery illustration panel ───────────────────────────────────
+// ─── Sub-widget: Logo Hero Panel ───────────────────────────────────────────
 
-class _SceneryIllustration extends StatelessWidget {
-  const _SceneryIllustration();
+class _LogoHero extends StatelessWidget {
+  const _LogoHero();
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(32),
-        bottomRight: Radius.circular(32),
-      ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Sky gradient
-          Container(
-            decoration: const BoxDecoration(gradient: AppGradients.scenery),
-          ),
-          // Mountains + trees + road
-          const CustomPaint(painter: SceneryPainter()),
-          // Runner character
-          const Center(
-            child: CustomPaint(size: Size(130, 200), painter: RunnerPainter()),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(40),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.1),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
           ),
         ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(40),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset('assets/logo/banner.png', fit: BoxFit.cover),
+            // Bottom gradient overlay for text readability
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.05),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -123,44 +139,34 @@ class _OnboardingContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 28),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
-          const Text(
-            'Theo dõi hành trình\nsức khoẻ của bạn',
+          Text(
+            'Làm Chủ Sức Khoẻ\nTheo Cách Của Bạn',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.h1.copyWith(
+              fontSize: 28,
+              height: 1.2,
               color: AppColors.textDark,
-              height: 1.25,
-              letterSpacing: -0.4,
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 12),
-          const Text(
-            'Theo dõi huyết áp, đường huyết,\ncân nặng và SpO2 tất cả trong một nơi.',
+          const SizedBox(height: 16),
+          Text(
+            'Giải pháp toàn diện để theo dõi chỉ số cơ thể\nvà cải thiện lối sống mỗi ngày.',
             textAlign: TextAlign.center,
-            style: AppTextStyles.body,
-          ),
-          const SizedBox(height: 28),
-
-          GradientButton(
-            label: 'Tạo tài khoản mới',
-            onPressed: onCreateAccount,
-          ),
-          const SizedBox(height: 12),
-          SecondaryButton(label: 'Đăng nhập', onPressed: onLogin),
-          const SizedBox(height: 14),
-
-          TextButton(
-            onPressed: () {},
-            child: const Text(
-              'Tiếp tục với tư cách khách',
-              style: TextStyle(fontSize: 13, color: AppColors.textGrey),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textMid,
+              height: 1.5,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 32),
+
+          GradientButton(label: 'Bắt đầu ngay', onPressed: onCreateAccount),
+          const SizedBox(height: 12),
+          SecondaryButton(label: 'Tôi đã có tài khoản', onPressed: onLogin),
+          const SizedBox(height: 28),
         ],
       ),
     );

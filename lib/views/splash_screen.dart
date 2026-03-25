@@ -9,6 +9,7 @@ import '../core/constants/app_text_styles.dart';
 import '../core/router/app_router.dart';
 import 'auth/onboarding_screen.dart';
 import 'user/main/main_layout_page.dart';
+import 'admin/main/admin_main_layout_page.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 
@@ -62,9 +63,19 @@ class _SplashScreenState extends State<SplashScreen>
       final session = Supabase.instance.client.auth.currentSession;
       
       if (session != null) {
-        // Load user profile before navigating
-        await authViewModel.loadCurrentUser();
-        if (mounted) replaceWithFade(context, const MainLayoutPage());
+        try {
+          await authViewModel.loadCurrentUser();
+        } catch (_) {
+          // Profile load failed, navigate anyway
+        }
+        if (!mounted) return;
+        final user = authViewModel.currentUser;
+        replaceWithFade(
+          context,
+          user?.role == 'admin'
+              ? const AdminMainLayoutPage()
+              : const MainLayoutPage(),
+        );
       } else {
         if (mounted) replaceWithFade(context, const OnboardingScreen());
       }
@@ -86,32 +97,35 @@ class _SplashScreenState extends State<SplashScreen>
         child: FadeTransition(
           opacity: _fadeIn,
           child: SafeArea(
-            child: Column(
-              children: [
-                const Spacer(flex: 3),
-
-                // ── Spinning / pulsing icon ─────────────────────────
-                _SpinningIcon(
-                  spinCtrl: _spinCtrl,
-                  pulseCtrl: _pulseCtrl,
-                  isLoading: _isLoading,
-                ),
-
-                const SizedBox(height: 32),
-                const Text('HealthTracker', style: AppTextStyles.heading1),
-                const SizedBox(height: 10),
-                const Text(
-                  'Monitor your vitals effortlessly',
-                  style: TextStyle(fontSize: 15, color: AppColors.textGrey),
-                ),
-
-                const Spacer(flex: 3),
-
-                // ── Loading indicator ───────────────────────────────
-                _LoadingIndicator(visible: _isLoading),
-
-                const SizedBox(height: 48),
-              ],
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                children: [
+                  const Spacer(flex: 3),
+  
+                  // ── Spinning / pulsing icon ─────────────────────────
+                  _SpinningIcon(
+                    spinCtrl: _spinCtrl,
+                    pulseCtrl: _pulseCtrl,
+                    isLoading: _isLoading,
+                  ),
+  
+                  const SizedBox(height: 32),
+                  const Text('HealthTracker', style: AppTextStyles.heading1),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Monitor your vitals effortlessly',
+                    style: TextStyle(fontSize: 15, color: AppColors.textGrey),
+                  ),
+  
+                  const Spacer(flex: 3),
+  
+                  // ── Loading indicator ───────────────────────────────
+                  _LoadingIndicator(visible: _isLoading),
+  
+                  const SizedBox(height: 48),
+                ],
+              ),
             ),
           ),
         ),

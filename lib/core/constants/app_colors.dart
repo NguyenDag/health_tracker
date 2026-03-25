@@ -45,7 +45,13 @@ class AppGradients {
   static const background = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFFF0FFFE), Color(0xFFE8F8FF), Color(0xFFF5F0FF)],
+    colors: [
+      Color(0xFFE0F7FA), // Light Cyan
+      Color(0xFFE1F5FE), // Light Blue
+      Color(0xFFF3E5F5), // Light Purple
+      Color(0xFFE8F5E9), // Light Green
+    ],
+    stops: [0.0, 0.3, 0.7, 1.0],
   );
 
   static const primary = LinearGradient(

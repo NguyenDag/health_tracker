@@ -14,11 +14,11 @@ class HistoryFilter extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildChip(context, "All", null),
-        _buildChip(context, "BP", HealthType.BP),
-        _buildChip(context, "Sugar", HealthType.Sugar),
-        _buildChip(context, "Weight", HealthType.Weight),
-        _buildChip(context, "SpO2", HealthType.Spo2),
+        _buildChip(context, "Tất cả", null),
+        _buildChip(context, "HA", HealthType.BP),
+        _buildChip(context, "Đường", HealthType.Sugar),
+        _buildChip(context, "Cân nặng", HealthType.Weight),
+        _buildChip(context, "O2", HealthType.Spo2),
       ],
     );
   }
