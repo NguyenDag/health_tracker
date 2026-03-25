@@ -29,7 +29,7 @@ class HistoryDetailModal extends StatelessWidget {
               children: [
                 const SizedBox(width: 30),
                 const Text(
-                  "Detail for record",
+                  "Chi tiết bản ghi",
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.black,
@@ -94,7 +94,7 @@ class HistoryDetailModal extends StatelessWidget {
 
             /// DETAIL
             const Text(
-              "INDEX INFORMATION",
+              "THÔNG TIN CÁC CHỈ SỐ",
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 12,
@@ -110,7 +110,7 @@ class HistoryDetailModal extends StatelessWidget {
 
             /// NOTE
             const Text(
-              "NOTE",
+              "CHÚ THÍCH",
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 12,
@@ -127,7 +127,7 @@ class HistoryDetailModal extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Text(
-                record.note ?? "No note",
+                record.note ?? "Không có lưu ý",
                 style: const TextStyle(fontSize: 14),
               ),
             ),
@@ -136,7 +136,7 @@ class HistoryDetailModal extends StatelessWidget {
 
             /// NOTE
             const Text(
-              "RESULT",
+              "CHẨN ĐOÁN",
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 12,
@@ -153,48 +153,12 @@ class HistoryDetailModal extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Text(
-                record.result ?? "No result",
+                record.result ?? "Không có kết quả",
                 style: const TextStyle(fontSize: 14),
               ),
             ),
 
             const SizedBox(height: 10),
-
-            /// AI SUGGESTION
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAF3FF),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.blue.shade100),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.auto_awesome, color: Colors.blue, size: 18),
-                      SizedBox(width: 6),
-                      Text(
-                        "AI Advice",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    "Index is normal.",
-                      // record.result ??
-                          style: const TextStyle(fontSize: 13),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 22),
 
             /// BUTTONS
             Row(
@@ -202,7 +166,7 @@ class HistoryDetailModal extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton.icon(
                     icon: const Icon(Icons.close),
-                    label: const Text("Close"),
+                    label: const Text("Đóng"),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -213,7 +177,7 @@ class HistoryDetailModal extends StatelessWidget {
                   child: OutlinedButton.icon(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     label: const Text(
-                      "Delete",
+                      "Xoá",
                       style: TextStyle(color: Colors.red),
                     ),
                     onPressed: () {
@@ -257,13 +221,13 @@ class HistoryDetailModal extends StatelessWidget {
   String _typeName() {
     switch (record.type) {
       case HealthType.BP:
-        return "BLOOD PRESSURE";
+        return "HUYẾT ÁP";
       case HealthType.Sugar:
-        return "BLOOD SUGAR";
+        return "ĐƯỜNG HUYẾT";
       case HealthType.Weight:
-        return "WEIGHT";
+        return "CÂN NẶNG";
       case HealthType.Spo2:
-        return "SPO2";
+        return "CHỈ SÔ O2";
     }
   }
 
@@ -297,27 +261,27 @@ class HistoryDetailModal extends StatelessWidget {
       case HealthType.BP:
         return Column(
           children: [
-            _detailRow("Systolic", record.systolic?.toString() ?? "-"),
-            _detailRow("Diastolic", record.diastolic?.toString() ?? "-"),
-            _detailRow("Pulse", record.pulse?.toString() ?? "-"),
+            _detailRow("Huyết áp tâm thu", record.systolic?.toString() ?? "-"),
+            _detailRow("Huyết áp tâm trương", record.diastolic?.toString() ?? "-"),
+            _detailRow("Mạch tim", record.pulse?.toString() ?? "-"),
           ],
         );
 
       case HealthType.Sugar:
         return Column(
           children: [
-            _detailRow("Glucose", record.glucoseValue?.toString() ?? "-"),
-            _detailRow("Unit", record.glucoseUnit ?? "-"),
+            _detailRow("Đường huyết", record.glucoseValue?.toString() ?? "-"),
+            _detailRow("Đơn vị", record.glucoseUnit ?? "-"),
           ],
         );
 
       case HealthType.Weight:
         return Column(
-          children: [_detailRow("Weight", "${record.weight ?? "-"} kg")],
+          children: [_detailRow("Cân nặng", "${record.weight ?? "-"} kg")],
         );
 
       case HealthType.Spo2:
-        return Column(children: [_detailRow("SpO2", "${record.spo2 ?? "-"}%")]);
+        return Column(children: [_detailRow("Nồng độ O2", "${record.spo2 ?? "-"}%")]);
     }
   }
 

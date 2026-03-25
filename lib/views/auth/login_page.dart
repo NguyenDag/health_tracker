@@ -114,23 +114,19 @@ class _LoginScreenState extends State<LoginScreen> {
               // ── Headline ────────────────────────────────────────────
               const _LoginHeadline(),
 
-              const SizedBox(height: 36),
+              const SizedBox(height: 32),
 
               // ── Email field ─────────────────────────────────────────
               const FormFieldLabel('Email'),
-              const SizedBox(height: 8),
               TextField(
                 controller: _emailCtrl,
                 keyboardType: TextInputType.emailAddress,
                 onChanged: (_) => setState(() => _emailError = null),
-                decoration: InputDecoration(
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                decoration: AuthInputDecoration.build(
                   hintText: 'example@email.com',
                   errorText: _emailError,
-                  prefixIcon: const Icon(
-                    Icons.email_outlined,
-                    color: AppColors.textHint,
-                    size: 20,
-                  ),
+                  prefixIcon: Icons.email_outlined,
                 ),
               ),
 
@@ -138,7 +134,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // ── Password field ──────────────────────────────────────
               const FormFieldLabel('Mật khẩu'),
-              const SizedBox(height: 8),
               _PasswordField(
                 controller: _passCtrl,
                 obscure: _obscure,
@@ -147,9 +142,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 onChanged: (_) => setState(() => _passError = null),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               const _ForgotPasswordLink(),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               // ── General Form Error ──────────────────────────────────
               if (_formError != null) ...[
@@ -228,11 +223,21 @@ class _LoginHeadline extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Chào mừng trở lại', style: AppTextStyles.heading1),
-        SizedBox(height: 8),
         Text(
-          'Đăng nhập để theo dõi sức khoẻ của bạn.',
-          style: AppTextStyles.body,
+          'Chào mừng trở lại',
+          style: AppTextStyles.heading1.copyWith(
+            color: AppColors.textDark,
+            letterSpacing: -0.8,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Đăng nhập để tiếp tục theo dõi sức khoẻ và đạt được mục tiêu của bạn.',
+          style: AppTextStyles.body.copyWith(
+            color: AppColors.textGrey,
+            fontSize: 15,
+            height: 1.4,
+          ),
         ),
       ],
     );
@@ -262,14 +267,11 @@ class _PasswordField extends StatelessWidget {
       controller: controller,
       obscureText: obscure,
       onChanged: onChanged,
-      decoration: InputDecoration(
+      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+      decoration: AuthInputDecoration.build(
         hintText: 'Nhập mật khẩu của bạn',
         errorText: errorText,
-        prefixIcon: const Icon(
-          Icons.lock_outline,
-          color: AppColors.textHint,
-          size: 20,
-        ),
+        prefixIcon: Icons.lock_outline,
         suffixIcon: IconButton(
           onPressed: onToggle,
           icon: Icon(

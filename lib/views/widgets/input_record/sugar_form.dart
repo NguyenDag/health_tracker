@@ -28,7 +28,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
       children: [
         /// GLUCOSE VALUE
         const Text(
-          "GLUCOSE",
+          "ĐƯỜNG HUYẾT",
           style: TextStyle(
             fontSize: 12,
             color: Colors.black,
@@ -50,9 +50,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
                 child: TextField(
                   controller: sugarController,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -75,7 +73,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
         const SizedBox(height: 20),
 
         _dropdownCard(
-          title: "UNIT",
+          title: "ĐƠN VỊ",
           child: DropdownButton<SugarUnit>(
             value: vm.sugarUnit,
             isExpanded: true,
@@ -93,13 +91,22 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
         const SizedBox(height: 20),
 
         _dropdownCard(
-          title: "MEASUREMENT TYPE",
+          title: "THỜI ĐIỂM ĐO",
           child: DropdownButton<SugarMeasurementType>(
             value: vm.sugarType,
             isExpanded: true,
             underline: const SizedBox(),
             items: SugarMeasurementType.values.map((e) {
-              return DropdownMenuItem(value: e, child: Text(e.name));
+              String label;
+              if (e.name == "fasting") {
+                label = "Nhịn ăn";
+              } else if (e.name == "beforeMeal") {
+                label = "Trước khi ăn";
+              } else {
+                label = "Sau khi ăn";
+              }
+
+              return DropdownMenuItem(value: e, child: Text(label));
             }).toList(),
             onChanged: (v) => vm.sugarType = v!,
           ),
@@ -148,7 +155,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "DATE & TIME",
+          "NGÀY THỰC HIỆN",
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w900,
@@ -157,39 +164,23 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
           ),
         ),
         const SizedBox(height: 6),
-        GestureDetector(
-          onTap: () async {
-            final pickedDate = await showDatePicker(
-              context: context,
-              initialDate: selectedDate,
-              firstDate: DateTime(2020),
-              lastDate: DateTime.now(),
-            );
-
-            if (pickedDate != null) {
-              setState(() {
-                selectedDate = pickedDate;
-              });
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_today_outlined, size: 18),
-                const SizedBox(width: 10),
-                Text(
-                  "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-                  style: TextStyle(color: Colors.black),
-                ),
-                const Spacer(),
-                const Icon(Icons.keyboard_arrow_down),
-              ],
-            ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.calendar_today_outlined, size: 18),
+              const SizedBox(width: 10),
+              Text(
+                "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                style: TextStyle(color: Colors.black),
+              ),
+              const Spacer(),
+              const Icon(Icons.keyboard_arrow_down),
+            ],
           ),
         ),
       ],
@@ -197,14 +188,13 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
   }
 
   Widget _noteCard(BuildContext context) {
-
     final vm = context.read<AddRecordViewModel>();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "NOTE",
+          "CHÚ THÍCH",
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w900,
@@ -223,7 +213,7 @@ class _BloodSugarFormState extends State<BloodSugarForm> {
             controller: noteController,
             maxLines: 3,
             decoration: const InputDecoration(
-              hintText: "Add note (optional)",
+              hintText: "Thêm chú thích nếu cần",
               border: InputBorder.none,
             ),
             onChanged: (value) {

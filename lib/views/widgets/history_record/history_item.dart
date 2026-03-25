@@ -84,13 +84,13 @@ class HistoryItem extends StatelessWidget {
   String _subtitle() {
     switch (record.type) {
       case HealthType.BP:
-        return "Blood Pressure";
+        return "Huyết áp (HA)";
       case HealthType.Sugar:
-        return "Blood Sugar";
+        return "Đường máu (Đường)";
       case HealthType.Weight:
-        return "Weight";
+        return "Cân nặng";
       case HealthType.Spo2:
-        return "SpO2";
+        return "Nồng độ O2";
     }
   }
 

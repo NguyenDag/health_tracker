@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
@@ -42,18 +43,18 @@ class _HomePageState extends State<HomePage> {
               children: [
                 _buildAIInsightCard(),
                 const SizedBox(height: 24),
-                Text('Your Vitals', style: AppTextStyles.h2),
+                Text('Chỉ số sức khỏe', style: AppTextStyles.h2),
                 const SizedBox(height: 16),
                 _buildVitalsGrid(viewModel),
                 const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Recent Trends', style: AppTextStyles.h2),
+                    Text('Dữ liệu gần đây', style: AppTextStyles.h2),
                     GestureDetector(
-                      onTap: () => widget.onNavigateToTab(1), // Nav to stats
+                      onTap: () => widget.onNavigateToTab(2), // Nav to History/Logs
                       child: Text(
-                        'See all',
+                        'Xem tất cả',
                         style: AppTextStyles.subtitle.copyWith(
                           color: AppColors.primary,
                         ),
@@ -62,7 +63,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                _buildTrendsList(),
+                _buildTrendsList(viewModel),
                 const SizedBox(height: 80), // FAB space
               ],
             ),
@@ -87,7 +88,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     const Icon(Icons.auto_awesome, color: AppColors.primary),
                     const SizedBox(width: 8),
-                    Text('AI Health Insight', style: AppTextStyles.h3),
+                    Text('Phân tích sức khỏe AI', style: AppTextStyles.h3),
                     const Spacer(),
                     if (vm.isLoadingInsight)
                       const SizedBox(
@@ -144,27 +145,27 @@ class _HomePageState extends State<HomePage> {
       childAspectRatio: 0.9,
       children: [
         _buildVitalCard(
-          'BLOOD PRESSURE',
+          'HUYẾT ÁP',
           _formatBPValue(viewModel.latestBP),
-          'Normal',
+          _getShortStatus(viewModel.latestBP?.result),
           AppColors.primary,
           AppColors.bloodPressureBg,
           Icons.favorite_border,
           onTap: () => widget.onNavigateToTab(1, type: HealthType.BP),
         ),
         _buildVitalCard(
-          'BLOOD SUGAR',
+          'ĐƯỜNG HUYẾT',
           _formatSugarValue(viewModel.latestSugar),
-          'Normal',
+          _getShortStatus(viewModel.latestSugar?.result),
           Colors.purple,
           AppColors.bloodSugarBg,
           Icons.water_drop_outlined,
           onTap: () => widget.onNavigateToTab(1, type: HealthType.Sugar),
         ),
         _buildVitalCard(
-          'WEIGHT',
+          'CÂN NẶNG',
           _formatWeightValue(viewModel.latestWeight),
-          'Steady',
+          _getShortStatus(viewModel.latestWeight?.result),
           AppColors.warning,
           AppColors.weightBg,
           Icons.monitor_weight_outlined,
@@ -173,7 +174,7 @@ class _HomePageState extends State<HomePage> {
         _buildVitalCard(
           'SPO2',
           _formatSpo2Value(viewModel.latestSpo2),
-          'Normal',
+          _getShortStatus(viewModel.latestSpo2?.result),
           Colors.blue,
           AppColors.spo2Bg,
           Icons.air,
@@ -266,29 +267,74 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildTrendsList() {
+  Widget _buildTrendsList(HomeViewModel viewModel) {
+    if (viewModel.recentRecords.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24.0),
+          child: Text(
+            'Chưa có dữ liệu gần đây',
+            style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
     return Column(
-      children: [
-        _buildTrendItem(
-          'Active Calories',
-          'Daily average',
-          '450 kcal',
-          '+12% vs last wk',
-          AppColors.warning,
-          Icons.trending_up,
-          AppColors.activeCaloriesBg,
-        ),
-        const SizedBox(height: 12),
-        _buildTrendItem(
-          'Sleep Quality',
-          'Restorative sleep',
-          '7h 20m',
-          'Consistent',
-          AppColors.primary,
-          Icons.nightlight_round,
-          AppColors.sleepQualityBg,
-        ),
-      ],
+      children: viewModel.recentRecords.map((record) {
+        String title = '';
+        String value = '';
+        IconData icon = Icons.help_outline;
+        Color color = AppColors.primary;
+        Color bgColor = AppColors.primary.withAlpha(20);
+
+        switch (record.type) {
+          case HealthType.BP:
+            title = 'Huyết áp';
+            value = '${record.systolic}/${record.diastolic} mmHg';
+            icon = Icons.favorite_border;
+            color = AppColors.primary;
+            bgColor = AppColors.bloodPressureBg;
+            break;
+          case HealthType.Sugar:
+            title = 'Đường huyết';
+            value = '${record.glucoseValue} ${record.glucoseUnit ?? 'mg/dL'}';
+            icon = Icons.water_drop_outlined;
+            color = Colors.purple;
+            bgColor = AppColors.bloodSugarBg;
+            break;
+          case HealthType.Weight:
+            title = 'Cân nặng';
+            value = '${record.weight} kg';
+            icon = Icons.monitor_weight_outlined;
+            color = AppColors.warning;
+            bgColor = AppColors.weightBg;
+            break;
+          case HealthType.Spo2:
+            title = 'SPO2';
+            value = '${record.spo2}%';
+            icon = Icons.air;
+            color = Colors.blue;
+            bgColor = AppColors.spo2Bg;
+            break;
+        }
+
+        final dateStr = DateFormat('HH:mm, dd/MM/yyyy').format(record.createdAt);
+        final displayStatus = _getShortStatus(record.result);
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: _buildTrendItem(
+            title,
+            dateStr,
+            value,
+            displayStatus,
+            color,
+            icon,
+            bgColor,
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -303,33 +349,93 @@ class _HomePageState extends State<HomePage> {
   ) {
     return Card(
       color: Colors.white,
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(12),
-        leading: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-          child: Icon(icon, color: color),
-        ),
-        title: Text(title, style: AppTextStyles.subtitle),
-        subtitle: Text(subtitle, style: AppTextStyles.bodySmall),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.withAlpha(25)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
           children: [
-            Text(
-              value,
-              style: AppTextStyles.subtitle.copyWith(
-                color: AppColors.textPrimary,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTextStyles.subtitle.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: AppTextStyles.bodySmall),
+                ],
               ),
             ),
-            Text(
-              status,
-              style: AppTextStyles.label.copyWith(color: AppColors.success),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 4,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    value,
+                    style: AppTextStyles.subtitle.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    status,
+                    textAlign: TextAlign.right,
+                    style: AppTextStyles.label.copyWith(
+                      color: _getStatusColor(status),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
   }
-}
 
+  Color _getStatusColor(String status) {
+    final lowerStatus = status.toLowerCase();
+    if (lowerStatus.contains('nghiêm trọng') ||
+        lowerStatus.contains('cao') ||
+        lowerStatus.contains('thấp') ||
+        lowerStatus.contains('bất thường')) {
+      return AppColors.error;
+    }
+    if (lowerStatus.contains('cảnh báo') || lowerStatus.contains('tiền')) {
+      return AppColors.warning;
+    }
+    return AppColors.success;
+  }
+
+  String _getShortStatus(String? status, {String defaultStatus = 'Bình thường'}) {
+    if (status == null || status.isEmpty) return defaultStatus;
+    final lowerStatus = status.toLowerCase();
+    if (lowerStatus.contains('nghiêm trọng')) return 'Nghiêm trọng';
+    if (lowerStatus.contains('bình thường')) return 'Bình thường';
+    if (lowerStatus.contains('cảnh báo')) return 'Cảnh báo';
+    if (lowerStatus.contains('tốt')) return 'Tốt';
+    if (lowerStatus.contains('ổn định')) return 'Ổn định';
+    if (lowerStatus.contains('cao')) return 'Cao';
+    if (lowerStatus.contains('thấp')) return 'Thấp';
+    return status;
+  }
+}

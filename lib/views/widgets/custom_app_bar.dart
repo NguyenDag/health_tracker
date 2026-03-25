@@ -21,13 +21,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthViewModel>().currentUser;
-    final displayName = (user?.fullName != null && user!.fullName.trim().isNotEmpty) ? user.fullName : 'Guest';
+    final displayName = (user?.fullName != null && user!.fullName.trim().isNotEmpty) ? user.fullName : 'Khách';
     final initials = (user?.firstName != null && user!.firstName!.isNotEmpty) 
         ? user.firstName![0].toUpperCase() 
-        : (displayName != 'Guest' ? displayName[0].toUpperCase() : '?');
+        : (displayName != 'Khách' ? displayName[0].toUpperCase() : '?');
 
     return AppBar(
-      title: Text('Hi, $displayName 👋', style: AppTextStyles.h2),
+      title: Text('Xin chào, $displayName', style: AppTextStyles.h2),
       centerTitle: false,
       leading: Padding(
         padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
