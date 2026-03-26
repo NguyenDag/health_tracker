@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
@@ -17,6 +18,8 @@ class StatsPage extends StatefulWidget {
 }
 
 class _StatsPageState extends State<StatsPage> {
+  int? _selectedIndex;
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +37,9 @@ class _StatsPageState extends State<StatsPage> {
   void _refreshData(HealthType type) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        setState(() {
+          _selectedIndex = null;
+        });
         context.read<StatsViewModel>().setActiveType(type, force: true);
       }
     });
@@ -116,7 +122,12 @@ class _StatsPageState extends State<StatsPage> {
           final isSelected = viewModel.selectedSegment == index;
           return Expanded(
             child: GestureDetector(
-              onTap: () => viewModel.setSegment(index),
+              onTap: () {
+                setState(() {
+                  _selectedIndex = null;
+                });
+                viewModel.setSegment(index);
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
@@ -162,6 +173,9 @@ class _StatsPageState extends State<StatsPage> {
                 PopupMenuButton<HealthType>(
                   offset: const Offset(0, 40),
                   onSelected: (HealthType type) {
+                    setState(() {
+                      _selectedIndex = null;
+                    });
                     viewModel.setActiveType(type);
                   },
                   itemBuilder: (BuildContext context) => HealthType.values.map((type) {
@@ -214,8 +228,27 @@ class _StatsPageState extends State<StatsPage> {
                         bottom: BorderSide(color: Colors.grey.withAlpha(50)),
                       ),
                     ),
-                    child: CustomPaint(
-                      painter: _RealChartPainter(viewModel.records, viewModel.activeType),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return GestureDetector(
+                          onPanUpdate: (details) {
+                            _handleTouch(details.localPosition.dx, constraints.maxWidth, viewModel.records.length);
+                          },
+                          onTapDown: (details) {
+                             _handleTouch(details.localPosition.dx, constraints.maxWidth, viewModel.records.length);
+                          },
+                          onPanEnd: (_) => setState(() => _selectedIndex = null),
+                          onTapUp: (_) => setState(() => _selectedIndex = null),
+                          onTapCancel: () => setState(() => _selectedIndex = null),
+                          child: CustomPaint(
+                            painter: _RealChartPainter(
+                              records: viewModel.records, 
+                              type: viewModel.activeType,
+                              selectedIndex: _selectedIndex,
+                            ),
+                          ),
+                        );
+                      }
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -227,13 +260,25 @@ class _StatsPageState extends State<StatsPage> {
                       Text(_formatChartDate(viewModel.records.first.createdAt, viewModel.selectedSegment),
                         style: AppTextStyles.label.copyWith(color: AppColors.textSecondary)),
                     ],
-                  )
+                  ),
                 ],
               ),
           ],
         ),
       ),
     );
+  }
+
+  void _handleTouch(double x, double width, int count) {
+    if (count < 2) return;
+    final xStep = width / (count - 1);
+    final index = (x / xStep).round().clamp(0, count - 1);
+    
+    if (_selectedIndex != index) {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   String _getHealthTypeName(HealthType type) {
@@ -279,7 +324,6 @@ class _StatsPageState extends State<StatsPage> {
 
   Widget _buildActionNeededCard(HealthRecord? record, StatsViewModel viewModel) {
     final status = _evaluateRecord(record, viewModel);
-
     final Color bgColor;
     final Color iconColor;
     final IconData icon;
@@ -370,7 +414,6 @@ class _StatsPageState extends State<StatsPage> {
 
   Widget _buildSmartNutritionCard(HealthRecord? record, StatsViewModel viewModel) {
     final status = _evaluateRecord(record, viewModel);
-
     String tag = 'LỜI KHUYÊN CHUNG';
     String tip = 'Duy trì chế độ ăn cân bằng với ngũ cốc nguyên hạt và rau xanh để ổn định các chỉ số sức khỏe.';
 
@@ -447,7 +490,6 @@ class _StatsPageState extends State<StatsPage> {
 
   Widget _buildActivityAdviceCard(HealthRecord? record, StatsViewModel viewModel) {
     final status = _evaluateRecord(record, viewModel);
-
     String tag = 'TIẾN ĐỘ HẰNG NGÀY';
     String advice = 'Vận động thể chất đều đặn như đi bộ 20 phút mỗi ngày có thể cải thiện đáng kể sức khỏe tim mạch.';
 
@@ -541,24 +583,25 @@ class _StatsPageState extends State<StatsPage> {
 class _RealChartPainter extends CustomPainter {
   final List<HealthRecord> records;
   final HealthType type;
+  final int? selectedIndex;
 
-  _RealChartPainter(this.records, this.type);
+  _RealChartPainter({
+    required this.records,
+    required this.type,
+    this.selectedIndex,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     if (records.isEmpty) return;
 
-    final paint = Paint()
-      ..color = AppColors.primary
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final path = Path();
+    const double labelSpace = 35.0;
+    const double topPadding = 15.0;
+    const double bottomPadding = 5.0;
     
-    // Reverse records to have chronological order (left to right)
+    final chartArea = Rect.fromLTWH(labelSpace, topPadding, size.width - labelSpace, size.height - topPadding - bottomPadding);
     final dataPoints = records.reversed.toList();
-    
+
     double getVal(HealthRecord r) {
       switch (type) {
         case HealthType.BP:
@@ -572,60 +615,140 @@ class _RealChartPainter extends CustomPainter {
       }
     }
 
-    // Find min and max for scaling
     double minVal = getVal(dataPoints[0]);
     double maxVal = getVal(dataPoints[0]);
-    
+
     for (var r in dataPoints) {
       double v = getVal(r);
       if (v < minVal) minVal = v;
       if (v > maxVal) maxVal = v;
     }
 
-    // Add some padding to min/max
     if (maxVal == minVal) {
       maxVal += 10;
       minVal -= 10;
     } else {
       double range = maxVal - minVal;
-      maxVal += range * 0.2;
-      minVal -= range * 0.2;
+      maxVal += range * 0.15;
+      minVal -= range * 0.15;
     }
 
-    double xStep = size.width / (dataPoints.length > 1 ? dataPoints.length - 1 : 1);
-    
-    for (int i = 0; i < dataPoints.length; i++) {
-      double x = i * xStep;
-      double normalizedY = (getVal(dataPoints[i]) - minVal) / (maxVal - minVal);
-      double y = size.height - (normalizedY * size.height);
+    if (minVal < 0) minVal = 0;
+
+    final gridPaint = Paint()
+      ..color = Colors.grey.withAlpha(30)
+      ..strokeWidth = 1;
+
+    const int gridSteps = 4;
+    for (int i = 0; i <= gridSteps; i++) {
+      double y = chartArea.bottom - (chartArea.height * i / gridSteps);
+      canvas.drawLine(Offset(chartArea.left, y), Offset(chartArea.right, y), gridPaint);
       
+      double valAtGrid = minVal + (maxVal - minVal) * i / gridSteps;
+      final textSpan = TextSpan(
+        text: valAtGrid.toStringAsFixed(0),
+        style: TextStyle(color: AppColors.textSecondary.withAlpha(120), fontSize: 10),
+      );
+      final textPainter = TextPainter(
+        text: textSpan,
+        textDirection: ui.TextDirection.ltr,
+      );
+      textPainter.layout();
+      textPainter.paint(canvas, Offset(chartArea.left - textPainter.width - 6, y - textPainter.height / 2));
+    }
+
+    final xStep = chartArea.width / (dataPoints.length > 1 ? dataPoints.length - 1 : 1);
+    final points = <Offset>[];
+
+    for (int i = 0; i < dataPoints.length; i++) {
+      double x = chartArea.left + i * xStep;
+      double normalizedY = (getVal(dataPoints[i]) - minVal) / (maxVal - minVal);
+      double y = chartArea.bottom - (normalizedY * chartArea.height);
+      points.add(Offset(x, y));
+    }
+
+    final linePaint = Paint()
+      ..color = AppColors.primary
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final path = Path();
+    for (int i = 0; i < points.length; i++) {
       if (i == 0) {
-        path.moveTo(x, y);
+        path.moveTo(points[i].dx, points[i].dy);
       } else {
-        path.lineTo(x, y);
+        path.lineTo(points[i].dx, points[i].dy);
       }
     }
+    canvas.drawPath(path, linePaint);
 
-    canvas.drawPath(path, paint);
-    
-    // Draw latest point dot
-    final lastX = (dataPoints.length - 1) * xStep;
-    final lastValNormalized = (getVal(dataPoints.last) - minVal) / (maxVal - minVal);
-    final lastY = size.height - (lastValNormalized * size.height);
-
-    final dotPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
+    final dotPaint = Paint()..style = PaintingStyle.fill;
     final dotBorderPaint = Paint()
-      ..color = AppColors.primary
-      ..strokeWidth = 2
+      ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
+
+    for (int i = 0; i < points.length; i++) {
+      final isSelected = selectedIndex == i;
+      dotPaint.color = isSelected ? AppColors.primary : Colors.white;
+      dotBorderPaint.color = AppColors.primary;
+      canvas.drawCircle(points[i], isSelected ? 5 : 3, dotPaint);
+      canvas.drawCircle(points[i], isSelected ? 5 : 3, dotBorderPaint);
+    }
+
+    if (selectedIndex != null && selectedIndex! < points.length) {
+      final selectedPoint = points[selectedIndex!];
+      final record = dataPoints[selectedIndex!];
+      final val = getVal(record);
+
+      final guidePaint = Paint()
+        ..color = AppColors.primary.withAlpha(100)
+        ..strokeWidth = 1
+        ..style = PaintingStyle.stroke;
       
-    canvas.drawCircle(Offset(lastX, lastY), 4, dotPaint);
-    canvas.drawCircle(Offset(lastX, lastY), 4, dotBorderPaint);
+      double dashHeight = 5, dashSpace = 3, startY = chartArea.top;
+      while (startY < chartArea.bottom) {
+        canvas.drawLine(Offset(selectedPoint.dx, startY), Offset(selectedPoint.dx, startY + dashHeight), guidePaint);
+        startY += dashHeight + dashSpace;
+      }
+
+      String text = val.toStringAsFixed(type == HealthType.Sugar ? 1 : 0);
+      if (type == HealthType.BP) {
+        text = '${record.systolic}/${record.diastolic}';
+      }
+
+      final textSpan = TextSpan(
+        text: text,
+        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+      );
+      final textPainter = TextPainter(
+        text: textSpan,
+        textDirection: ui.TextDirection.ltr,
+      );
+      textPainter.layout();
+
+      final bubbleWidth = textPainter.width + 12;
+      final bubbleHeight = textPainter.height + 8;
+      double bubbleX = selectedPoint.dx - bubbleWidth / 2;
+      double bubbleY = selectedPoint.dy - bubbleHeight - 10;
+
+      if (bubbleX < 0) bubbleX = 0;
+      if (bubbleX + bubbleWidth > size.width) bubbleX = size.width - bubbleWidth;
+      if (bubbleY < 0) bubbleY = selectedPoint.dy + 10;
+
+      final bubblePath = Path()
+        ..addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(bubbleX, bubbleY, bubbleWidth, bubbleHeight), const Radius.circular(6)));
+      
+      canvas.drawShadow(bubblePath, Colors.black, 3, false);
+      canvas.drawPath(bubblePath, Paint()..color = AppColors.primary);
+      textPainter.paint(canvas, Offset(bubbleX + 6, bubbleY + 4));
+    }
   }
 
   @override
-  bool shouldRepaint(covariant _RealChartPainter oldDelegate) => 
-    oldDelegate.records != records || oldDelegate.type != type;
+  bool shouldRepaint(covariant _RealChartPainter oldDelegate) =>
+      oldDelegate.records != records ||
+      oldDelegate.type != type ||
+      oldDelegate.selectedIndex != selectedIndex;
 }
